@@ -1,0 +1,76 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.geometry.Insets?>
+<?import javafx.scene.Cursor?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.animation.TranslateTransition?>
+<?import javafx.util.Duration?>
+
+<AnchorPane xmlns:fx="http://javafx.com/fxml" fx:controller="com.progetto.ingsw.trukscout24.Controller.RegistrazioneController"
+            prefHeight="500.0" prefWidth="600.0" fx:id="rootPane">
+
+    <!-- MAIN CONTENT - Form Centrato con effetto ombra -->
+    <StackPane style="-fx-background-color: #f1f1f1;" AnchorPane.leftAnchor="50" AnchorPane.rightAnchor="50" AnchorPane.topAnchor="50">
+        <VBox alignment="CENTER" prefHeight="400.0" prefWidth="300.0" spacing="20.0" style="-fx-background-color: white; -fx-background-radius: 10; -fx-padding: 20; -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);">
+
+            <!-- Logo e Titolo -->
+            <VBox alignment="CENTER" spacing="5.0">
+                <Label fx:id="logoLabel" style="-fx-font-size: 28;" text="🚛" onMouseClicked="#goToHome" onMousePressed="#handleMousePressed" onMouseDragged="#handleMouseDragged" />
+                <Label style="-fx-font-size: 18; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="TrukScout24" textAlignment="CENTER" />
+                <Label style="-fx-font-size: 12; -fx-text-fill: #666666;" text="Crea il tuo account" textAlignment="CENTER" />
+            </VBox>
+
+            <!-- Form di registrazione con una spaziatura migliorata -->
+            <VBox prefWidth="250.0" spacing="15.0">
+
+                <!-- Campo Nome -->
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="Nome:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                    <TextField fx:id="nomeField" promptText="Nome" style="-fx-padding: 8; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 12px;" />
+                </VBox>
+
+                <!-- Campo Cognome -->
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="Cognome:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                    <TextField fx:id="cognomeField" promptText="Cognome" style="-fx-padding: 8; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 12px;" />
+                </VBox>
+
+                <!-- Campo Email -->
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="Email:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                    <TextField fx:id="emailField" promptText="Email" style="-fx-padding: 8; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 12px;" />
+                </VBox>
+
+                <!-- Campo Password -->
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="Password:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                    <PasswordField fx:id="passwordField" promptText="Password" style="-fx-padding: 8; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 12px;" />
+                </VBox>
+
+                <!-- Campo Conferma Password -->
+                <VBox alignment="CENTER" spacing="5.0">
+                    <Label text="Conferma Password:" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #333;" />
+                    <PasswordField fx:id="confermaPasswordField" promptText="Conferma Password" style="-fx-padding: 8; -fx-border-color: #ddd; -fx-border-radius: 8; -fx-background-radius: 8; -fx-font-size: 12px;" />
+                </VBox>
+
+            </VBox>
+
+            <!-- Pulsante di registrazione con effetto hover -->
+            <HBox alignment="CENTER">
+                <Button text="Registrati"
+                        fx:id="registerButton"
+                        onAction="#onRegisterClick"
+                        style="-fx-background-color: #FF6B00; -fx-text-fill: white; -fx-font-size: 14px; -fx-pref-width: 200px; -fx-cursor: hand; -fx-background-radius: 8; -fx-font-weight: bold;"
+                        onMouseEntered="#handleMouseEntered" onMouseExited="#handleMouseExited" />
+            </HBox>
+
+            <!-- Link per la registrazione ora -->
+            <VBox alignment="CENTER" spacing="10">
+                <Label style="-fx-font-size: 12px; -fx-text-fill: #666666;" text="Hai già un account?" />
+                <Hyperlink fx:id="loginLink" onAction="#handleGoToLogin" style="-fx-font-size: 12px; -fx-font-weight: bold; -fx-text-fill: #FF6B00; -fx-cursor: hand;" text="Accedi ora" />
+            </VBox>
+
+        </VBox>
+    </StackPane>
+</AnchorPane>
