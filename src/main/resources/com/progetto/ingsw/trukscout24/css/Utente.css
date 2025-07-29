@@ -1,0 +1,135 @@
+.root {
+    -fx-font-family: "Segoe UI", sans-serif;
+    -fx-font-size: 14px;
+    -fx-background-color: #f3f4f6;
+}
+
+.main-container {
+    -fx-padding: 40 20 40 20;
+    -fx-alignment: TOP_CENTER;
+}
+/* Header */
+.header-section {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35, #f7931e);
+    -fx-background-radius: 12;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
+}
+
+.main-title {
+    -fx-text-fill: white;
+    -fx-font-size: 26px;
+    -fx-font-weight: bold;
+}
+
+.logout-btn {
+    -fx-background-color: white;
+    -fx-text-fill: #3b82f6;
+    -fx-background-radius: 20;
+    -fx-padding: 8 16;
+    -fx-font-weight: bold;
+}
+
+.logout-btn:hover {
+    -fx-background-color: #dbeafe;
+}
+
+/* Card sections */
+.profile-section, .bookings-section, .admin-section {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+}
+
+/* Section titles */
+.section-title {
+    -fx-font-size: 20px;
+    -fx-text-fill: #1f2937;
+    -fx-font-weight: bold;
+}
+
+/* Labels & Inputs */
+.info-label, .form-label {
+    -fx-text-fill: #374151;
+    -fx-font-weight: 600;
+}
+
+.info-field, .form-field {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+    -fx-padding: 10;
+    -fx-font-size: 13px;
+}
+
+.info-field:focused, .form-field:focused {
+    -fx-border-color: #3b82f6;
+    -fx-effect: dropshadow(gaussian, rgba(59,130,246,0.2), 5, 0, 0, 0);
+}
+
+.combo-box {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-background-radius: 6;
+}
+
+.combo-box:focused {
+    -fx-border-color: #3b82f6;
+}
+
+/* TextArea */
+.form-textarea {
+    -fx-background-color: #f9fafb;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 6;
+    -fx-padding: 10;
+}
+
+/* Buttons */
+.primary-btn {
+    -fx-background-color: #3b82f6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+    -fx-cursor: hand;
+}
+
+.primary-btn:hover {
+    -fx-background-color: #2563eb;
+}
+
+.danger-btn {
+    -fx-background-color: #ef4444;
+    -fx-text-fill: white;
+    -fx-background-radius: 8;
+    -fx-padding: 10 20;
+}
+
+.danger-btn:hover {
+    -fx-background-color: #dc2626;
+}
+
+/* Tabella */
+.bookings-table {
+    -fx-background-color: white;
+    -fx-border-color: #d1d5db;
+    -fx-border-radius: 8;
+}
+
+.table-row-cell:hover {
+    -fx-background-color: #f3f4f6;
+}
+
+.status-message {
+    -fx-text-fill: green;
+    -fx-font-weight: bold;
+}
+
+.form-subtitle {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #1f2937;
+}

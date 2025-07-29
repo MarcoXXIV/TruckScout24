@@ -1,0 +1,336 @@
+/* ================================
+   VARIABILI E CONFIGURAZIONI GLOBALI
+   ================================ */
+.root {
+    -fx-font-family: "Segoe UI", "Inter", "SF Pro Display", "Roboto", sans-serif;
+    -fx-font-smoothing-type: lcd;
+}
+
+/* ================================
+   COLORI PRINCIPALI
+   ================================ */
+.main-container {
+    -fx-background-color: linear-gradient(from 0% 0% to 0% 100%, #f8fafc 0%, #f1f5f9 100%);
+}
+
+/* ================================
+   HEADER E NAVIGAZIONE
+   ================================ */
+.header-container {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35 0%, #f7931e 100%);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);
+    -fx-border-color: transparent transparent #e2e8f0 transparent;
+    -fx-border-width: 0 0 1 0;
+}
+
+.nav-bar {
+    -fx-background-color: transparent;
+    -fx-min-height: 70;
+}
+
+.logo-section {
+    -fx-background-color: transparent;
+    -fx-cursor: hand;
+}
+
+
+.app-icon {
+    -fx-text-fill: #ffffff;
+    -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 4, 0, 0, 1);
+}
+
+.app-title {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 700;
+}
+
+.page-subtitle {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-weight: 500;
+}
+
+/* ================================
+   STATISTICHE E AZIONI
+   ================================ */
+.stats-container {
+    -fx-background-color: rgba(255, 255, 255, 0.15);
+    -fx-background-radius: 8;
+    -fx-padding: 12 16;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.1), 6, 0, 0, 2);
+    -fx-min-width: 90;
+    -fx-max-width: 90;
+    -fx-border-color: rgba(255, 255, 255, 0.2);
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.stats-label {
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-font-weight: 600;
+}
+
+.stats-value {
+    -fx-text-fill: #ffffff;
+    -fx-font-weight: 800;
+}
+
+.header-separator {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-pref-height: 40;
+    -fx-pref-width: 1;
+}
+
+.clear-button,
+.primary-button,
+.remove-button,
+.truck-card {
+    -fx-transition: all 0.2s ease-in-out;
+}
+
+.clear-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6;
+    -fx-padding: 8 14;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.3), 4, 0, 0, 2);
+    -fx-cursor: hand;
+}
+
+.clear-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #b91c1c 100%);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 6, 0, 0, 3);
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+}
+
+/* ================================
+   AREA CONTENUTO PRINCIPALE
+   ================================ */
+.content-scroll {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-hbar-policy: never;
+}
+
+.content-scroll .viewport {
+    -fx-background-color: transparent;
+}
+
+.content-scroll .scroll-bar:vertical {
+    -fx-background-color: #f8fafc;
+    -fx-border-color: transparent;
+    -fx-background-radius: 8;
+    -fx-pref-width: 10;
+}
+
+.content-scroll .scroll-bar:vertical .track {
+    -fx-background-color: #e2e8f0;
+    -fx-background-radius: 8;
+}
+
+.content-scroll .scroll-bar:vertical .thumb {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35 0%, #f7931e 100%);
+    -fx-background-radius: 6;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.2), 2, 0, 0, 1);
+}
+
+.content-scroll .scroll-bar:vertical .thumb:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e55a2b 0%, #e6821a 100%);
+}
+
+/* ================================
+   CONTENUTO E SEZIONI
+   ================================ */
+.content-wrapper,
+.content-header {
+    -fx-background-color: transparent;
+}
+
+.section-icon {
+    -fx-text-fill: #ff6b35;
+}
+
+.section-title {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 700;
+}
+
+/* ================================
+   LISTA CAMION E CARD
+   ================================ */
+.trucks-list {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-background-insets: 0;
+    -fx-padding: 0;
+}
+
+.trucks-list .list-cell {
+    -fx-background-color: transparent;
+    -fx-border-color: transparent;
+    -fx-padding: 0 0 18 0;
+}
+
+.trucks-list .list-cell:selected,
+.trucks-list .list-cell:focused {
+    -fx-background-color: transparent;
+}
+
+.truck-card {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 12;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.truck-card:hover {
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 6);
+    -fx-border-color: #cbd5e1;
+    -fx-translate-y: -2;
+}
+
+.truck-image {
+    -fx-text-fill: #ff6b35;
+    -fx-font-size: 38px;
+    -fx-padding: 8 16 8 8;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.2), 2, 0, 0, 1);
+}
+
+.truck-title {
+    -fx-text-fill: #1e293b;
+    -fx-font-size: 18px;
+    -fx-font-weight: 700;
+}
+
+.truck-info {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 13px;
+    -fx-font-weight: 500;
+}
+
+.truck-price {
+    -fx-text-fill: #ff6b35;
+    -fx-font-size: 20px;
+    -fx-font-weight: 800;
+}
+
+.truck-date {
+    -fx-text-fill: #94a3b8;
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+}
+
+.remove-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 6;
+    -fx-padding: 8 12;
+    -fx-font-size: 11px;
+    -fx-font-weight: 600;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.25), 3, 0, 0, 2);
+    -fx-cursor: hand;
+    -fx-min-width: 80;
+}
+
+.remove-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #b91c1c 100%);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.35), 4, 0, 0, 3);
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+}
+
+/* ================================
+   STATO VUOTO
+   ================================ */
+.empty-state {
+    -fx-background-color: #ffffff;
+    -fx-background-radius: 16;
+    -fx-border-color: #e2e8f0;
+    -fx-border-radius: 16;
+    -fx-border-width: 1;
+    -fx-padding: 60 40;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 16, 0, 0, 6);
+    -fx-max-width: 450;
+}
+
+.empty-icon {
+    -fx-text-fill: #cbd5e1;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 0, 2);
+}
+
+.empty-title {
+    -fx-text-fill: #1e293b;
+    -fx-font-weight: 700;
+}
+
+.empty-description {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 14px;
+    -fx-font-weight: 500;
+    -fx-text-alignment: center;
+    -fx-line-spacing: 3;
+}
+
+.primary-button {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35 0%, #f7931e 100%);
+    -fx-text-fill: #ffffff;
+    -fx-background-radius: 10;
+    -fx-padding: 12 24;
+    -fx-font-weight: 700;
+    -fx-border-color: transparent;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.3), 8, 0, 0, 3);
+    -fx-cursor: hand;
+}
+
+.primary-button:hover {
+    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #e55a2b 0%, #e6821a 100%);
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 12, 0, 0, 4);
+    -fx-scale-y: 1.05;
+    -fx-scale-x: 1.05;
+}
+
+/* ================================
+   FOOTER
+   ================================ */
+.footer {
+    -fx-background-color: #2c3e50;
+    -fx-border-color: #34495e transparent transparent transparent;
+    -fx-border-width: 1 0 0 0;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, -2);
+}
+
+.footer-text {
+    -fx-text-fill: #ecf0f1;
+    -fx-font-size: 12px;
+    -fx-font-weight: 500;
+}
+
+.footer-separator {
+    -fx-background-color: #556b7d;
+    -fx-pref-height: 14;
+    -fx-pref-width: 1;
+}
+
+/* ================================
+   RESPONSIVE ADJUSTMENTS
+   ================================ */
+@media (max-width: 768px) {
+    .nav-bar {
+        -fx-spacing: 12;
+    }
+
+    .stats-container {
+        -fx-min-width: 80;
+        -fx-padding: 10 12;
+    }
+
+    .truck-card {
+        -fx-padding: 16;
+    }
+}

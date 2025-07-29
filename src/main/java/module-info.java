@@ -3,6 +3,7 @@ module com.progetto.ingsw.trukscout24 {
     requires javafx.fxml;
 
     requires org.kordamp.bootstrapfx.core;
+    requires java.sql;
 
     opens com.progetto.ingsw.trukscout24 to javafx.fxml;
     exports com.progetto.ingsw.trukscout24;

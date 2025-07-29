@@ -13,6 +13,7 @@ import java.util.ResourceBundle;
 
 public class HomeController implements Initializable {
 
+    public Button userButton;
     // Header elements
     @FXML private TextField mainSearchField;
     @FXML private Button mainSearchButton;
@@ -110,6 +111,11 @@ public class HomeController implements Initializable {
     }
 
     // ==================== USER ACTIONS ====================
+
+    @FXML
+    private void userClick(MouseEvent event) throws Exception {
+        sceneHandler.setUtenteScene();
+    }
 
     @FXML
     private void wishlistClick(MouseEvent event) throws Exception {

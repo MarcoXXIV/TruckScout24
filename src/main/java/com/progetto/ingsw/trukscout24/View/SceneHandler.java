@@ -20,7 +20,7 @@ public class SceneHandler {
     private final static String FXML_PATH = RESOURCE_PATH + "fxmls/";
     //private final static String CSS_PATH = RESOURCE_PATH + "css/";
     //private final static String FONTS_PATH = RESOURCE_PATH + "fonts/";
-    private Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    //private Alert alert = new Alert(Alert.AlertType.INFORMATION);
     private String theme = "light";
     private Scene scene;
     private Stage stage;
@@ -62,10 +62,10 @@ public class SceneHandler {
         return instance;
     }
 
-    /*
+/*
     private List<String> loadCSS() {
         List<String> resources = new ArrayList<>();
-        for (String style : List.of(CSS_PATH + theme + ".css", CSS_PATH + "fonts.css", CSS_PATH + "style.css")) {
+        for (String style : List.of(CSS_PATH + theme + ".css", CSS_PATH + "fonts.css", CSS_PATH + "Style.css")) {
             String resource = Objects.requireNonNull(SceneHandler.class.getResource(style)).toExternalForm();
             resources.add(resource);
         }
@@ -79,7 +79,7 @@ public class SceneHandler {
         for(String resource : resources)
             scene.getStylesheets().add(resource);
     }
-
+/*
     private void loadFonts() {
         for (String font : List.of(FONTS_PATH + "Roboto/Roboto-Medium.ttf")) {
             Font.loadFont(Objects.requireNonNull(SceneHandler.class.getResource(font)).toExternalForm(), 10);
@@ -140,6 +140,9 @@ public class SceneHandler {
         loadFXML("Registrazione.fxml");
     }
 
+    public void setUtenteScene() throws Exception {
+        loadFXML("Utente.fxml");
+    }
 
     public void setRecoveryScene() throws Exception {
         //loadFXML("PasswordDimenticata.fxml");
@@ -149,7 +152,8 @@ public class SceneHandler {
     public void setTruckDetailsScene() {
     }
 
-    public void setWishlistScene() {
+    public void setWishlistScene() throws Exception {
+        loadFXML("Wishlist.fxml");
     }
 }
 

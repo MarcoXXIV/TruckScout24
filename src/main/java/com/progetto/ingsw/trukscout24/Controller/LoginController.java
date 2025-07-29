@@ -8,10 +8,12 @@ import javafx.scene.control.*;
 import javafx.scene.input.KeyCode;
 import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.VBox;
 import javafx.util.Duration;
 
 public class LoginController {
 
+    public VBox formBox;
     @FXML private TextField emailField;
     @FXML private PasswordField passwordField;
     @FXML private TextField passwordTextField;

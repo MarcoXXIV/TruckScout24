@@ -39,17 +39,30 @@
         <Region HBox.hgrow="ALWAYS"/>
 
         <!-- User Actions -->
+        <!-- User Actions -->
         <HBox spacing="15.0" alignment="CENTER">
+
+            <!-- 👤 User Icon Button -->
+            <Button fx:id="userButton" text="👤"
+                    style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 15;"
+                    onMouseClicked="#userClick"/>
+
+            <!-- Wishlist -->
             <Button fx:id="wishlistButton" text="♥ Wishlist"
                     style="-fx-background-color: rgba(255,255,255,0.2); -fx-text-fill: white; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 15;"
                     onMouseClicked="#wishlistClick"/>
+
+            <!-- Login -->
             <Button fx:id="loginButton" text="Accedi"
                     style="-fx-background-color: white; -fx-text-fill: #ff6b35; -fx-font-weight: bold; -fx-background-radius: 20; -fx-padding: 8 20;"
                     onMouseClicked="#loginClick"/>
+
+            <!-- Register -->
             <Button fx:id="registerButton" text="Registrati"
                     style="-fx-background-color: transparent; -fx-text-fill: white; -fx-font-weight: bold; -fx-border-color: white; -fx-border-radius: 20; -fx-background-radius: 20; -fx-padding: 8 15;"
                     onMouseClicked="#registrazioneClick"/>
         </HBox>
+
     </HBox>
 
     <!-- MAIN CONTENT -->
