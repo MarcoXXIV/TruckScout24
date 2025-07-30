@@ -20,7 +20,7 @@ public class SceneHandler {
     private final static String FXML_PATH = RESOURCE_PATH + "fxmls/";
     //private final static String CSS_PATH = RESOURCE_PATH + "css/";
     //private final static String FONTS_PATH = RESOURCE_PATH + "fonts/";
-    //private Alert alert = new Alert(Alert.AlertType.INFORMATION);
+    private Alert alert = new Alert(Alert.AlertType.INFORMATION);
     private String theme = "light";
     private Scene scene;
     private Stage stage;
@@ -33,7 +33,7 @@ public class SceneHandler {
         if(this.stage != null)
             return;
         this.stage = primaryStage;
-        //this.stage.getIcons().add(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Loghi/Loghi/icon/piston.png"))));
+        this.stage.getIcons().add(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Icone/TruckScout24.png"))));
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_PATH + "Home.fxml"));
         this.scene = new Scene(loader.load(), null);
         this.stage.setScene(scene);
@@ -87,15 +87,15 @@ public class SceneHandler {
     }
     */
 
-    /*
+
     public void showAlert(String Head, String message, int type) {
         alert = new Alert(Alert.AlertType.INFORMATION);
-        stage.getIcons().add(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Loghi/Loghi/icon/piston.png"))));
+        stage.getIcons().add(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Icone/TruckScout24.png"))));
         ImageView icon = new ImageView();
         if (type == 1){
-            icon = new ImageView(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Loghi/Loghi/information_alert.png"))));
+            icon = new ImageView(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Icone/information_alert.png"))));
         } else if (type == 0) {
-            icon = new ImageView(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Loghi/Loghi/denied_alert.png"))));
+            icon = new ImageView(new Image(Objects.requireNonNull(HelloApplication.class.getResourceAsStream("Icone/denied_alert.png"))));
         }
         icon.setFitWidth(60);
         icon.setFitHeight(60);
@@ -105,7 +105,7 @@ public class SceneHandler {
         alert.setContentText(message);
         alert.show();
     }
-
+    /*
     public void changeTheme() {
         if("dark".equals(theme))
             theme = "light";
