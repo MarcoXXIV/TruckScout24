@@ -94,19 +94,18 @@ public class LoginController {
         }
     }
 
-
     @FXML
-    private void handleForgotPassword(ActionEvent event) throws Exception {
+    private void PasswordDimenticataClick(MouseEvent event) throws Exception {
         sceneHandler.setRecoveryScene();
     }
 
     @FXML
-    private void goToHome() throws Exception {
+    private void HomeClick(MouseEvent event) throws Exception {
         SceneHandler.getInstance().setHomeScene();
     }
 
     @FXML
-    private void handleRegister(ActionEvent event) throws Exception {
+    private void RegistrazioneClick(MouseEvent event) throws Exception {
         sceneHandler.setRegistrationScene();
     }
 

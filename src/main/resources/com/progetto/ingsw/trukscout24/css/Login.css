@@ -1,6 +1,50 @@
 .background-pane {
-    -fx-background-color: #f8f9fa;
+    -fx-background-color: transparent;
     -fx-alignment: center;
+    -fx-background-image: url("../Icone/SfondoLoginRegistrazione.png");
+    -fx-background-size: cover;
+    -fx-background-position: center;
+}
+
+/* Logo container - trasparente */
+.logo-container {
+    -fx-background-color: transparent;
+    -fx-padding: 0 0 15 0;
+}
+
+/* Form box - solo la parte centrale bianca */
+.form-box {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 25 30 25 30; /* top right bottom left */
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 3);
+    -fx-max-width: 350px;
+}
+
+/* Sezione registrazione - trasparente */
+.register-section {
+    -fx-background-color: transparent;
+    -fx-padding: 0;
+}
+
+/* Form fields container */
+.form-fields {
+    -fx-spacing: 12;
+}
+
+.button {
+    -fx-background-color: linear-gradient(to right, #ff6b35, #ff7635);
+    -fx-background-radius: 6;
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-font-size: 14px;
+    -fx-padding: 10;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.2), 4, 0, 0, 2);
+}
+
+.button:hover {
+    -fx-background-color: linear-gradient(to right, #ff4500, #ff5500);
 }
 
 .logo {
@@ -20,6 +64,12 @@
     -fx-text-fill: #666666;
 }
 
+/* Stile per le label nella sezione registrazione */
+.register-section .label-small {
+    -fx-text-fill: #888888; /* Colore più chiaro per lo sfondo trasparente */
+    -fx-font-weight: normal;
+}
+
 .text-field,
 .password-field {
     -fx-pref-width: 250px;
@@ -33,15 +83,10 @@
     -fx-text-fill: #333;
 }
 
-.button {
-    -fx-background-color: linear-gradient(to right, #ff6b35, #ff7635);
-    -fx-background-radius: 6;
-    -fx-text-fill: white;
-    -fx-font-weight: bold;
-    -fx-font-size: 14px;
-    -fx-padding: 10;
-    -fx-cursor: hand;
-    -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.2), 4, 0, 0, 2);
+.text-field:focused,
+.password-field:focused {
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 2px;
 }
 
 .hyperlink {
@@ -51,9 +96,22 @@
     -fx-cursor: hand;
 }
 
-.form-box {
-    -fx-background-color: white;
-    -fx-background-radius: 10;
-    -fx-padding: 30 25 30 25; /* top right bottom left */
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 3);
+.hyperlink:hover {
+    -fx-underline: true;
+    -fx-text-fill: #ff4500;
+}
+
+/* Stile specifico per il link di registrazione */
+.register-section .hyperlink {
+    -fx-text-fill: #ff6b35;
+    -fx-font-size: 12px;
+}
+
+/* Label di errore */
+.error-label {
+    -fx-text-fill: #d32f2f;
+    -fx-font-size: 11px;
+    -fx-background-color: rgba(211, 47, 47, 0.1);
+    -fx-background-radius: 4;
+    -fx-padding: 8;
 }

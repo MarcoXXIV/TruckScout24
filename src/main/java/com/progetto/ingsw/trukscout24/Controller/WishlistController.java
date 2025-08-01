@@ -9,34 +9,27 @@ import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.FlowPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
-import javafx.util.Callback;
 import javafx.util.Duration;
 
 import java.net.URL;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
 
 public class WishlistController implements Initializable {
 
     @FXML
-    private Label truckCountLabel;
-    @FXML
     private Button clearAllButton;
     @FXML
-    private ListView<Camion> wishlistView;
+    private FlowPane trucksFlowPane;
     @FXML
     private VBox emptyStateBox;
     @FXML
     private Button startBrowsingButton;
-    @FXML
-    private HBox logoSection;
-    @FXML
-    private Label appTitleLabel;
 
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
     private ObservableList<Camion> allTrucks;
@@ -44,112 +37,109 @@ public class WishlistController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         setupData();
-        setupListView();
+        setupFlowPane();
         updateUI();
     }
-
 
     private void setupData() {
         allTrucks = FXCollections.observableArrayList();
         addSampleData();
     }
 
-    private void setupListView() {
-        wishlistView.setItems(allTrucks);
-        wishlistView.setCellFactory(createTruckCellFactory());
-        wishlistView.getStyleClass().add("truck-listview");
-    }
+    private void setupFlowPane() {
+        // Configurazione per esattamente 2 card molto grandi per riga
+        // 2 card da 750px + gap di 60px = 1560px totale
+        trucksFlowPane.setPrefWrapLength(1600.0);
+        trucksFlowPane.setHgap(60.0);
+        trucksFlowPane.setVgap(40.0);
+        trucksFlowPane.getStyleClass().add("trucks-flow");
 
-    private Callback<ListView<Camion>, ListCell<Camion>> createTruckCellFactory() {
-        return listView -> new ListCell<Camion>() {
-            @Override
-            protected void updateItem(Camion camion, boolean empty) {
-                super.updateItem(camion, empty);
-
-                if (empty || camion == null) {
-                    setGraphic(null);
-                } else {
-                    VBox card = createTruckCard(camion);
-                    setGraphic(card);
-
-                    // Animazione di entrata
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(300), card);
-                    fadeIn.setFromValue(0.0);
-                    fadeIn.setToValue(1.0);
-                    fadeIn.play();
-                }
-            }
-        };
+        // Forza l'allineamento al centro
+        trucksFlowPane.setStyle("-fx-alignment: center;");
     }
 
     private VBox createTruckCard(Camion camion) {
-        VBox card = new VBox(15);
+        // Container principale della card - LAYOUT VERTICALE
+        VBox card = new VBox();
         card.getStyleClass().add("truck-card");
 
-        // Header con HBox
-        HBox headerBox = new HBox(18);
-        headerBox.setStyle("-fx-alignment: center-left;");
+        // Dimensioni molto grandi per avere solo 2 per riga
+        card.setPrefWidth(750);
+        card.setMaxWidth(750);
+        card.setMinWidth(750);
+        card.setPrefHeight(420);
+        card.setMinHeight(420);
 
-        // Spacer iniziale (padding sinistro)
-        Region leftSpacer = new Region();
-        leftSpacer.setPrefWidth(25);
-        HBox.setHgrow(leftSpacer, Priority.NEVER);
+        // Header con il cuore posizionato in alto a destra
+        HBox cardHeader = new HBox();
+        cardHeader.getStyleClass().add("card-header");
+        cardHeader.setStyle("-fx-alignment: top-right; -fx-padding: 0 0 10 0;");
 
-        // Immagine camion
+        // Spacer per spingere il cuore a destra
+        Region spacer = new Region();
+        HBox.setHgrow(spacer, Priority.ALWAYS);
+
+        // Pulsante cuore più grande e visibile
+        Button heartButton = new Button("❤️");
+        heartButton.getStyleClass().add("heart-button");
+        heartButton.setTooltip(new Tooltip("Rimuovi dai preferiti"));
+        heartButton.setOnAction(e -> removeCamion(camion));
+
+        // Effetti hover più evidenti per il cuore
+        heartButton.setOnMouseEntered(e -> {
+            heartButton.setText("💔");
+            heartButton.setStyle("-fx-text-fill: #ef4444;");
+        });
+        heartButton.setOnMouseExited(e -> {
+            heartButton.setText("❤️");
+            heartButton.setStyle("-fx-text-fill: #ff6b35;");
+        });
+
+        cardHeader.getChildren().addAll(spacer, heartButton);
+
+        // Immagine del camion - MOLTO PIÙ GRANDE E CENTRATA
+        VBox imageContainer = new VBox();
+        imageContainer.setStyle("-fx-alignment: center; -fx-padding: 10 0 20 0;");
+
         Label imageLabel = new Label("🚛");
         imageLabel.getStyleClass().add("truck-image");
+        imageContainer.getChildren().add(imageLabel);
 
-        // Dettagli camion
-        VBox detailsBox = new VBox(8);
-        Label titleLabel = new Label(camion.modello());
+        // Contenuto sotto l'immagine - CENTRATO E PIÙ GRANDE
+        VBox contentBox = new VBox();
+        contentBox.getStyleClass().add("truck-content");
+
+        // Titolo molto più grande
+        Label titleLabel = new Label(camion.nome() + " " + camion.modello());
         titleLabel.getStyleClass().add("truck-title");
 
+        // Info con icone più visibili
         Label infoLabel = new Label(String.format("📅 %s • 🛣️ %,d km",
                 camion.anno(), camion.kilometri().intValue()));
         infoLabel.getStyleClass().add("truck-info");
 
+        // Prezzo ENORME e ben visibile
         Label priceLabel = new Label("💰 €" + String.format("%,.0f", camion.prezzo()));
         priceLabel.getStyleClass().add("truck-price");
 
+        // Categoria più visibile
         Label categoryLabel = new Label("📂 " + camion.categoria());
         categoryLabel.getStyleClass().add("truck-category");
 
-        detailsBox.getChildren().addAll(titleLabel, infoLabel, priceLabel, categoryLabel);
+        // Data più visibile
+        Label dateLabel = new Label("🕒 Aggiunto oggi");
+        dateLabel.getStyleClass().add("truck-date");
 
-        // Spacer centrale
-        Region centerSpacer = new Region();
-        centerSpacer.setPrefWidth(20);
-        HBox.setHgrow(centerSpacer, Priority.ALWAYS);
+        contentBox.getChildren().addAll(titleLabel, infoLabel, priceLabel, categoryLabel, dateLabel);
 
-        // Pulsante rimozione
-        VBox buttonsBox = new VBox(12);
-        buttonsBox.setStyle("-fx-alignment: center-right;");
-        Button removeButton = new Button("🗑️");
-        removeButton.getStyleClass().add("remove-button");
-        removeButton.setTooltip(new Tooltip("Rimuovi dalla wishlist"));
-        removeButton.setOnAction(e -> removeCamion(camion));
-        buttonsBox.getChildren().add(removeButton);
+        // Assemblaggio finale - LAYOUT VERTICALE
+        card.getChildren().addAll(cardHeader, imageContainer, contentBox);
 
-        // Spacer finale (padding destro)
-        Region rightSpacer = new Region();
-        rightSpacer.setPrefWidth(25);
-        HBox.setHgrow(rightSpacer, Priority.NEVER);
-
-        headerBox.getChildren().addAll(
-                leftSpacer,
-                imageLabel,
-                detailsBox,
-                centerSpacer,
-                buttonsBox,
-                rightSpacer
-        );
-        card.getChildren().add(headerBox);
-
-        // Effetto hover
+        // Effetti hover più evidenti per la card
         card.setOnMouseEntered(e -> {
             ScaleTransition scale = new ScaleTransition(Duration.millis(200), card);
-            scale.setToX(1.01);
-            scale.setToY(1.01);
+            scale.setToX(1.02);
+            scale.setToY(1.02);
             scale.play();
         });
         card.setOnMouseExited(e -> {
@@ -162,12 +152,28 @@ public class WishlistController implements Initializable {
         return card;
     }
 
+    private void refreshTrucksDisplay() {
+        trucksFlowPane.getChildren().clear();
+
+        for (Camion camion : allTrucks) {
+            VBox card = createTruckCard(camion);
+
+            // Animazione di entrata
+            card.setOpacity(0.0);
+            trucksFlowPane.getChildren().add(card);
+
+            FadeTransition fadeIn = new FadeTransition(Duration.millis(400), card);
+            fadeIn.setFromValue(0.0);
+            fadeIn.setToValue(1.0);
+            fadeIn.play();
+        }
+    }
 
     // HANDLER SEMPLICI SENZA ANIMAZIONI COMPLICATE
 
     @FXML
-    private void handleLogoClick(MouseEvent event) throws Exception {
-        sceneHandler.setHomeScene();
+    private void HomeClick(MouseEvent event) throws Exception {
+        SceneHandler.getInstance().setHomeScene();
     }
 
     @FXML
@@ -181,14 +187,15 @@ public class WishlistController implements Initializable {
     }
 
     private void updateUI() {
-        int count = allTrucks.size();
-        truckCountLabel.setText(String.valueOf(count));
-
-        boolean isEmpty = count == 0;
+        boolean isEmpty = allTrucks.isEmpty();
         emptyStateBox.setVisible(isEmpty);
         emptyStateBox.setManaged(isEmpty);
-        wishlistView.setVisible(!isEmpty);
-        wishlistView.setManaged(!isEmpty);
+        trucksFlowPane.setVisible(!isEmpty);
+        trucksFlowPane.setManaged(!isEmpty);
+
+        if (!isEmpty) {
+            refreshTrucksDisplay();
+        }
 
         // Animazione cambio stato
         if (isEmpty) {
@@ -201,25 +208,33 @@ public class WishlistController implements Initializable {
 
     private void removeCamion(Camion camion) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("🗑️ Rimuovi dalla Wishlist");
-        alert.setHeaderText("Sei sicuro di voler rimuovere questo camion dalla wishlist?");
+        alert.setTitle("💔 Rimuovi dai Preferiti");
+        alert.setHeaderText("Sei sicuro di voler rimuovere questo camion dai preferiti?");
         alert.setContentText("🚛 " + camion.nome() + " " + camion.modello());
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
-                // Animazione rimozione
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(300), wishlistView);
-                fadeOut.setFromValue(1.0);
-                fadeOut.setToValue(0.7);
-                fadeOut.setOnFinished(e -> {
+                // Trova e anima la rimozione della card
+                trucksFlowPane.getChildren().stream()
+                        .filter(node -> node instanceof VBox)
+                        .map(node -> (VBox) node)
+                        .findFirst()
+                        .ifPresent(card -> {
+                            FadeTransition fadeOut = new FadeTransition(Duration.millis(300), card);
+                            fadeOut.setFromValue(1.0);
+                            fadeOut.setToValue(0.0);
+                            fadeOut.setOnFinished(e -> {
+                                allTrucks.remove(camion);
+                                updateUI();
+                            });
+                            fadeOut.play();
+                        });
+
+                // Fallback diretto
+                if (trucksFlowPane.getChildren().isEmpty()) {
                     allTrucks.remove(camion);
                     updateUI();
-                    FadeTransition fadeIn = new FadeTransition(Duration.millis(300), wishlistView);
-                    fadeIn.setFromValue(0.7);
-                    fadeIn.setToValue(1.0);
-                    fadeIn.play();
-                });
-                fadeOut.play();
+                }
             }
         });
     }
@@ -228,14 +243,14 @@ public class WishlistController implements Initializable {
         if (allTrucks.isEmpty()) return;
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("🗑️ Svuota Wishlist");
-        alert.setHeaderText("Sei sicuro di voler rimuovere tutti i camion dalla wishlist?");
+        alert.setTitle("🗑️ Elimina Tutti i Preferiti");
+        alert.setHeaderText("Sei sicuro di voler rimuovere tutti i camion dai preferiti?");
         alert.setContentText("⚠️ Questa operazione non può essere annullata.");
 
         alert.showAndWait().ifPresent(response -> {
             if (response == ButtonType.OK) {
                 // Animazione svuotamento
-                FadeTransition fadeOut = new FadeTransition(Duration.millis(400), wishlistView);
+                FadeTransition fadeOut = new FadeTransition(Duration.millis(400), trucksFlowPane);
                 fadeOut.setToValue(0.0);
                 fadeOut.setOnFinished(e -> {
                     allTrucks.clear();
@@ -246,20 +261,11 @@ public class WishlistController implements Initializable {
         });
     }
 
-    // Aggiunta camion
+    // Metodi pubblici per gestione wishlist
     public void addTruck(Camion camion) {
         if (!allTrucks.contains(camion)) {
             allTrucks.add(camion);
             updateUI();
-
-            // Animazione aggiunta
-            Timeline delay = new Timeline(new KeyFrame(Duration.millis(100), e -> {
-                FadeTransition fadeIn = new FadeTransition(Duration.millis(400), wishlistView);
-                fadeIn.setFromValue(0.8);
-                fadeIn.setToValue(1.0);
-                fadeIn.play();
-            }));
-            delay.play();
         }
     }
 
@@ -276,7 +282,7 @@ public class WishlistController implements Initializable {
         return FXCollections.unmodifiableObservableList(allTrucks);
     }
 
-    // Dati di esempio
+    // Dati di esempio - PIÙ CAMION PER TESTARE MULTIPLE RIGHE
     private void addSampleData() {
         LocalDateTime now = LocalDateTime.now();
 
@@ -286,8 +292,7 @@ public class WishlistController implements Initializable {
                 createCamionWithDate("3", "Mercedes", "Actros", "2021", 220000.0, 95000, 35.0, now),
                 createCamionWithDate("4", "Scania", "R450", "2018", 95000.0, 220000, 32.0, now),
                 createCamionWithDate("5", "Iveco", "Stralis", "2020", 75000.0, 160000, 28.0, now),
-                createCamionWithDate("6", "DAF", "XF", "2022", 95000.0, 45000, 28.5, now),
-                createCamionWithDate("7", "Renault", "T High", "2021", 140000.0, 78000, 35.0, now)
+                createCamionWithDate("6", "DAF", "XF", "2022", 95000.0, 45000, 28.5, now)
         );
     }
 

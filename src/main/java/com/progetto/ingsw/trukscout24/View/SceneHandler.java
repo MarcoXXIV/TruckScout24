@@ -8,23 +8,21 @@ import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
-import javafx.scene.text.Font;
 import javafx.stage.Stage;
-import java.util.ArrayList;
-import java.util.List;
+
 import java.util.Objects;
 
 public class SceneHandler {
 
     private final static String RESOURCE_PATH = "/com/progetto/ingsw/trukscout24/";
     private final static String FXML_PATH = RESOURCE_PATH + "fxmls/";
+    private final static String Image_PATH = RESOURCE_PATH + "immagini/";
     //private final static String CSS_PATH = RESOURCE_PATH + "css/";
     //private final static String FONTS_PATH = RESOURCE_PATH + "fonts/";
     private Alert alert = new Alert(Alert.AlertType.INFORMATION);
     private String theme = "light";
     private Scene scene;
     private Stage stage;
-
 
     private static SceneHandler instance = null;
     private SceneHandler() {}
@@ -44,6 +42,10 @@ public class SceneHandler {
         //setCSSForScene(scene);
         //loadFonts();
         this.stage.show();
+    }
+
+    public String loadImm(String id){
+        return Image_PATH + id + ".jpg";
     }
 
     public void loadFXML(String FXMLPath) throws Exception {
@@ -149,7 +151,8 @@ public class SceneHandler {
     }
 
 
-    public void setTruckDetailsScene() {
+    public void setTruckDetailsScene() throws Exception {
+        loadFXML("ProductView.fxml");
     }
 
     public void setWishlistScene() throws Exception {

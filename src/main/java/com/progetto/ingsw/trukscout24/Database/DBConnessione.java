@@ -30,7 +30,15 @@ public class DBConnessione {
     private final ArrayList<Camion> searchedCamion = new ArrayList<>();
     private Label resultLabel;
     private Camion camion;
-    private final ExecutorService executorService = Executors.newCachedThreadPool();
+    public final ExecutorService executorService = Executors.newCachedThreadPool();
+
+    public Connection getConnection() {
+        return con;
+    }
+
+    public ExecutorService getExecutorService() {
+        return executorService;
+    }
 
     private DBConnessione() {}
 
@@ -134,11 +142,11 @@ public class DBConnessione {
 
     public CompletableFuture<ArrayList<Camion>> addHomePageCamion() {
         CompletableFuture<ArrayList<Camion>> future = new CompletableFuture<>();
-        executorService.submit(createDaemonThread(() -> {
+        executorService.submit(() -> {
             try {
                 ArrayList<Camion> camion = new ArrayList<>();
                 if (this.con != null && !this.con.isClosed()) {
-                    String query = "select * from camion;";
+                    String query = "SELECT * FROM camion;";
                     PreparedStatement stmt = this.con.prepareStatement(query);
                     ResultSet rs = stmt.executeQuery();
 
@@ -149,15 +157,17 @@ public class DBConnessione {
                                 rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                         camion.add(c);
                     }
-                    future.complete(camion);
+                    future.complete(camion);  // Completa il futuro con la lista di camion
                     stmt.close();
                 }
             } catch (SQLException e) {
                 SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                future.completeExceptionally(e);  // Completa il futuro con l'eccezione
             }
-        }));
+        });
         return future;
     }
+
 
     public void addCategoryCamion(String category) {
         executorService.submit(createDaemonThread(() -> {

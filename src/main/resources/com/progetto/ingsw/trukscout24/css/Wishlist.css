@@ -33,7 +33,6 @@
     -fx-cursor: hand;
 }
 
-
 .app-icon {
     -fx-text-fill: #ffffff;
     -fx-effect: dropshadow(gaussian, rgba(255, 255, 255, 0.3), 4, 0, 0, 1);
@@ -83,23 +82,25 @@
 .clear-button,
 .primary-button,
 .remove-button,
-.truck-card {
+.truck-card,
+.heart-button {
     -fx-transition: all 0.2s ease-in-out;
 }
 
 .clear-button {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
     -fx-text-fill: #ffffff;
-    -fx-background-radius: 6;
-    -fx-padding: 8 14;
+    -fx-background-radius: 8;
+    -fx-padding: 12 24;
     -fx-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.3), 4, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.3), 6, 0, 0, 2);
     -fx-cursor: hand;
+    -fx-font-weight: 700;
 }
 
 .clear-button:hover {
     -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #b91c1c 100%);
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 6, 0, 0, 3);
+    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.4), 8, 0, 0, 3);
     -fx-scale-y: 1.05;
     -fx-scale-x: 1.05;
 }
@@ -157,92 +158,138 @@
 }
 
 /* ================================
-   LISTA CAMION E CARD
+   FLOWPANE - CONFIGURAZIONE PER 2 CARD MOLTO GRANDI PER RIGA
    ================================ */
-.trucks-list {
+.trucks-flow {
+    -fx-padding: 40;
+    -fx-hgap: 60;  /* Gap più grande tra le card */
+    -fx-vgap: 40;  /* Gap più grande tra le righe */
     -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-background-insets: 0;
-    -fx-padding: 0;
+    -fx-alignment: center;
+    -fx-pref-wrap-length: 1600; /* Larghezza per contenere esattamente 2 card molto grandi */
 }
 
-.trucks-list .list-cell {
-    -fx-background-color: transparent;
-    -fx-border-color: transparent;
-    -fx-padding: 0 0 18 0;
-}
-
-.trucks-list .list-cell:selected,
-.trucks-list .list-cell:focused {
-    -fx-background-color: transparent;
-}
-
+/* ================================
+   CARD DEI CAMION - DESIGN VERTICALE E MOLTO PIÙ GRANDI
+   ================================ */
 .truck-card {
     -fx-background-color: #ffffff;
-    -fx-background-radius: 12;
+    -fx-background-radius: 20;
     -fx-border-color: #e2e8f0;
-    -fx-border-radius: 12;
-    -fx-border-width: 1;
-    -fx-padding: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.06), 12, 0, 0, 3);
+    -fx-border-radius: 20;
+    -fx-border-width: 2;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 20, 0, 0, 6);
     -fx-cursor: hand;
+    /* Card molto grandi per avere solo 2 per riga */
+    -fx-pref-width: 750;
+    -fx-max-width: 750;
+    -fx-min-width: 750;
+    -fx-pref-height: 420; /* Più alte per il layout verticale */
+    -fx-min-height: 420;
 }
 
 .truck-card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 18, 0, 0, 6);
-    -fx-border-color: #cbd5e1;
-    -fx-translate-y: -2;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 30, 0, 0, 12);
+    -fx-border-color: #ff6b35;
+    -fx-translate-y: -5;
 }
 
+/* ================================
+   HEADER DELLA CARD - POSIZIONE ASSOLUTA PER IL CUORE
+   ================================ */
+.card-header {
+    -fx-alignment: center;
+    -fx-pref-height: 140;
+    -fx-spacing: 0;
+}
+
+/* ================================
+   IMMAGINE CAMION - MOLTO PIÙ GRANDE E CENTRATA
+   ================================ */
 .truck-image {
     -fx-text-fill: #ff6b35;
-    -fx-font-size: 38px;
-    -fx-padding: 8 16 8 8;
-    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.2), 2, 0, 0, 1);
+    -fx-font-size: 120px; /* ENORME per essere ben visibile */
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 8, 0, 0, 4);
+    -fx-alignment: center;
+}
+
+/* ================================
+   CONTENUTO SOTTO L'IMMAGINE - PIÙ GRANDE E CENTRATO
+   ================================ */
+.truck-content {
+    -fx-alignment: center;
+    -fx-spacing: 12;
+    -fx-padding: 20 10 10 10;
 }
 
 .truck-title {
     -fx-text-fill: #1e293b;
-    -fx-font-size: 18px;
-    -fx-font-weight: 700;
+    -fx-font-size: 32px; /* Molto più grande */
+    -fx-font-weight: 900;
+    -fx-text-alignment: center;
 }
 
 .truck-info {
     -fx-text-fill: #64748b;
-    -fx-font-size: 13px;
-    -fx-font-weight: 500;
+    -fx-font-size: 20px; /* Molto più grande */
+    -fx-font-weight: 600;
+    -fx-text-alignment: center;
 }
 
 .truck-price {
     -fx-text-fill: #ff6b35;
-    -fx-font-size: 20px;
-    -fx-font-weight: 800;
+    -fx-font-size: 36px; /* ENORME per essere ben visibile */
+    -fx-font-weight: 900;
+    -fx-text-alignment: center;
+}
+
+.truck-category {
+    -fx-text-fill: #64748b;
+    -fx-font-size: 18px; /* Più grande */
+    -fx-font-weight: 600;
+    -fx-text-alignment: center;
 }
 
 .truck-date {
     -fx-text-fill: #94a3b8;
-    -fx-font-size: 12px;
+    -fx-font-size: 16px; /* Più grande */
     -fx-font-weight: 500;
+    -fx-text-alignment: center;
 }
 
-.remove-button {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ef4444 0%, #dc2626 100%);
-    -fx-text-fill: #ffffff;
-    -fx-background-radius: 6;
-    -fx-padding: 8 12;
-    -fx-font-size: 11px;
-    -fx-font-weight: 600;
-    -fx-border-color: transparent;
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.25), 3, 0, 0, 2);
+/* ================================
+   PULSANTE CUORE - POSIZIONATO IN ALTO A DESTRA
+   ================================ */
+.heart-button {
+    -fx-background-color: rgba(255, 107, 53, 0.15);
+    -fx-border-color: rgba(255, 107, 53, 0.3);
+    -fx-border-width: 3;
+    -fx-border-radius: 30;
+    -fx-background-radius: 30;
+    -fx-font-size: 40px; /* ENORME per essere ben visibile */
     -fx-cursor: hand;
-    -fx-min-width: 80;
+    -fx-padding: 15 20;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 8, 0, 0, 3);
+    -fx-alignment: center;
+    -fx-pref-width: 80;
+    -fx-pref-height: 80;
 }
 
-.remove-button:hover {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #dc2626 0%, #b91c1c 100%);
-    -fx-effect: dropshadow(gaussian, rgba(239, 68, 68, 0.35), 4, 0, 0, 3);
-    -fx-scale-y: 1.05;
-    -fx-scale-x: 1.05;
+.heart-button:hover {
+    -fx-background-color: rgba(255, 107, 53, 0.25);
+    -fx-border-color: rgba(255, 107, 53, 0.5);
+    -fx-scale-x: 1.2;
+    -fx-scale-y: 1.2;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.6), 12, 0, 0, 4);
+}
+
+/* ================================
+   HEART CONTAINER PER POSIZIONAMENTO ASSOLUTO
+   ================================ */
+.heart-container {
+    -fx-alignment: top-right;
+    -fx-padding: 10 10 0 0;
 }
 
 /* ================================
@@ -321,16 +368,28 @@
    RESPONSIVE ADJUSTMENTS
    ================================ */
 @media (max-width: 768px) {
-    .nav-bar {
-        -fx-spacing: 12;
-    }
-
-    .stats-container {
-        -fx-min-width: 80;
-        -fx-padding: 10 12;
+    .trucks-flow {
+        -fx-hgap: 30;
+        -fx-vgap: 30;
+        -fx-pref-wrap-length: 800;
     }
 
     .truck-card {
-        -fx-padding: 16;
+        -fx-pref-width: 350;
+        -fx-max-width: 350;
+        -fx-min-width: 350;
+        -fx-pref-height: 380;
+    }
+
+    .truck-image {
+        -fx-font-size: 80px;
+    }
+
+    .truck-title {
+        -fx-font-size: 24px;
+    }
+
+    .truck-price {
+        -fx-font-size: 28px;
     }
 }

@@ -1,0 +1,71 @@
+/* Sfondo finestra */
+.root {
+    -fx-background-color: transparent;
+    -fx-pref-width: 1400px;
+    -fx-pref-height: 900px;
+}
+
+/* Container principale */
+.form-container {
+    -fx-background-color: white;
+    -fx-background-radius: 20;
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-max-width: 500px;
+    -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 20, 0.5, 0, 0);
+}
+
+/* Logo cliccabile */
+.logo-container {
+    -fx-cursor: hand;
+}
+
+/* Container campi */
+.form-fields {
+    -fx-spacing: 15;
+}
+
+/* Etichette */
+.label-field {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #333;
+    -fx-min-width: 100px;
+}
+
+/* Input */
+.input-field {
+    -fx-padding: 8;
+    -fx-border-color: #ccc;
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13px;
+    -fx-pref-width: 250px;
+}
+
+/* Pulsante Registrazione */
+.register-button {
+    -fx-background-color: #FF6B00;
+    -fx-text-fill: white;
+    -fx-font-size: 14px;
+    -fx-pref-width: 200px;
+    -fx-cursor: hand;
+    -fx-background-radius: 8;
+    -fx-font-weight: bold;
+}
+.register-button:hover {
+    -fx-background-color: #FF4500;
+}
+
+/* Login */
+.login-text {
+    -fx-font-size: 12px;
+    -fx-text-fill: #666666;
+}
+.login-link {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #FF6B00;
+    -fx-cursor: hand;
+}
+

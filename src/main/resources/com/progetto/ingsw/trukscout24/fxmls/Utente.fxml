@@ -3,6 +3,8 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.*?>
 <?import javafx.scene.control.cell.PropertyValueFactory?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.*?>
 <?import javafx.scene.text.*?>
 
@@ -15,11 +17,27 @@
 
     <StackPane alignment="TOP_CENTER">
         <VBox styleClass="main-container" spacing="30" alignment="TOP_CENTER" maxWidth="850">
-            <!-- HEADER -->
+            <!-- HEADER CON LOGO HOME -->
             <HBox styleClass="header-section" alignment="CENTER_LEFT" spacing="20" VBox.vgrow="NEVER">
                 <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
-                <Label text="Il Mio Account" styleClass="main-title"/>
+
+                <!-- Logo cliccabile per tornare alla home -->
+                <VBox alignment="CENTER" onMouseClicked="#homeAction" styleClass="home-logo-container">
+                    <ImageView fx:id="homeLogoImageView" fitHeight="60.0" preserveRatio="true">
+                        <Image url="@../Icone/TruckScout24.png"/>
+                    </ImageView>
+                </VBox>
+
+                <!-- Spacer per centrare il titolo -->
                 <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Titolo principale -->
+                <Label text="Il Mio Account" styleClass="main-title"/>
+
+                <!-- Spacer per bilanciare -->
+                <Region HBox.hgrow="ALWAYS"/>
+
+                <!-- Logout button -->
                 <Button fx:id="logoutButton" text="Logout" styleClass="logout-btn" onAction="#logoutAction"/>
             </HBox>
 
@@ -70,39 +88,6 @@
                         </TableColumn>
                     </columns>
                 </TableView>
-            </VBox>
-
-            <!-- SEZIONE ADMIN -->
-            <VBox fx:id="adminSection" styleClass="admin-section" spacing="15" visible="false" managed="false">
-                <Label text="Pannello Amministratore" styleClass="section-title admin-title"/>
-                <Label text="Aggiungi Nuovo Camion" styleClass="form-subtitle"/>
-
-                <GridPane styleClass="admin-grid" hgap="20" vgap="10" alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints minWidth="120" prefWidth="120"/>
-                        <ColumnConstraints minWidth="250" prefWidth="250"/>
-                    </columnConstraints>
-
-                    <Label text="ID Camion:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="form-label"/>
-                    <TextField fx:id="camionIdField" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="form-field"/>
-
-                    <Label text="Modello:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="form-label"/>
-                    <TextField fx:id="modelloField" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="form-field"/>
-
-                    <Label text="Categoria:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="form-label"/>
-                    <ComboBox fx:id="categoriaBox" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="form-combo"/>
-
-                    <Label text="Prezzo/Giorno:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="form-label"/>
-                    <TextField fx:id="prezzoField" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="form-field"/>
-                </GridPane>
-
-                <TextArea fx:id="descrizioneArea" promptText="Descrizione del camion..." styleClass="form-textarea" prefRowCount="3"/>
-
-                <HBox spacing="10" alignment="CENTER">
-                    <Button fx:id="addCamionButton" text="Aggiungi Camion" styleClass="primary-btn" onAction="#addCamionAction"/>
-                    <Button fx:id="removeCamionButton" text="Rimuovi Camion" styleClass="danger-btn" onAction="#removeCamionAction"/>
-                    <Label fx:id="adminActionStatus" visible="false" styleClass="status-message"/>
-                </HBox>
             </VBox>
         </VBox>
     </StackPane>
