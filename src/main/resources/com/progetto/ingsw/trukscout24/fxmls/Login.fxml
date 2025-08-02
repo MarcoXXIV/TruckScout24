@@ -8,6 +8,7 @@
 <?import javafx.scene.control.Hyperlink?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.PasswordField?>
+<?import javafx.scene.control.ProgressIndicator?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
@@ -39,18 +40,23 @@
 
             <!-- Logo - FUORI dal form-box -->
             <VBox alignment="CENTER" spacing="5" onMouseClicked="#HomeClick" style="-fx-cursor: hand;" styleClass="logo-container">
-                <ImageView fitHeight="90.0" fitWidth="203.0" preserveRatio="true" style="-fx-cursor: hand;">
-                    <Image url="@../Icone/TruckScout24.png" />
-                </ImageView>
+                <Label fx:id="logoLabel" onMousePressed="#handleMousePressed" onMouseDragged="#handleMouseDragged" style="-fx-cursor: hand;">
+                    <graphic>
+                        <ImageView fitHeight="90.0" fitWidth="203.0" preserveRatio="true">
+                            <Image url="@../Icone/TruckScout24.png" />
+                        </ImageView>
+                    </graphic>
+                </Label>
             </VBox>
+
             <!-- Form fields -->
             <VBox alignment="CENTER" maxWidth="300" spacing="12" styleClass="form-fields">
 
-                <TextField fx:id="emailField" onKeyPressed="#onEnterPressed" promptText="Email" styleClass="text-field" />
+                <TextField fx:id="emailField" promptText="Email" styleClass="text-field" />
 
                 <StackPane>
-                    <PasswordField fx:id="passwordField" onKeyPressed="#onEnterPressed" promptText="Password" styleClass="password-field" />
-                    <TextField fx:id="passwordTextField" onKeyPressed="#onEnterPressed" promptText="Password" styleClass="password-field" visible="false" />
+                    <PasswordField fx:id="passwordField" promptText="Password" styleClass="password-field" />
+                    <TextField fx:id="passwordTextField" promptText="Password" styleClass="password-field" visible="false" />
                     <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" styleClass="button" text="👁" StackPane.alignment="CENTER_RIGHT" />
                 </StackPane>
 
@@ -62,15 +68,23 @@
                     </cursor>
                 </Button>
 
+                <!-- Loading indicator -->
+                <ProgressIndicator fx:id="loadingIndicator" visible="false" maxHeight="30" maxWidth="30" />
+
                 <Hyperlink fx:id="forgotPasswordLink" onMouseClicked="#PasswordDimenticataClick" styleClass="hyperlink" text="Password dimenticata?" />
 
             </VBox>
 
-            <!-- Label di errore -->
+            <!-- Label di errore e successo -->
             <Label fx:id="errorLabel" visible="false" wrapText="true"
                    maxWidth="300"
                    textAlignment="CENTER"
                    styleClass="error-label" />
+
+            <Label fx:id="successLabel" visible="false" wrapText="true"
+                   maxWidth="300"
+                   textAlignment="CENTER"
+                   styleClass="success-label" />
 
             <!-- Link registrazione - FUORI dal form-box -->
             <VBox alignment="CENTER" spacing="8" styleClass="register-section">

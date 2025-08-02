@@ -52,9 +52,14 @@ public class DBConnessione {
     public void createConnection() throws SQLException {
         String url = "jdbc:sqlite:Database24.db";
         con = DriverManager.getConnection(url);
-        if (con != null && !con.isClosed())
+        if (con != null && !con.isClosed()) {
             System.out.println("Connesso!!!");
+            Statement stmt = con.createStatement();
+            stmt.execute("PRAGMA journal_mode=WAL;"); // <--- QUESTA RIGA
+            stmt.close();
+        }
     }
+
 
     public void closeConnection() throws SQLException, IOException {
         if (con != null)
@@ -66,50 +71,65 @@ public class DBConnessione {
         executorService.shutdownNow();
     }
 
+    // Aggiungi questo metodo alla classe DBConnessione esistente
+
+    public CompletableFuture<Boolean> checkLoginCredentials(String email, String password) {
+        CompletableFuture<Boolean> future = new CompletableFuture<>();
+
+        executorService.submit(createDaemonThread(() -> {
+            try {
+                if (con == null || con.isClosed()) {
+                    future.complete(false);
+                    return;
+                }
+
+                String query = "SELECT password FROM utenti WHERE email = ?";
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, email);
+                ResultSet rs = stmt.executeQuery();
+
+                if (rs.next()) {
+                    String hashedPassword = rs.getString("password");
+                    boolean isValid = BCrypt.checkpw(password, hashedPassword);
+                    future.complete(isValid);
+                } else {
+                    future.complete(false);
+                }
+
+                stmt.close();
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+            }
+        }));
+
+        return future;
+    }
+
+    // Modifica il metodo insertUsers per crittografare la password
     public void insertUsers(String nome, String cognome, String email, Long numero_di_telefono, String password, Boolean isAdmin) {
         executorService.submit(createDaemonThread(() -> {
             try {
                 if (con == null || con.isClosed())
                     return;
+
+                // Crittografa la password prima di inserirla
+                String hashedPassword = encryptedPassword(password);
+
                 PreparedStatement stmt = con.prepareStatement("INSERT INTO utenti VALUES(?, ?, ?, ?, ?, ?);");
                 stmt.setString(1, email);
                 stmt.setString(2, nome);
                 stmt.setString(3, cognome);
-                stmt.setLong(4, numero_di_telefono);
-                stmt.setString(5, password);
+                stmt.setLong(4, numero_di_telefono != null ? numero_di_telefono : 0);
+                stmt.setString(5, hashedPassword);
                 stmt.setBoolean(6, isAdmin);
                 stmt.execute();
                 stmt.close();
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                SceneHandler.getInstance().showAlert("Errore database", "Errore nell'inserimento utente: " + e.getMessage(), 0);
             }
         }));
     }
 
-    public Future<?> checkLogin(String email, String password) throws SQLException {
-        return executorService.submit(createDaemonThread(() -> {
-            try {
-                if (con == null || con.isClosed())
-                    return;
-                String query = "select * from utenti where email=?";
-                PreparedStatement stmt = con.prepareStatement(query);
-                stmt.setString(1, email);
-                ResultSet rs = stmt.executeQuery();
-                if (rs.next()) {
-                    boolean check = BCrypt.checkpw(password, rs.getString("password"));
-                    if (check)
-                        System.out.println("Password OK");
-                    else
-                        throw new SQLException();
-                } else {
-                    throw new SQLException();
-                }
-                stmt.close();
-            } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
-            }
-        }));
-    }
 
     public CompletableFuture<Utente> setUser(String email) {
         CompletableFuture<Utente> future = new CompletableFuture<>();
@@ -152,9 +172,9 @@ public class DBConnessione {
 
                     while (rs.next()) {
                         Camion c = new Camion(rs.getString("id"), rs.getString("nome"), rs.getString("modello"),
-                                rs.getInt("potenza"), rs.getDouble("kilometri"), rs.getString("carburante"),
+                                rs.getInt("potenza"), rs.getString("kilometri"), rs.getString("carburante"),
                                 rs.getString("cambio"), rs.getInt("classeEmissioni"), rs.getString("anno"),
-                                rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
+                                rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                         camion.add(c);
                     }
                     future.complete(camion);  // Completa il futuro con la lista di camion
@@ -181,9 +201,9 @@ public class DBConnessione {
 
                     while (rs.next()) {
                         Camion c = new Camion(rs.getString("id"), rs.getString("nome"), rs.getString("modello"),
-                                rs.getInt("potenza"), rs.getDouble("kilometri"), rs.getString("carburante"),
+                                rs.getInt("potenza"), rs.getString("kilometri"), rs.getString("carburante"),
                                 rs.getString("cambio"), rs.getInt("classeEmissioni"), rs.getString("anno"),
-                                rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
+                                rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                         categoryCamion.add(c);
                     }
                 }
@@ -238,9 +258,9 @@ public class DBConnessione {
 
                     if (rs.next()) {
                         camion = new Camion(rs.getString("id"), rs.getString("nome"), rs.getString("modello"),
-                                rs.getInt("potenza"), rs.getDouble("kilometri"), rs.getString("carburante"),
+                                rs.getInt("potenza"), rs.getString("kilometri"), rs.getString("carburante"),
                                 rs.getString("cambio"), rs.getInt("classeEmissioni"), rs.getString("anno"),
-                                rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
+                                rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                         future.complete(camion);
                     }
                 }
@@ -264,9 +284,9 @@ public class DBConnessione {
                     while (rs.next() && similarCamion.size() < 5) {
                         if (!rs.getString("id").equals(id)) {
                             camion = new Camion(rs.getString("id"), rs.getString("nome"), rs.getString("modello"),
-                                    rs.getInt("potenza"), rs.getDouble("kilometri"), rs.getString("carburante"),
+                                    rs.getInt("potenza"), rs.getString("kilometri"), rs.getString("carburante"),
                                     rs.getString("cambio"), rs.getInt("classeEmissioni"), rs.getString("anno"),
-                                    rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
+                                    rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                             similarCamion.add(camion);
                         }
                     }
@@ -321,9 +341,9 @@ public class DBConnessione {
 
                         while (rs.next()) {
                             Camion c = new Camion(rs.getString("id"), rs.getString("nome"), rs.getString("modello"),
-                                    rs.getInt("potenza"), rs.getDouble("kilometri"), rs.getString("carburante"),
+                                    rs.getInt("potenza"), rs.getString("kilometri"), rs.getString("carburante"),
                                     rs.getString("cambio"), rs.getInt("classeEmissioni"), rs.getString("anno"),
-                                    rs.getDouble("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
+                                    rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                             searchedCamion.add(c);
                         }
                     }
@@ -401,6 +421,73 @@ public class DBConnessione {
             return false;
         }
         return false;
+    }
+
+    // Metodo per rimuovere un singolo camion dalla wishlist
+    public boolean removeCamionFromWishlist(String email, String camionId) {
+        try {
+            if (con == null || con.isClosed())
+                return false;
+
+            String query = "DELETE FROM wishlist WHERE id_utente = ? AND id_camion = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, email);
+            stmt.setString(2, camionId);
+
+            int rowsAffected = stmt.executeUpdate();
+            stmt.close();
+
+            return rowsAffected > 0;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Metodo per svuotare completamente la wishlist
+    public boolean clearWishlist(String email) {
+        try {
+            if (con == null || con.isClosed())
+                return false;
+
+            String query = "DELETE FROM wishlist WHERE id_utente = ?";
+            PreparedStatement stmt = con.prepareStatement(query);
+            stmt.setString(1, email);
+
+            int rowsAffected = stmt.executeUpdate();
+            stmt.close();
+
+            return true;
+        } catch (SQLException e) {
+            e.printStackTrace();
+            return false;
+        }
+    }
+
+    // Metodo per contare gli elementi nella wishlist
+    public CompletableFuture<Integer> getWishlistCount(String email) {
+        CompletableFuture<Integer> future = new CompletableFuture<>();
+        executorService.submit(createDaemonThread(() -> {
+            try {
+                if (con == null || con.isClosed())
+                    future.complete(0);
+
+                String query = "SELECT COUNT(*) FROM wishlist WHERE id_utente = ?";
+                PreparedStatement stmt = con.prepareStatement(query);
+                stmt.setString(1, email);
+                ResultSet rs = stmt.executeQuery();
+
+                int count = 0;
+                if (rs.next()) {
+                    count = rs.getInt(1);
+                }
+
+                future.complete(count);
+            } catch (SQLException e) {
+                future.complete(0);
+            }
+        }));
+        return future;
     }
 
     public CompletableFuture<ArrayList<Prenotazione>> getPrenotazione(String email) {

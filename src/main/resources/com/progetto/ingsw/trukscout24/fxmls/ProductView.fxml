@@ -13,135 +13,98 @@
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
 <?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 
-<VBox prefHeight="900.0" prefWidth="1400.0" styleClass="root-container" stylesheets="@../css/ProductView.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.progetto.ingsw.trukscout24.Controller.ProductView">
+<VBox prefHeight="900.0" prefWidth="1400.0" styleClass="root-container" stylesheets="@../css/ProductView.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.progetto.ingsw.trukscout24.Controller.ProductViewController">
 
     <!-- TOP HEADER -->
-    <HBox styleClass="top-header">
-        <!-- Logo Section -->
-        <HBox styleClass="logo-section">
-            <ImageView styleClass="logo-image" onMouseClicked="#onLogoClick" preserveRatio="true">
-                <cursor><Cursor fx:constant="HAND" /></cursor>
-                <Image url="@../Icone/TruckScout24.png" />
-            </ImageView>
-        </HBox>
-
-        <!-- Navigation Breadcrumb -->
-        <HBox styleClass="breadcrumb-section">
-            <Label styleClass="breadcrumb-text" text="Concessonaria TruckScout24" />
-        </HBox>
-
-        <!-- Action Buttons -->
-        <HBox styleClass="header-actions">
-            <Button fx:id="wishlistButton" onAction="#onWishlistClick" styleClass="wishlist-button" text="♥ Salva" />
-        </HBox>
+    <HBox alignment="CENTER" prefHeight="75.0" prefWidth="1400.0" styleClass="top-header">
+        <ImageView fitHeight="75.0" fitWidth="180" onMouseClicked="#onLogoClick" preserveRatio="true" styleClass="logo-image">
+            <cursor><Cursor fx:constant="HAND" /></cursor>
+            <Image url="@../Icone/TruckScout24.png" />
+        </ImageView>
     </HBox>
 
     <!-- MAIN CONTENT -->
     <ScrollPane styleClass="main-scroll-pane" VBox.vgrow="ALWAYS">
         <VBox styleClass="main-content">
 
-            <!-- PRODUCT HEADER -->
-            <VBox styleClass="product-header">
-                <HBox styleClass="product-title-section">
+            <!-- IMAGE + SPECIFICHE + CUORE -->
+            <HBox styleClass="image-details-container">
+
+                <!-- Immagine -->
+                <VBox styleClass="image-wrapper">
+                    <ImageView fx:id="mainImage" preserveRatio="true" styleClass="main-image-centered" />
+                </VBox>
+
+                <!-- Specifiche principali con cuore -->
+                <VBox styleClass="key-specs-section">
+
+                    <HBox alignment="CENTER_RIGHT" prefHeight="26.0" prefWidth="100.0">
+                        <Button fx:id="wishlistButton" onAction="#onWishlistClick" prefHeight="25.0" prefWidth="25.0" styleClass="wishlist-button-flat" />
+                    </HBox>
+
                     <VBox styleClass="title-info">
-                        <Label fx:id="productTitle" styleClass="product-title" text="Volvo FH16 750" />
-                        <Label fx:id="productSubtitle" styleClass="product-subtitle" text="Euro 6 • Automatico • 450.000 km" />
+                        <Label fx:id="productTitle" styleClass="product-title" />
+                        <Label fx:id="productSubtitle" styleClass="product-subtitle" />
                     </VBox>
                     <VBox styleClass="price-section">
-                        <Label fx:id="productPrice" styleClass="product-price" text="€ 89.500" />
-                        <Label styleClass="price-note" text="IVA esclusa" />
+                        <Label fx:id="productPrice" styleClass="product-price" />
                     </VBox>
-                </HBox>
-            </VBox>
 
-            <HBox styleClass="content-layout" spacing="30.0">
+                    <Label styleClass="section-title" text="Specifiche Principali" />
+                    <GridPane styleClass="specs-grid">
+                        <columnConstraints>
+                            <ColumnConstraints />
+                            <ColumnConstraints />
+                        </columnConstraints>
+                        <rowConstraints>
+                            <RowConstraints />
+                            <RowConstraints />
+                            <RowConstraints />
+                            <RowConstraints />
+                            <RowConstraints />
+                            <RowConstraints />
+                        </rowConstraints>
 
-                <!-- LEFT COLUMN - SINGLE IMAGE -->
-                <VBox styleClass="image-gallery-section">
-                    <!-- Main Image Only -->
-                    <StackPane styleClass="main-image-container">
-                        <ImageView fx:id="mainImage" styleClass="main-image" preserveRatio="true">
-                            <Image url="@../immagini/VVFH540.jpg" />
-                        </ImageView>
-                    </StackPane>
+                        <Label styleClass="spec-label" text="Potenza:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
+                        <Label fx:id="specPotenza" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="0" />
+                        <Label styleClass="spec-label" text="Chilometraggio:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
+                        <Label fx:id="specKilometri" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="1" />
+                        <Label styleClass="spec-label" text="Carburante:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
+                        <Label fx:id="specCarburante" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="2" />
+                        <Label styleClass="spec-label" text="Cambio:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
+                        <Label fx:id="specCambio" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="3" />
+                        <Label styleClass="spec-label" text="Classe Emissioni:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
+                        <Label fx:id="specEmissioni" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="4" />
+                        <Label styleClass="spec-label" text="Anno:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
+                        <Label fx:id="specAnno" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="5" />
+                    </GridPane>
                 </VBox>
-
-                <!-- RIGHT COLUMN - DETAILS AND SPECS -->
-                <VBox styleClass="details-section">
-
-                    <!-- KEY SPECS -->
-                    <VBox styleClass="key-specs-section">
-                        <Label styleClass="section-title" text="Specifiche Principali" />
-
-                        <GridPane styleClass="specs-grid">
-                            <columnConstraints>
-                                <ColumnConstraints/>
-                                <ColumnConstraints/>
-                            </columnConstraints>
-
-                            <!-- Row 0 -->
-                            <Label styleClass="spec-label" text="Potenza:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                            <Label fx:id="specPotenza" styleClass="spec-value" text="750 CV" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-
-                            <!-- Row 1 -->
-                            <Label styleClass="spec-label" text="Chilometraggio:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                            <Label fx:id="specKilometri" styleClass="spec-value" text="450.000 km" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-
-                            <!-- Row 2 -->
-                            <Label styleClass="spec-label" text="Carburante:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                            <Label fx:id="specCarburante" styleClass="spec-value" text="Diesel" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-
-                            <!-- Row 3 -->
-                            <Label styleClass="spec-label" text="Cambio:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                            <Label fx:id="specCambio" styleClass="spec-value" text="Automatico" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-
-                            <!-- Row 4 -->
-                            <Label styleClass="spec-label" text="Classe Emissioni:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                            <Label fx:id="specEmissioni" styleClass="spec-value" text="Euro 6" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-
-                            <!-- Row 5 -->
-                            <Label styleClass="spec-label" text="Anno:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                            <Label fx:id="specAnno" styleClass="spec-value" text="2019" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-
-                            <!-- Row 6 -->
-                            <Label styleClass="spec-label" text="Categoria:" GridPane.columnIndex="0" GridPane.rowIndex="6" />
-                            <Label fx:id="specCategoria" styleClass="spec-value" text="Trattore Stradale" GridPane.columnIndex="1" GridPane.rowIndex="6" />
-
-                            <rowConstraints>
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                                <RowConstraints />
-                            </rowConstraints>
-                        </GridPane>
-                    </VBox>
-
-                    <Separator styleClass="section-separator" />
-
-                    <!-- DESCRIPTION -->
-                    <VBox styleClass="description-section">
-                        <Label styleClass="section-title" text="Descrizione" />
-                        <Label fx:id="productDescription" styleClass="description-text" wrapText="true"
-                               text="Volvo FH16 750 in ottime condizioni. Motore Euro 6 con potenza di 750 CV. Cambio automatico I-Shift. Interni in pelle, aria condizionata, sistema di navigazione avanzato. Manutenzione regolare presso officina autorizzata Volvo. Perfetto per trasporti a lungo raggio." />
-                    </VBox>
-
-                    <!-- SELLER INFO -->
-                    <VBox styleClass="seller-section">
-                        <Label styleClass="section-title" text="Informazioni Venditore" />
-                        <VBox styleClass="seller-info">
-                            <Label styleClass="seller-name" text="Concessonaria TruckScout24" />
-                            <Label styleClass="seller-location" text="📍 Corigliano - Rossano, Calabria, Italy" />
-                            <Label styleClass="seller-rating" text="⭐ 4.8/5 (127 recensioni)" />
-                        </VBox>
-                    </VBox>
-                </VBox>
+            <VBox.margin>
+               <Insets top="10.0" />
+            </VBox.margin>
             </HBox>
+
+            <!-- SEZIONI SUCCESSIVE -->
+            <VBox styleClass="content-below-image">
+                <Separator styleClass="section-separator" />
+
+                <!-- DESCRIZIONE -->
+                <VBox styleClass="description-section">
+                    <Label styleClass="section-title" text="Descrizione" />
+                    <Label fx:id="productDescription" styleClass="description-text" wrapText="true" />
+                </VBox>
+
+                <!-- VENDITORE -->
+                <VBox styleClass="seller-section">
+                    <Label styleClass="section-title" text="Informazioni Venditore" />
+                    <VBox styleClass="seller-info">
+                        <Label styleClass="seller-name" text="Concessionaria TruckScout24" />
+                        <Label styleClass="seller-location" text="📍 Corigliano - Rossano, Calabria, Italy" />
+                    </VBox>
+                </VBox>
+            </VBox>
         </VBox>
     </ScrollPane>
 
@@ -151,5 +114,4 @@
         <Region styleClass="footer-spacer" />
         <Label styleClass="footer-copyright" text="© 2024 TrukScout24 S.r.l." />
     </HBox>
-
 </VBox>

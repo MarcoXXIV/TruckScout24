@@ -1,9 +1,13 @@
 package com.progetto.ingsw.trukscout24.View;
 
+import com.progetto.ingsw.trukscout24.Controller.ProductViewController;
 import com.progetto.ingsw.trukscout24.HelloApplication;
 //import com.progetto.ingsw.Message;
 
+import com.progetto.ingsw.trukscout24.Model.Camion;
+import com.progetto.ingsw.trukscout24.Model.Utente;
 import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.image.Image;
@@ -26,6 +30,59 @@ public class SceneHandler {
 
     private static SceneHandler instance = null;
     private SceneHandler() {}
+
+    private Camion selectedCamion; // Aggiungi questo campo
+    private String currentUserEmail;
+    private Utente currentUser;
+
+    public void setCurrentUserEmail(String email) {
+        this.currentUserEmail = email;
+    }
+
+    public String getCurrentUserEmail() {
+        return currentUserEmail;
+    }
+
+    public void setCurrentUser(Utente user) {
+        this.currentUser = user;
+        this.currentUserEmail = user != null ? user.email() : null;
+    }
+
+    public Utente getCurrentUser() {
+        return currentUser;
+    }
+
+    public void setSelectedCamion(Camion camion) {
+        this.selectedCamion = camion;
+    }
+
+    public Camion getSelectedCamion() {
+        return selectedCamion;
+    }
+
+    // Modifica o aggiungi questo metodo
+    public void setProductViewScene() throws Exception {
+        // Usa il metodo loadFXML esistente per caricare il file
+        FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_PATH + "ProductView.fxml"));
+        Parent root = loader.load();
+
+        // Ottieni il controller e passa i dati del camion
+        ProductViewController controller = loader.getController();
+        if (selectedCamion != null) {
+            controller.setCamion(selectedCamion);
+        }
+
+        // Crea la nuova scene mantenendo le dimensioni esistenti
+        if (scene == null) {
+            scene = new Scene(root);
+        } else {
+            scene = new Scene(root, scene.getWidth(), scene.getHeight());
+        }
+
+        this.stage.setScene(scene);
+        stage.show();
+    }
+
 
     public void init(Stage primaryStage) throws Exception {
         if(this.stage != null)
@@ -147,9 +204,8 @@ public class SceneHandler {
     }
 
     public void setRecoveryScene() throws Exception {
-        //loadFXML("PasswordDimenticata.fxml");
+        loadFXML("PasswordDimenticata.fxml");
     }
-
 
     public void setTruckDetailsScene() throws Exception {
         loadFXML("ProductView.fxml");

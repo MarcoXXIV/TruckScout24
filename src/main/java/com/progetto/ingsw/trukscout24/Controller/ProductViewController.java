@@ -1,0 +1,264 @@
+package com.progetto.ingsw.trukscout24.Controller;
+
+import com.progetto.ingsw.trukscout24.Database.DBConnessione;
+import com.progetto.ingsw.trukscout24.Model.Camion;
+import com.progetto.ingsw.trukscout24.View.SceneHandler;
+import javafx.application.Platform;
+import javafx.concurrent.Task;
+import javafx.fxml.FXML;
+import javafx.fxml.Initializable;
+import javafx.scene.control.Button;
+import javafx.scene.control.Label;
+import javafx.scene.image.Image;
+import javafx.scene.image.ImageView;
+
+import java.net.URL;
+import java.util.ArrayList;
+import java.util.ResourceBundle;
+import java.util.concurrent.CompletableFuture;
+
+public class ProductViewController implements Initializable {
+
+    @FXML private Label productSubtitle1;
+    @FXML private Label productPrice1;
+    @FXML private Label productTitle1;
+    @FXML private Label productTitle;
+    @FXML private Label productSubtitle;
+    @FXML private Label productPrice;
+    @FXML private Label productDescription;
+
+    // Specs labels
+    @FXML private Label specPotenza;
+    @FXML private Label specKilometri;
+    @FXML private Label specCarburante;
+    @FXML private Label specCambio;
+    @FXML private Label specEmissioni;
+    @FXML private Label specAnno;
+
+    // Image
+    @FXML private ImageView mainImage;
+
+    // Buttons
+    @FXML private Button wishlistButton;
+
+    // Data
+    private Camion currentCamion;
+    private boolean isInWishlist = false;
+
+    private final SceneHandler sceneHandler = SceneHandler.getInstance();
+    private final DBConnessione dbconnessione = DBConnessione.getInstance();
+
+    @Override
+    public void initialize(URL location, ResourceBundle resources) {
+        // Inizializza il pulsante wishlist
+        updateWishlistButtonState();
+    }
+
+    private String getCurrentUserEmail() {
+        return sceneHandler.getCurrentUserEmail();
+    }
+
+    public void loadCamionData(Camion camion) {
+        if (camion == null) {
+            return;
+        }
+
+        this.currentCamion = camion;
+        productTitle.setText(camion.nome() + " " + camion.modello());
+        productPrice.setText("€ " + camion.prezzo());
+        productDescription.setText(camion.descrizione());
+        specPotenza.setText(camion.potenza() + " CV");
+        specKilometri.setText(camion.kilometri() + " km");
+        specCarburante.setText(camion.carburante());
+        specCambio.setText(camion.cambio());
+        specEmissioni.setText("Euro " + camion.classeEmissioni());
+        specAnno.setText(camion.anno());
+
+        loadMainImage();
+        checkWishlistStatus(); // Controlla se è già nella wishlist
+    }
+
+    private void checkWishlistStatus() {
+        String userEmail = getCurrentUserEmail();
+        if (currentCamion == null || userEmail == null) {
+            return;
+        }
+
+        Task<Boolean> checkTask = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                CompletableFuture<ArrayList<Camion>> future =
+                        dbconnessione.getWishlist(userEmail);
+                ArrayList<Camion> wishlist = future.get();
+
+                return wishlist.stream()
+                        .anyMatch(truck -> truck.id().equals(currentCamion.id()));
+            }
+        };
+
+        checkTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                isInWishlist = checkTask.getValue();
+                updateWishlistButtonState();
+            });
+        });
+
+        checkTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                System.out.println("Errore nel controllo wishlist: " + e.getSource().getException());
+            });
+        });
+
+        Thread checkThread = new Thread(checkTask);
+        checkThread.setDaemon(true);
+        checkThread.start();
+    }
+
+    private void updateWishlistButtonState() {
+        if (isInWishlist) {
+            wishlistButton.setText("❤️");
+            wishlistButton.getStyleClass().removeAll("wishlist-button-inactive");
+            if (!wishlistButton.getStyleClass().contains("wishlist-button-active")) {
+                wishlistButton.getStyleClass().add("wishlist-button-active");
+            }
+        } else {
+            wishlistButton.setText("🤍");
+            wishlistButton.getStyleClass().removeAll("wishlist-button-active");
+            if (!wishlistButton.getStyleClass().contains("wishlist-button-inactive")) {
+                wishlistButton.getStyleClass().add("wishlist-button-inactive");
+            }
+        }
+    }
+
+    private void loadMainImage() {
+        if (currentCamion == null || currentCamion.id() == null) {
+            return;
+        }
+
+        try {
+            String imagePath = "/com/progetto/ingsw/trukscout24/immagini/" + currentCamion.id() + ".jpg";
+            URL imageUrl = getClass().getResource(imagePath);
+
+            if (imageUrl != null) {
+                Image image = new Image(imageUrl.toExternalForm());
+                mainImage.setImage(image);
+            } else {
+                mainImage.setImage(null);
+            }
+        } catch (Exception e) {
+            mainImage.setImage(null);
+        }
+    }
+
+    @FXML
+    private void onLogoClick() throws Exception {
+        SceneHandler.getInstance().setHomeScene();
+    }
+
+    @FXML
+    private void onWishlistClick() {
+        String userEmail = getCurrentUserEmail();
+
+        if (currentCamion == null) {
+            sceneHandler.showAlert("Errore", "Nessun camion selezionato", 0);
+            return;
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            sceneHandler.showAlert("Errore", "Devi essere autenticato per usare la wishlist", 0);
+            return;
+        }
+
+        // Disabilita il pulsante durante l'operazione
+        wishlistButton.setDisable(true);
+
+        if (isInWishlist) {
+            removeFromWishlist(userEmail);
+        } else {
+            addToWishlist(userEmail);
+        }
+    }
+
+    private void addToWishlist(String userEmail) {
+        Task<Boolean> addTask = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return dbconnessione.insertWishlistCamionIntoDB(userEmail, currentCamion.id());
+            }
+        };
+
+        addTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                wishlistButton.setDisable(false);
+
+                if (addTask.getValue()) {
+                    isInWishlist = true;
+                    updateWishlistButtonState();
+                    sceneHandler.showAlert("Successo",
+                            "🚛 " + currentCamion.nome() + " aggiunto ai preferiti!", 1);
+                } else {
+                    sceneHandler.showAlert("Attenzione",
+                            "Impossibile aggiungere ai preferiti.\n" +
+                                    "• Hai raggiunto il limite massimo (6 camion)\n" +
+                                    "• Il camion è già presente nella lista", 0);
+                }
+            });
+        });
+
+        addTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                wishlistButton.setDisable(false);
+                sceneHandler.showAlert("Errore",
+                        "Errore durante l'aggiunta ai preferiti: " +
+                                e.getSource().getException().getMessage(), 0);
+            });
+        });
+
+        Thread addThread = new Thread(addTask);
+        addThread.setDaemon(true);
+        addThread.start();
+    }
+
+    private void removeFromWishlist(String userEmail) {
+        Task<Boolean> removeTask = new Task<Boolean>() {
+            @Override
+            protected Boolean call() throws Exception {
+                return dbconnessione.removeCamionFromWishlist(userEmail, currentCamion.id());
+            }
+        };
+
+        removeTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                wishlistButton.setDisable(false);
+
+                if (removeTask.getValue()) {
+                    isInWishlist = false;
+                    updateWishlistButtonState();
+                    sceneHandler.showAlert("Successo",
+                            "🚛 " + currentCamion.nome() + " rimosso dai preferiti!", 1);
+                } else {
+                    sceneHandler.showAlert("Errore",
+                            "Impossibile rimuovere dai preferiti", 0);
+                }
+            });
+        });
+
+        removeTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                wishlistButton.setDisable(false);
+                sceneHandler.showAlert("Errore",
+                        "Errore durante la rimozione dai preferiti: " +
+                                e.getSource().getException().getMessage(), 0);
+            });
+        });
+
+        Thread removeThread = new Thread(removeTask);
+        removeThread.setDaemon(true);
+        removeThread.start();
+    }
+
+    // Public method to set camion data from other controllers
+    public void setCamion(Camion camion) {
+        loadCamionData(camion);
+    }
+}

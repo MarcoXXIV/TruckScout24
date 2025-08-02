@@ -16,76 +16,75 @@
             stylesheets="@../css/Utente.css">
 
     <StackPane alignment="TOP_CENTER">
-        <VBox styleClass="main-container" spacing="30" alignment="TOP_CENTER" maxWidth="850">
-            <!-- HEADER CON LOGO HOME -->
-            <HBox styleClass="header-section" alignment="CENTER_LEFT" spacing="20" VBox.vgrow="NEVER">
+        <VBox styleClass="main-container" spacing="30" alignment="TOP_CENTER" maxWidth="900">
+            <!-- HEADER -->
+            <HBox styleClass="header-section" alignment="CENTER_LEFT" spacing="20">
                 <padding><Insets top="15" left="20" right="20" bottom="15"/></padding>
-
-                <!-- Logo cliccabile per tornare alla home -->
                 <VBox alignment="CENTER" onMouseClicked="#homeAction" styleClass="home-logo-container">
                     <ImageView fx:id="homeLogoImageView" fitHeight="60.0" preserveRatio="true">
                         <Image url="@../Icone/TruckScout24.png"/>
                     </ImageView>
                 </VBox>
-
-                <!-- Spacer per centrare il titolo -->
                 <Region HBox.hgrow="ALWAYS"/>
-
-                <!-- Titolo principale -->
                 <Label text="Il Mio Account" styleClass="main-title"/>
-
-                <!-- Spacer per bilanciare -->
                 <Region HBox.hgrow="ALWAYS"/>
-
-                <!-- Logout button -->
                 <Button fx:id="logoutButton" text="Logout" styleClass="logout-btn" onAction="#logoutAction"/>
             </HBox>
 
-            <!-- PROFILO -->
-            <VBox styleClass="profile-section" spacing="20" alignment="CENTER">
-                <Label text="Informazioni Personali" styleClass="section-title"/>
-                <GridPane styleClass="info-grid" hgap="20" vgap="15" alignment="CENTER">
-                    <columnConstraints>
-                        <ColumnConstraints minWidth="150" prefWidth="150"/>
-                        <ColumnConstraints minWidth="300" prefWidth="300"/>
-                    </columnConstraints>
+            <!-- PROFILO + CAMBIO PASSWORD -->
+            <HBox spacing="50" alignment="CENTER">
+                <!-- Info utente -->
+                <VBox styleClass="profile-section" spacing="20" alignment="CENTER_LEFT">
+                    <Label text="Informazioni Personali" styleClass="section-title"/>
+                    <GridPane styleClass="info-grid" hgap="20" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="100"/>
+                            <ColumnConstraints minWidth="250"/>
+                        </columnConstraints>
 
-                    <Label text="Email:" GridPane.rowIndex="0" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <TextField fx:id="emailField" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1" styleClass="info-field"/>
+                        <Label text="Email:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <TextField fx:id="email" editable="false" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                    <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <TextField fx:id="nomeField" GridPane.rowIndex="1" GridPane.columnIndex="1" styleClass="info-field"/>
+                        <Label text="Nome:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <TextField fx:id="nome" editable="false" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
 
-                    <Label text="Cognome:" GridPane.rowIndex="2" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <TextField fx:id="cognomeField" GridPane.rowIndex="2" GridPane.columnIndex="1" styleClass="info-field"/>
+                        <Label text="Cognome:" GridPane.rowIndex="2" GridPane.columnIndex="0"/>
+                        <TextField fx:id="cognome" editable="false" GridPane.rowIndex="2" GridPane.columnIndex="1"/>
 
-                    <Label text="Telefono:" GridPane.rowIndex="3" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <TextField fx:id="telefonoField" GridPane.rowIndex="3" GridPane.columnIndex="1" styleClass="info-field"/>
+                        <Label text="Telefono:" GridPane.rowIndex="3" GridPane.columnIndex="0"/>
+                        <TextField fx:id="telefono" editable="false" GridPane.rowIndex="3" GridPane.columnIndex="1"/>
+                    </GridPane>
+                </VBox>
 
-                    <Label text="Nuova Password:" GridPane.rowIndex="4" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <PasswordField fx:id="passwordField" GridPane.rowIndex="4" GridPane.columnIndex="1" styleClass="info-field"/>
+                <!-- Cambio password -->
+                <VBox spacing="15" alignment="CENTER_LEFT">
+                    <Label text="Cambio Password" styleClass="section-title"/>
+                    <GridPane hgap="20" vgap="15">
+                        <columnConstraints>
+                            <ColumnConstraints minWidth="130"/>
+                            <ColumnConstraints minWidth="200"/>
+                        </columnConstraints>
 
-                    <Label text="Ripeti Password:" GridPane.rowIndex="5" GridPane.columnIndex="0" styleClass="info-label"/>
-                    <PasswordField fx:id="repeatPasswordField" GridPane.rowIndex="5" GridPane.columnIndex="1" styleClass="info-field"/>
-                </GridPane>
+                        <Label text="Nuova Password:" GridPane.rowIndex="0" GridPane.columnIndex="0"/>
+                        <PasswordField fx:id="passwordField" GridPane.rowIndex="0" GridPane.columnIndex="1"/>
 
-                <HBox spacing="10" alignment="CENTER">
-                    <Button fx:id="updateProfileButton" text="Aggiorna Profilo" styleClass="primary-btn" onAction="#updateProfileAction"/>
+                        <Label text="Ripeti Password:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
+                        <PasswordField fx:id="repeatPasswordField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
+                    </GridPane>
+                    <Button fx:id="updateProfileButton" text="Cambia Password" onAction="#changePasswordAction"/>
                     <Label fx:id="profileUpdateStatus" visible="false" styleClass="status-message"/>
-                </HBox>
-            </VBox>
+                </VBox>
+            </HBox>
 
-            <!-- PRENOTAZIONI -->
-            <VBox styleClass="bookings-section" spacing="15" alignment="CENTER">
+            <!-- TABELLA PRENOTAZIONI -->
+            <VBox spacing="15" alignment="CENTER">
                 <Label text="Le Mie Prenotazioni" styleClass="section-title"/>
-                <TableView fx:id="prenotazioniTable" styleClass="bookings-table" prefHeight="250" prefWidth="600">
+                <TableView fx:id="prenotazioniTable" prefHeight="250" prefWidth="700">
                     <columns>
-                        <TableColumn fx:id="camionColumn" text="Nome Camion" prefWidth="300">
-                            <cellValueFactory><PropertyValueFactory property="nomeCamion"/></cellValueFactory>
-                        </TableColumn>
-                        <TableColumn fx:id="dataColumn" text="Data Prenotazione" prefWidth="300">
-                            <cellValueFactory><PropertyValueFactory property="dataPrenotazione"/></cellValueFactory>
-                        </TableColumn>
+                        <TableColumn fx:id="idCamionColumn" text="Nome Camion" prefWidth="300"/>
+                        <TableColumn fx:id="dataColumn" text="Data Prenotazione" prefWidth="200"/>
+                        <TableColumn fx:id="statoColumn" text="Stato" prefWidth="100"/>
+                        <TableColumn fx:id="azioniColumn" text="Azioni" prefWidth="100"/>
                     </columns>
                 </TableView>
             </VBox>

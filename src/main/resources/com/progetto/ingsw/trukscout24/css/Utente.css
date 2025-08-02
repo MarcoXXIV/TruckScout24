@@ -16,7 +16,6 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
 }
 
-/* Logo Home Container */
 .home-logo-container {
     -fx-cursor: hand;
     -fx-padding: 5;
@@ -66,11 +65,27 @@
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
 }
 
+/* Aggiunta: sezione password separata */
+.password-section {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 30;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 8, 0, 0, 2);
+    -fx-spacing: 15;
+}
+
+/* Aggiunta: layout affiancato per info + password */
+.profile-container {
+    -fx-spacing: 50;
+    -fx-alignment: center;
+}
+
 /* Section titles */
 .section-title {
     -fx-font-size: 20px;
     -fx-text-fill: #1f2937;
     -fx-font-weight: bold;
+    -fx-padding: 0 0 10 0;
 }
 
 .admin-title {
@@ -97,6 +112,13 @@
     -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.2), 5, 0, 0, 0);
 }
 
+/* Aggiunta: stile password separato */
+.password-field:focused {
+    -fx-border-color: #ff6b35;
+    -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.2), 5, 0, 0, 0);
+}
+
+/* ComboBox */
 .combo-box, .form-combo {
     -fx-background-color: #f9fafb;
     -fx-border-color: #d1d5db;
@@ -170,6 +192,7 @@
     -fx-font-weight: bold;
 }
 
+/* Messaggi */
 .status-message {
     -fx-text-fill: #10b981;
     -fx-font-weight: bold;
@@ -179,6 +202,12 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: #1f2937;
+}
+
+/* Messaggi errore opzionali */
+.error-message {
+    -fx-text-fill: #ef4444;
+    -fx-font-weight: bold;
 }
 
 /* Effetti animazione */

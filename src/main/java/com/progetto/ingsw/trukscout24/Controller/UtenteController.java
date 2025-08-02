@@ -13,29 +13,24 @@ import javafx.scene.layout.VBox;
 import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
-import com.progetto.ingsw.trukscout24.Model.Utente;
 import com.progetto.ingsw.trukscout24.Model.Prenotazione;
+import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 
 import java.net.URL;
 import java.util.ResourceBundle;
-import java.sql.SQLException;
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeoutException;
 
 public class UtenteController implements Initializable {
 
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
+    private final String currentUserEmail = sceneHandler.getCurrentUserEmail();
+    private final DBConnessione db = DBConnessione.getInstance();
 
     @FXML private ImageView homeLogoImageView;
     @FXML private Button updateProfileButton;
-    @FXML private TextField telefonoField;
+    @FXML private TextField telefono, email,cognome, nome;
     @FXML private Label profileUpdateStatus;
-    @FXML private TextField emailField;
-    @FXML private TextField cognomeField;
-    @FXML private TextField nomeField;
 
     @FXML private TableColumn<?, ?> camionColumn;
-    @FXML private Label welcomeLabel, emailLabel, nomeLabel, cognomeLabel, telefonoLabel;
     @FXML private PasswordField passwordField, repeatPasswordField;
     @FXML private Button changePasswordButton, logoutButton;
 
@@ -47,14 +42,11 @@ public class UtenteController implements Initializable {
     @FXML private ComboBox<String> categoriaComboBox;
     @FXML private TextArea descrizioneArea;
 
-
     @FXML private ScrollPane mainScrollPane;
 
-    private Utente currentUser;
     private final ObservableList<Prenotazione> prenotazioni = FXCollections.observableArrayList();
     @FXML VBox aggiungiCamionForm;
 
-    // Aggiungi questo metodo per gestire il click sul logo
     @FXML
     private void homeAction(MouseEvent event) throws Exception {
         sceneHandler.setHomeScene();
@@ -64,33 +56,35 @@ public class UtenteController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         try {
             initializeComponents();
-            loadUserData();
             setupTable();
-            loadPrenotazioni();
+            loadUserData();
         } catch (Exception e) {
             showAlert("Errore di inizializzazione", "Errore durante l'inizializzazione: " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
-
     private void initializeComponents() {
-        // Inizializza gli elementi dell'interfaccia utente
-
+        // Inizializza altri componenti se necessario
     }
 
-    private void loadUserData() throws SQLException, ExecutionException, InterruptedException, TimeoutException {
-        // Supponiamo di fare una simulazione del login dell'utente.
-        currentUser = new Utente("mario.rossi@email.com", "Mario", "Rossi", 3331234567L, false); // Impostazione manuale
-
-        // Mostra le informazioni dell'utente nella GUI
-        welcomeLabel.setText("Benvenuto, " + currentUser.nome() + " " + currentUser.cognome());
-        emailLabel.setText(currentUser.email());
-        nomeLabel.setText(currentUser.nome());
-        cognomeLabel.setText(currentUser.cognome());
-        telefonoLabel.setText(String.valueOf(currentUser.numero_di_telefono()));
+    private void loadUserData() {
+        db.setUser(currentUserEmail).thenAccept(user -> {
+            if (currentUserEmail == null) {
+                showAlert("Errore", "Utente non trovato", Alert.AlertType.ERROR);
+                return;
+            }else{
+                javafx.application.Platform.runLater(() -> {
+                    email.setText(user.email());
+                    nome.setText(user.nome());
+                    cognome.setText(user.cognome());
+                    telefono.setText(String.valueOf(user.numero_di_telefono()));
+                });}
+            loadPrenotazioni(); // carica le prenotazioni solo dopo aver caricato l'utente
+        }).exceptionally(ex -> {
+            showAlert("Errore", "Errore nel caricamento utente: " + ex.getMessage(), Alert.AlertType.ERROR);
+            return null;
+        });
     }
-
-
 
     private void setupTable() {
         idCamionColumn.setCellValueFactory(new PropertyValueFactory<>("id_Camion"));
@@ -108,11 +102,17 @@ public class UtenteController implements Initializable {
     }
 
     private void loadPrenotazioni() {
-        prenotazioni.addAll(
-                new Prenotazione(currentUser.email(), "TRK001", 15, 12, 2024),
-                new Prenotazione(currentUser.email(), "TRK005", 20, 12, 2024),
-                new Prenotazione(currentUser.email(), "TRK010", 25, 12, 2024)
-        );
+        if (currentUserEmail== null) return;
+
+        db.getPrenotazione(currentUserEmail).thenAccept(lista -> {
+            javafx.application.Platform.runLater(() -> {
+                prenotazioni.clear();
+                prenotazioni.addAll(lista);
+            });
+        }).exceptionally(ex -> {
+            showAlert("Errore", "Errore nel caricamento prenotazioni: " + ex.getMessage(), Alert.AlertType.ERROR);
+            return null;
+        });
     }
 
     @FXML
@@ -135,18 +135,25 @@ public class UtenteController implements Initializable {
             return;
         }
 
-        try {
-            passwordField.clear();
-            repeatPasswordField.clear();
-            showAlert("Successo", "Password cambiata con successo!", Alert.AlertType.INFORMATION);
-        } catch (Exception e) {
-            showAlert("Errore", "Errore durante il cambio password: " + e.getMessage(), Alert.AlertType.ERROR);
-        }
+        // Cripta la password prima di aggiornarla nel DB
+        String encryptedPassword = db.encryptedPassword(password);
+
+        // Aggiorna la password criptata nel database
+        db.updatePassword(currentUserEmail, encryptedPassword);
+
+        // Pulisci i campi delle password
+        passwordField.clear();
+        repeatPasswordField.clear();
+
+        showAlert("Successo", "Password cambiata con successo!", Alert.AlertType.INFORMATION);
     }
 
+
     @FXML
-    void logoutAction(ActionEvent event) {
+    void logoutAction(ActionEvent event) throws Exception {
+        sceneHandler.setCurrentUserEmail(null);
         showAlert("Logout", "Logout effettuato con successo.", Alert.AlertType.INFORMATION);
+        sceneHandler.setHomeScene();
     }
 
     @FXML
@@ -155,16 +162,25 @@ public class UtenteController implements Initializable {
         aggiungiCamionForm.setManaged(true);
     }
 
-
     private void showAlert(String title, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+        javafx.application.Platform.runLater(() -> {
+            Alert alert = new Alert(type);
+            alert.setTitle(title);
+            alert.setHeaderText(null);
+            alert.setContentText(message);
+            alert.showAndWait();
+        });
     }
 
-    @FXML public void refreshBookingsAction(ActionEvent actionEvent) {}
-    @FXML public void newBookingAction(ActionEvent actionEvent) {}
-    @FXML public void updateProfileAction(ActionEvent actionEvent) {}
+    @FXML public void refreshBookingsAction(ActionEvent actionEvent) {
+        loadPrenotazioni();
+    }
+
+    @FXML public void newBookingAction(ActionEvent actionEvent) {
+        // Da implementare in seguito
+    }
+
+    @FXML public void updateProfileAction(ActionEvent actionEvent) {
+        // Da implementare in seguito
+    }
 }
