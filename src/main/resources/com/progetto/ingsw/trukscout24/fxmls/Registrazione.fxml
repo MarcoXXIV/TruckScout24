@@ -45,22 +45,22 @@
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Email:" styleClass="label-field" />
+                    <Label text="📧 Email:" styleClass="label-field" />
                     <TextField fx:id="emailField" promptText="Email" styleClass="input-field" />
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Numero Di Telefono:" styleClass="label-field" />
+                    <Label text="📞 Telefono:" styleClass="label-field" />
                     <TextField fx:id="telefonoField" promptText="Telefono" styleClass="input-field" />
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Password:" styleClass="label-field" />
+                    <Label text="🔑 Password:" styleClass="label-field" />
                     <PasswordField fx:id="passwordField" promptText="Password" styleClass="input-field" />
                 </HBox>
 
                 <HBox alignment="CENTER_LEFT" spacing="10">
-                    <Label text="Conferma:" styleClass="label-field" />
+                    <Label text="🔑 Conferma:" styleClass="label-field" />
                     <PasswordField fx:id="confermaPasswordField" promptText="Conferma Password" styleClass="input-field" />
                 </HBox>
             </VBox>

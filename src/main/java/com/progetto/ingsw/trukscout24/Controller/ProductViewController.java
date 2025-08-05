@@ -8,11 +8,13 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
+import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 
 import java.net.URL;
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -41,6 +43,10 @@ public class ProductViewController implements Initializable {
     // Buttons
     @FXML private Button wishlistButton;
 
+    // Prenotazione
+    @FXML private DatePicker datePicker;
+    @FXML private Button prenotaButton;
+
     // Data
     private Camion currentCamion;
     private boolean isInWishlist = false;
@@ -52,6 +58,27 @@ public class ProductViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         // Inizializza il pulsante wishlist
         updateWishlistButtonState();
+
+        // Inizializza il DatePicker
+        setupDatePicker();
+    }
+
+    private void setupDatePicker() {
+        if (datePicker != null) {
+            // Imposta la data minima a domani
+            datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
+                @Override
+                public void updateItem(LocalDate date, boolean empty) {
+                    super.updateItem(date, empty);
+
+                    // Disabilita le date passate e quella di oggi
+                    setDisable(empty || date.isBefore(LocalDate.now().plusDays(1)));
+                }
+            });
+
+            // Imposta una data predefinita (domani)
+            datePicker.setValue(LocalDate.now().plusDays(1));
+        }
     }
 
     private String getCurrentUserEmail() {
@@ -75,7 +102,7 @@ public class ProductViewController implements Initializable {
         specAnno.setText(camion.anno());
 
         loadMainImage();
-        checkWishlistStatus(); // Controlla se è già nella wishlist
+        checkWishlistStatus();
     }
 
     private void checkWishlistStatus() {
@@ -116,13 +143,13 @@ public class ProductViewController implements Initializable {
 
     private void updateWishlistButtonState() {
         if (isInWishlist) {
-            wishlistButton.setText("❤️");
+            wishlistButton.setText("♥");
             wishlistButton.getStyleClass().removeAll("wishlist-button-inactive");
             if (!wishlistButton.getStyleClass().contains("wishlist-button-active")) {
                 wishlistButton.getStyleClass().add("wishlist-button-active");
             }
         } else {
-            wishlistButton.setText("🤍");
+            wishlistButton.setText("♡");
             wishlistButton.getStyleClass().removeAll("wishlist-button-active");
             if (!wishlistButton.getStyleClass().contains("wishlist-button-inactive")) {
                 wishlistButton.getStyleClass().add("wishlist-button-inactive");
@@ -169,7 +196,6 @@ public class ProductViewController implements Initializable {
             return;
         }
 
-        // Disabilita il pulsante durante l'operazione
         wishlistButton.setDisable(true);
 
         if (isInWishlist) {
@@ -177,6 +203,73 @@ public class ProductViewController implements Initializable {
         } else {
             addToWishlist(userEmail);
         }
+    }
+
+    @FXML
+    private void onPrenotaClick() {
+        String userEmail = getCurrentUserEmail();
+
+        if (currentCamion == null) {
+            sceneHandler.showAlert("Errore", "Nessun camion selezionato", 0);
+            return;
+        }
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            sceneHandler.showAlert("Errore", "Devi essere autenticato per prenotare un test drive", 0);
+            return;
+        }
+
+        LocalDate selectedDate = datePicker.getValue();
+        if (selectedDate == null) {
+            sceneHandler.showAlert("Errore", "Seleziona una data per la prenotazione", 0);
+            return;
+        }
+
+        if (selectedDate.isBefore(LocalDate.now().plusDays(1))) {
+            sceneHandler.showAlert("Errore", "Seleziona una data futura (almeno da domani)", 0);
+            return;
+        }
+
+        // Disabilita il pulsante durante l'operazione
+        prenotaButton.setDisable(true);
+        prenotaCamion(userEmail, selectedDate);
+    }
+
+    private void prenotaCamion(String userEmail, LocalDate date) {
+        Task<Void> prenotaTask = new Task<Void>() {
+            @Override
+            protected Void call() throws Exception {
+                // Usa il metodo del database esistente
+                dbconnessione.insertPrenotazioneIntoDB(
+                        userEmail,
+                        currentCamion.nome(),
+                        date.getDayOfMonth(),
+                        date.getMonthValue(),
+                        date.getYear()
+                );
+                return null;
+            }
+        };
+        System.out.println(currentCamion.nome());
+        prenotaTask.setOnSucceeded(e -> {
+            Platform.runLater(() -> {
+                prenotaButton.setDisable(false);
+                // Il messaggio di successo viene già mostrato dal metodo insertPrenotazioneIntoDB
+            });
+        });
+
+        prenotaTask.setOnFailed(e -> {
+            Platform.runLater(() -> {
+                prenotaButton.setDisable(false);
+                sceneHandler.showAlert("Errore",
+                        "Errore durante la prenotazione: " +
+                                e.getSource().getException().getMessage(), 0);
+            });
+        });
+
+        Thread prenotaThread = new Thread(prenotaTask);
+        prenotaThread.setDaemon(true);
+        prenotaThread.start();
     }
 
     private void addToWishlist(String userEmail) {
@@ -257,7 +350,6 @@ public class ProductViewController implements Initializable {
         removeThread.start();
     }
 
-    // Public method to set camion data from other controllers
     public void setCamion(Camion camion) {
         loadCamionData(camion);
     }

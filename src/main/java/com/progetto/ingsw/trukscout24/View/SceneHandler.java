@@ -207,6 +207,10 @@ public class SceneHandler {
         loadFXML("PasswordDimenticata.fxml");
     }
 
+    public void setAdminScene() throws Exception {
+        loadFXML("Admin.fxml");
+    }
+
     public void setTruckDetailsScene() throws Exception {
         loadFXML("ProductView.fxml");
     }

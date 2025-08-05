@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import javafx.geometry.Insets?>
-<?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
@@ -12,44 +11,54 @@
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
 <?import javafx.scene.layout.Region?>
-<?import javafx.scene.layout.RowConstraints?>
-<?import javafx.scene.layout.StackPane?>
 <?import javafx.scene.layout.VBox?>
 <?import javafx.scene.text.Font?>
 
-<VBox prefHeight="900.0" prefWidth="1400.0" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.progetto.ingsw.trukscout24.Controller.HomeController"
-      styleClass="root" stylesheets="@../css/Home.css">
+<VBox prefHeight="900.0" prefWidth="1400.0" styleClass="root" stylesheets="@../css/Home.css" xmlns="http://javafx.com/javafx/24.0.1" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.progetto.ingsw.trukscout24.Controller.HomeController">
     <!-- TOP HEADER -->
     <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="top-header">
         <!-- Logo Section -->
-        <HBox alignment="CENTER_LEFT" prefHeight="100.0" prefWidth="203.0" styleClass="logo-container">
-            <ImageView fitHeight="90.0" fitWidth="203.0" onMouseClicked="#HomeClick" preserveRatio="true" styleClass="cursor-hand">
+        <HBox alignment="CENTER" prefHeight="90.0" prefWidth="203.0" styleClass="logo-container">
+            <ImageView fitHeight="90.0" fitWidth="203.0" onMouseClicked="#HomeClick" preserveRatio="true" styleClass="cursor-hand" >
                 <Image url="@../Icone/TruckScout24.png" />
             </ImageView>
+            <HBox.margin>
+                <Insets left="50.0" />
+            </HBox.margin>
         </HBox>
 
         <!-- Spacer sinistro per centrare la search bar -->
-        <Region HBox.hgrow="ALWAYS" />
+        <Region prefHeight="100.0" prefWidth="250.0" HBox.hgrow="ALWAYS" />
 
         <!-- Center Search Bar -->
         <HBox alignment="CENTER" spacing="10.0">
-            <TextField fx:id="mainSearchField" prefHeight="35.0" prefWidth="314.0" promptText="Cerca camion, marca, modello..." styleClass="search-field" />
-            <Button fx:id="mainSearchButton" onAction="#onMainSearchClick" prefHeight="38.0" prefWidth="40.0" styleClass="search-button" text="🔍"/>
+            <TextField fx:id="mainSearchField" prefHeight="35.0" prefWidth="280.0" promptText="Cerca camion, marca, modello..." styleClass="search-field" />
+            <Button fx:id="mainSearchButton" onAction="#onMainSearchClick" prefHeight="38.0" prefWidth="40.0" styleClass="search-button" text="🔍">
+                <font>
+                    <Font size="16.0" />
+                </font></Button>
         </HBox>
 
         <!-- Spacer destro per centrare la search bar -->
-        <Region HBox.hgrow="ALWAYS" />
+        <Region prefHeight="100.0" prefWidth="190.0" HBox.hgrow="ALWAYS" />
 
         <!-- User Actions Section on the Right -->
-        <HBox alignment="CENTER" spacing="15.0">
-            <Button fx:id="userButton" onMouseClicked="#userClick" prefHeight="50.0" prefWidth="53.0" styleClass="user-actions-button" text="👤" >
+        <HBox alignment="CENTER" spacing="20.0">
+
+            <Button fx:id="AdminButton" onMouseClicked="#AdminClick" prefHeight="55.0" prefWidth="55.0" styleClass="user-actions-button" text="🛠">
                 <font>
-                    <Font name="System Bold" size="22.0" />
+                    <Font name="System Bold" size="30.0" />
+                </font>
+            </Button>
+
+            <Button fx:id="userButton" onMouseClicked="#userClick" prefHeight="55.0" prefWidth="55.0" styleClass="user-actions-button" text="👤">
+                <font>
+                    <Font name="System Bold" size="30.0" />
                 </font>
             </Button>
 
             <!-- Wishlist -->
-            <Button fx:id="wishlistButton" onMouseClicked="#wishlistClick" prefHeight="50.0" prefWidth="50.0" styleClass="user-actions-button" text="♥">
+            <Button fx:id="wishlistButton" onMouseClicked="#wishlistClick" prefHeight="55.0" prefWidth="55.0" styleClass="wishlist-actions-button" text="♥">
                 <font>
                     <Font size="27.0" />
                 </font>
@@ -57,28 +66,27 @@
 
             <!-- Login -->
             <Button fx:id="loginButton" onMouseClicked="#loginClick" styleClass="login-button" text="Login" />
+            <HBox.margin>
+                <Insets right="50.0" />
+            </HBox.margin>
 
-            <!-- Register -->
-            <Button fx:id="registerButton" onMouseClicked="#registrazioneClick" styleClass="register-button" text="Registrazione" />
         </HBox>
     </HBox>
 
-
-
     <!-- MAIN CONTENT -->
-    <ScrollPane fitToWidth="true" style="-fx-background-color: #f8f9fa;" VBox.vgrow="ALWAYS">
-        <VBox spacing="30.0" style="-fx-padding: 20; -fx-background-color: #f8f9fa;">
+    <ScrollPane fitToWidth="true" VBox.vgrow="ALWAYS">
+        <VBox spacing="30.0">
             <!-- HERO SECTION -->
             <VBox alignment="CENTER" prefHeight="150.0" prefWidth="1400.0" spacing="20.0" styleClass="hero-section">
                 <VBox alignment="CENTER" spacing="10.0">
-                    <Label style="-fx-font-size: 28; -fx-font-weight: bold; -fx-text-fill: #2c3e50;" text="Trova il tuo camion ideale!" />
-                    <Label style="-fx-font-size: 18; -fx-text-fill: #7f8c8d;" text="Oltre 50 veicoli commerciali premium dai migliori marchi europei" />
+                    <Label text="Trova il tuo camion ideale!" />
+                    <Label text="Oltre 50 veicoli commerciali premium dai migliori marchi europei" />
                 </VBox>
             </VBox>
 
             <!-- BRAND SELECTION SECTION -->
             <VBox alignment="CENTER" spacing="20.0">
-                <HBox alignment="CENTER" spacing="30.0" style="-fx-padding: 20 0;">
+                <HBox alignment="CENTER" spacing="30.0">
                     <ImageView fitHeight="100.0" fitWidth="180.0" onMouseClicked="#onVolvoClick" preserveRatio="true" styleClass="cursor-hand">
                         <Image url="@../loghi/Volvo.png" />
                     </ImageView>
@@ -111,45 +119,38 @@
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" prefWidth="350.0" />
                         <ColumnConstraints hgrow="SOMETIMES" minWidth="300.0" prefWidth="350.0" />
                     </columnConstraints>
-
-                    <!-- ROW 1 -->
-                    <VBox alignment="CENTER" spacing="10.0" styleClass="truck-card" GridPane.columnIndex="0" GridPane.rowIndex="0">
-                        <StackPane alignment="CENTER">
-                            <ImageView fitHeight="180.0" fitWidth="320.0" onMouseClicked="#onTruckImageClick" preserveRatio="true" styleClass="cursor-hand" userData="VOLVO_FH16_750">
-                                <Image url="@../immagini/VVFH540.jpg" />
-                            </ImageView>
-                        </StackPane>
-                        <VBox alignment="CENTER" spacing="6.0">
-                            <Label styleClass="truck-card-label" text="Volvo FH16 750" />
-                            <Label styleClass="truck-card-price" text="€ 89.500" />
-                        </VBox>
-                    </VBox>
-
-                    <!-- More truck cards... -->
-
                 </GridPane>
-
-                <!-- View More Button -->
-                <HBox alignment="CENTER">
-                    <Button fx:id="viewMoreButton" onAction="#onViewMoreClick" prefHeight="45.0" prefWidth="250.0" styleClass="view-more-button" text="Visualizza Altri Camion" />
-                </HBox>
             </VBox>
 
             <!-- SERVICES SECTION -->
             <VBox alignment="CENTER" spacing="15.0" styleClass="services-section">
                 <Label styleClass="services-section-label" text="I Nostri Servizi" />
+
                 <HBox alignment="CENTER" spacing="30.0">
-                    <VBox alignment="CENTER" prefWidth="180.0" spacing="8.0">
-                        <Label styleClass="services-icon-label" text="🔍" />
-                        <Label style="-fx-font-size: 14px;" text="Ricerca Avanzata" />
-                        <Label styleClass="services-description" text="Trova il veicolo perfetto con i nostri filtri professionali" />
+                    <!-- Card 1 -->
+                    <VBox alignment="CENTER" spacing="10.0" styleClass="service-card">
+                        <Label text="📍" styleClass="service-icon" />
+                        <Label text="Vieni a trovarci in concessionaria!" wrapText="true" textAlignment="CENTER" styleClass="service-text" />
                     </VBox>
 
-                    <!-- More services icons... -->
+                    <!-- Card 2 -->
+                    <VBox alignment="CENTER" spacing="10.0" styleClass="service-card">
+                        <Label text="💰" styleClass="service-icon" />
+                        <Label text="Tutti i veicoli sono con IVA inclusa" wrapText="true" textAlignment="CENTER" styleClass="service-text" />
+                    </VBox>
 
+                    <!-- Card 3 -->
+                    <VBox alignment="CENTER" spacing="10.0" styleClass="service-card">
+                        <Label text="📞" styleClass="service-icon" />
+                        <Label text="Disponibilità variabile. Contattaci: 0123-456789" wrapText="true" textAlignment="CENTER" styleClass="service-text" />
+                    </VBox>
                 </HBox>
             </VBox>
+
         </VBox>
+        <padding>
+            <Insets bottom="20.0" left="20.0" right="20.0" top="20.0" />
+        </padding>
     </ScrollPane>
 
     <!-- FOOTER FISSO (fuori dal ScrollPane) -->
@@ -159,4 +160,3 @@
         <Label styleClass="footer-right-label" text="© 2024 TrukScout24 S.r.l. - P.IVA: 12345678901" />
     </HBox>
 </VBox>
-

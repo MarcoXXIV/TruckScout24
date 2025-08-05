@@ -55,7 +55,6 @@ public class UtenteController implements Initializable {
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
-            initializeComponents();
             setupTable();
             loadUserData();
         } catch (Exception e) {
@@ -63,9 +62,6 @@ public class UtenteController implements Initializable {
         }
     }
 
-    private void initializeComponents() {
-        // Inizializza altri componenti se necessario
-    }
 
     private void loadUserData() {
         db.setUser(currentUserEmail).thenAccept(user -> {
@@ -87,18 +83,58 @@ public class UtenteController implements Initializable {
     }
 
     private void setupTable() {
-        idCamionColumn.setCellValueFactory(new PropertyValueFactory<>("id_Camion"));
+        idCamionColumn.setCellValueFactory(cellData ->
+                new javafx.beans.property.SimpleStringProperty(cellData.getValue().nome_camion())
+        );
+
         dataColumn.setCellValueFactory(cellData -> {
             Prenotazione p = cellData.getValue();
             String dataFormatted = p.giorno() + "/" + p.mese() + "/" + p.anno();
             return new javafx.beans.property.SimpleStringProperty(dataFormatted);
         });
+
         statoColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty("Confermata"));
+                new javafx.beans.property.SimpleStringProperty("Confermata")
+        );
+
+        // Colonna Azioni per il bottone di cancellazione
         azioniColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty("Modifica/Cancella"));
+                new javafx.beans.property.SimpleStringProperty("Cancella")
+        );
+
+        azioniColumn.setCellFactory(column -> {
+            return new TableCell<Prenotazione, String>() {
+                private final Button btn = new Button("Cancella");
+
+                {
+                    btn.getStyleClass().add("danger-btn");
+                    btn.setOnAction(event -> {
+                        Prenotazione prenotazione = getTableRow().getItem();
+                        if (prenotazione != null) {
+                            deletePrenotazione(prenotazione);
+                        }
+                    });
+                }
+
+                @Override
+                protected void updateItem(String item, boolean empty) {
+                    super.updateItem(item, empty);
+                    if (!empty) {
+                        setGraphic(btn);
+                    } else {
+                        setGraphic(null);
+                    }
+                }
+            };
+        });
 
         prenotazioniTable.setItems(prenotazioni);
+    }
+
+    private void deletePrenotazione(Prenotazione prenotazione){
+        db.removeSelectedPrenotazioniItem(prenotazione.nome_camion(), prenotazione.id_utente());
+        showAlert("Conferma", "Prenotazione cancellata con successo.", Alert.AlertType.INFORMATION);
+        setupTable();
     }
 
     private void loadPrenotazioni() {

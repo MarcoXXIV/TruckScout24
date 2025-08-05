@@ -3,6 +3,7 @@
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.Cursor?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.DatePicker?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
 <?import javafx.scene.control.Separator?>
@@ -40,8 +41,8 @@
                 <!-- Specifiche principali con cuore -->
                 <VBox styleClass="key-specs-section">
 
-                    <HBox alignment="CENTER_RIGHT" prefHeight="26.0" prefWidth="100.0">
-                        <Button fx:id="wishlistButton" onAction="#onWishlistClick" prefHeight="25.0" prefWidth="25.0" styleClass="wishlist-button-flat" />
+                    <HBox alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="100.0">
+                        <Button fx:id="wishlistButton" onAction="#onWishlistClick" prefHeight="45.0" prefWidth="45.0" styleClass="wishlist-button-flat" text="♥" />
                     </HBox>
 
                     <VBox styleClass="title-info">
@@ -81,20 +82,34 @@
                         <Label fx:id="specAnno" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="5" />
                     </GridPane>
                 </VBox>
-            <VBox.margin>
-               <Insets top="10.0" />
-            </VBox.margin>
+                <VBox.margin>
+                    <Insets top="10.0" />
+                </VBox.margin>
             </HBox>
 
             <!-- SEZIONI SUCCESSIVE -->
             <VBox styleClass="content-below-image">
                 <Separator styleClass="section-separator" />
 
-                <!-- DESCRIZIONE -->
-                <VBox styleClass="description-section">
-                    <Label styleClass="section-title" text="Descrizione" />
-                    <Label fx:id="productDescription" styleClass="description-text" wrapText="true" />
-                </VBox>
+                <!-- SEZIONI AFFIANCATE: DESCRIZIONE + PRENOTAZIONE -->
+                <HBox styleClass="description-booking-container">
+
+                    <!-- DESCRIZIONE (sinistra) -->
+                    <VBox styleClass="description-section-left">
+                        <Label styleClass="section-title" text="Descrizione" />
+                        <Label fx:id="productDescription" styleClass="description-text" wrapText="true" />
+                    </VBox>
+
+                    <!-- PRENOTAZIONE (destra) -->
+                    <VBox styleClass="booking-section">
+                        <Label styleClass="section-title" text="Prenota Test Drive" />
+                        <Label styleClass="booking-subtitle" text="Seleziona una data per il test drive" />
+                        <DatePicker fx:id="datePicker" styleClass="date-picker" />
+                        <Button fx:id="prenotaButton" onAction="#onPrenotaClick" styleClass="booking-button" text="Prenota Appuntamento" />
+                        <Label styleClass="booking-info" text="📍 Appuntamento presso la concessionaria" />
+                    </VBox>
+
+                </HBox>
 
                 <!-- VENDITORE -->
                 <VBox styleClass="seller-section">

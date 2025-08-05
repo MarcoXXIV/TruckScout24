@@ -10,6 +10,13 @@
 .logo-container {
     -fx-background-color: transparent;
     -fx-padding: 0 0 15 0;
+    -fx-cursor: hand;
+}
+
+.logo-container:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Form box - solo la parte centrale bianca */

@@ -71,7 +71,7 @@
                         <Label text="Ripeti Password:" GridPane.rowIndex="1" GridPane.columnIndex="0"/>
                         <PasswordField fx:id="repeatPasswordField" GridPane.rowIndex="1" GridPane.columnIndex="1"/>
                     </GridPane>
-                    <Button fx:id="updateProfileButton" text="Cambia Password" onAction="#changePasswordAction"/>
+                    <Button fx:id="updateProfileButton" text="Cambia Password" onAction="#changePasswordAction" styleClass="danger-btn"/>
                     <Label fx:id="profileUpdateStatus" visible="false" styleClass="status-message"/>
                 </VBox>
             </HBox>

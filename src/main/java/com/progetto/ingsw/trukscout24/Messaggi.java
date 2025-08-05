@@ -18,7 +18,7 @@ public class Messaggi {
     public final static String not_logged_in_error = "Effettuare il login prima di accedere a questa sezione!";
     public final static String privacy_information_error = "Errore nell'apertura di informazioni sulla privacy";
     public final static String general_condition_error = "Errore nell'apertura delle condizioni generali di uso e vendita";
-    public final static String add_home_page_barche_error = "Errore nell'aggiunta delle barche alla home";
+    public final static String add_home_page_camion_error = "Errore nell'aggiunta dei camion alla home";
     public final static String registrazione_completata = "La tua registrazione è stata completata con successo! Puoi ora effettuare il login";
     public final static String errore_di_registrazione = "Dati non validi. Verifica i campi e riprova";
     public final static String registration_field_empty_error = "Compilare tutti i campi per proseguire con la registrazione";
@@ -99,10 +99,10 @@ public class Messaggi {
             l'utilizzo non autorizzato di tali materiali.
                         
             4) Prodotti e prezzi:
-            Forniamo descrizioni accurate delle barche disponibili
+            Forniamo descrizioni accurate dei camion disponibili
             nella nostra applicazione. Tuttavia, non possiamo garantire
             che le informazioni siano sempre complete, accurate o
-            aggiornate. I prezzi delle barche sono indicati in valuta
+            aggiornate. I prezzi dei camion sono indicati in valuta
             locale e possono essere soggetti a modifiche senza preavviso.
             """;
 }

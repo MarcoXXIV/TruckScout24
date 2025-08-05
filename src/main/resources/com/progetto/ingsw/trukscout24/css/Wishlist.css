@@ -23,6 +23,10 @@
     -fx-border-width: 0 0 1 0;
 }
 
+.header-actions {
+    -fx-padding: 20 40 10 40;
+}
+
 .nav-bar {
     -fx-background-color: transparent;
     -fx-min-height: 70;
@@ -82,8 +86,9 @@
 .clear-button,
 .primary-button,
 .remove-button,
-.truck-card,
-.heart-button {
+.truck-card-compact,
+.heart-button-filled,
+.heart-button-empty {
     -fx-transition: all 0.2s ease-in-out;
 }
 
@@ -158,138 +163,131 @@
 }
 
 /* ================================
-   FLOWPANE - CONFIGURAZIONE PER 2 CARD MOLTO GRANDI PER RIGA
+   FLOWPANE COMPATTO - CONFIGURAZIONE PER CARD PICCOLE
    ================================ */
-.trucks-flow {
-    -fx-padding: 40;
-    -fx-hgap: 60;  /* Gap più grande tra le card */
-    -fx-vgap: 40;  /* Gap più grande tra le righe */
+.trucks-flow-compact {
+    -fx-padding: 20;
+    -fx-hgap: 30;
+    -fx-vgap: 30;
     -fx-background-color: transparent;
     -fx-alignment: center;
-    -fx-pref-wrap-length: 1600; /* Larghezza per contenere esattamente 2 card molto grandi */
+    -fx-pref-wrap-length: 1400;
 }
 
 /* ================================
-   CARD DEI CAMION - DESIGN VERTICALE E MOLTO PIÙ GRANDI
+   CARD DEI CAMION COMPATTE - DESIGN PICCOLO E COMPATTO
    ================================ */
-.truck-card {
+.truck-card-compact {
     -fx-background-color: #ffffff;
-    -fx-background-radius: 20;
-    -fx-border-color: #e2e8f0;
-    -fx-border-radius: 20;
-    -fx-border-width: 2;
-    -fx-padding: 30;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.12), 20, 0, 0, 6);
+    -fx-background-radius: 12;
+    -fx-border-color: lightgray;
+    -fx-border-radius: 12;
+    -fx-border-width: 1;
+    -fx-padding: 10;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 3);
     -fx-cursor: hand;
-    /* Card molto grandi per avere solo 2 per riga */
-    -fx-pref-width: 750;
-    -fx-max-width: 750;
-    -fx-min-width: 750;
-    -fx-pref-height: 420; /* Più alte per il layout verticale */
-    -fx-min-height: 420;
+    -fx-pref-width: 300;
+    -fx-max-width: 300;
+    -fx-min-width: 300;
+    -fx-spacing: 5;
 }
 
-.truck-card:hover {
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 30, 0, 0, 12);
+.truck-card-compact:hover {
+    -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.3), 12, 0, 0, 5);
     -fx-border-color: #ff6b35;
-    -fx-translate-y: -5;
+    -fx-border-width: 2;
+    -fx-background-color: #f0f8ff;
 }
 
 /* ================================
-   HEADER DELLA CARD - POSIZIONE ASSOLUTA PER IL CUORE
+   HEADER DELLA CARD COMPATTA
    ================================ */
-.card-header {
+.card-header-compact {
+    -fx-alignment: top-right;
+    -fx-padding: 0 0 10 0;
+}
+
+/* ================================
+   IMMAGINE CAMION COMPATTA
+   ================================ */
+.truck-image-compact {
     -fx-alignment: center;
-    -fx-pref-height: 140;
-    -fx-spacing: 0;
 }
 
 /* ================================
-   IMMAGINE CAMION - MOLTO PIÙ GRANDE E CENTRATA
+   CONTENUTO CAMION COMPATTO
    ================================ */
-.truck-image {
+.truck-name-compact {
+    -fx-font-size: 17px;
+    -fx-font-weight: bold;
+    -fx-text-alignment: center;
+    -fx-text-fill: #2c3e50;
+}
+
+.truck-info-compact {
+    -fx-font-size: 14px;
+    -fx-text-fill: #34495e;
+}
+
+.truck-price-compact {
+    -fx-font-size: 14px;
     -fx-text-fill: #ff6b35;
-    -fx-font-size: 120px; /* ENORME per essere ben visibile */
-    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 8, 0, 0, 4);
-    -fx-alignment: center;
+    -fx-font-weight: bold;
 }
 
-/* ================================
-   CONTENUTO SOTTO L'IMMAGINE - PIÙ GRANDE E CENTRATO
-   ================================ */
-.truck-content {
+.info-row-compact {
     -fx-alignment: center;
     -fx-spacing: 12;
-    -fx-padding: 20 10 10 10;
 }
 
-.truck-title {
-    -fx-text-fill: #1e293b;
-    -fx-font-size: 32px; /* Molto più grande */
-    -fx-font-weight: 900;
-    -fx-text-alignment: center;
-}
-
-.truck-info {
-    -fx-text-fill: #64748b;
-    -fx-font-size: 20px; /* Molto più grande */
-    -fx-font-weight: 600;
-    -fx-text-alignment: center;
-}
-
-.truck-price {
-    -fx-text-fill: #ff6b35;
-    -fx-font-size: 36px; /* ENORME per essere ben visibile */
-    -fx-font-weight: 900;
-    -fx-text-alignment: center;
-}
-
-.truck-category {
-    -fx-text-fill: #64748b;
-    -fx-font-size: 18px; /* Più grande */
-    -fx-font-weight: 600;
-    -fx-text-alignment: center;
-}
-
-.truck-date {
-    -fx-text-fill: #94a3b8;
-    -fx-font-size: 16px; /* Più grande */
-    -fx-font-weight: 500;
-    -fx-text-alignment: center;
-}
-
-/* ================================
-   PULSANTE CUORE - POSIZIONATO IN ALTO A DESTRA
-   ================================ */
-.heart-button {
-    -fx-background-color: rgba(255, 107, 53, 0.15);
-    -fx-border-color: rgba(255, 107, 53, 0.3);
-    -fx-border-width: 3;
-    -fx-border-radius: 30;
-    -fx-background-radius: 30;
-    -fx-font-size: 40px; /* ENORME per essere ben visibile */
-    -fx-cursor: hand;
-    -fx-padding: 15 20;
-    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.4), 8, 0, 0, 3);
+.info-box-compact {
     -fx-alignment: center;
-    -fx-pref-width: 80;
-    -fx-pref-height: 80;
-}
-
-.heart-button:hover {
-    -fx-background-color: rgba(255, 107, 53, 0.25);
-    -fx-border-color: rgba(255, 107, 53, 0.5);
-    -fx-scale-x: 1.2;
-    -fx-scale-y: 1.2;
-    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.6), 12, 0, 0, 4);
+    -fx-spacing: 8;
 }
 
 /* ================================
-   HEART CONTAINER PER POSIZIONAMENTO ASSOLUTO
+   PULSANTI CUORE PERSONALIZZATI
    ================================ */
-.heart-container {
-    -fx-alignment: top-right;
-    -fx-padding: 10 10 0 0;
+.heart-button-empty {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: #cccccc;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-font-size: 18px;
+    -fx-text-fill: #666666;
+    -fx-cursor: hand;
+    -fx-padding: 5px 8px;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+}
+
+.heart-button-empty:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 2px;
+    -fx-text-fill: #ff6b35;
+}
+
+.heart-button-filled {
+    -fx-background-color: rgba(255, 255, 255, 0.9);
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 1px;
+    -fx-border-radius: 15px;
+    -fx-background-radius: 15px;
+    -fx-font-size: 18px;
+    -fx-text-fill: #ff6b35;
+    -fx-cursor: hand;
+    -fx-padding: 5px 8px;
+    -fx-min-width: 35px;
+    -fx-min-height: 35px;
+}
+
+.heart-button-filled:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.95);
+    -fx-border-color: #cc0000;
+    -fx-border-width: 2px;
+    -fx-text-fill: #cc0000;
 }
 
 /* ================================
@@ -304,6 +302,7 @@
     -fx-padding: 60 40;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.04), 16, 0, 0, 6);
     -fx-max-width: 450;
+    -fx-alignment: center;
 }
 
 .empty-icon {
@@ -368,28 +367,29 @@
    RESPONSIVE ADJUSTMENTS
    ================================ */
 @media (max-width: 768px) {
-    .trucks-flow {
-        -fx-hgap: 30;
-        -fx-vgap: 30;
-        -fx-pref-wrap-length: 800;
+    .trucks-flow-compact {
+        -fx-hgap: 20;
+        -fx-vgap: 20;
+        -fx-pref-wrap-length: 700;
     }
 
-    .truck-card {
-        -fx-pref-width: 350;
-        -fx-max-width: 350;
-        -fx-min-width: 350;
-        -fx-pref-height: 380;
+    .truck-card-compact {
+        -fx-pref-width: 460;
+        -fx-max-width: 460;
+        -fx-min-width: 460;
     }
 
-    .truck-image {
-        -fx-font-size: 80px;
+    .truck-info-compact {
+        -fx-font-size: 13px;
     }
 
-    .truck-title {
-        -fx-font-size: 24px;
+    .truck-price-compact {
+        -fx-font-size: 14px;
+        -fx-font-weight: bold;
     }
 
-    .truck-price {
-        -fx-font-size: 28px;
+    .truck-name-compact {
+        -fx-font-size: 15px;
+        -fx-font-weight: bold;
     }
 }

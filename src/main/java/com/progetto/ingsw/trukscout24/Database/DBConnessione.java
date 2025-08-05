@@ -503,7 +503,7 @@ public class DBConnessione {
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
-                    Prenotazione p = new Prenotazione(rs.getString("id_utente"), rs.getString("id_Camion"),
+                    Prenotazione p = new Prenotazione(rs.getString("id_utente"), rs.getString("nome_camion"),
                             rs.getInt("giorno"), rs.getInt("mese"), rs.getInt("anno"));
                     pre.add(p);
                 }
@@ -518,26 +518,40 @@ public class DBConnessione {
     public CompletableFuture<ArrayList<Prenotazione>> getPrenotazioniAdmin() {
         CompletableFuture<ArrayList<Prenotazione>> future = new CompletableFuture<>();
         executorService.submit(createDaemonThread(() -> {
+            ArrayList<Prenotazione> pre = new ArrayList<>();
             try {
-                ArrayList<Prenotazione> pre = new ArrayList<>();
-                if (con == null || con.isClosed())
+                if (con == null || con.isClosed()) {
                     future.complete(pre);
-                String query = "SELECT * from prenotazioni ORDER BY anno, mese, giorno;";
+                    return;
+                }
+
+                String query = "SELECT * from prenotazioni ORDER BY giorno, mese, anno;";
                 PreparedStatement stmt = con.prepareStatement(query);
                 ResultSet rs = stmt.executeQuery();
 
                 while (rs.next()) {
-                    Prenotazione p = new Prenotazione(rs.getString("id_utente"), rs.getString("id_Camion"),
-                            rs.getInt("giorno"), rs.getInt("mese"), rs.getInt("anno"));
+                    Prenotazione p = new Prenotazione(
+                            rs.getString("id_utente"),
+                            rs.getString("nome_camion"),
+                            rs.getInt("giorno"),
+                            rs.getInt("mese"),
+                            rs.getInt("anno")
+                    );
                     pre.add(p);
                 }
+
                 future.complete(pre);
+
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                future.completeExceptionally(e); // <--- QUESTA È FONDAMENTALE
+                Platform.runLater(() ->
+                        SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0)
+                );
             }
         }));
         return future;
     }
+
 
     public String getCamionName(String id) {
         try {
@@ -550,38 +564,42 @@ public class DBConnessione {
         return null;
     }
 
-    public void insertPrenotazioneIntoDB(String email, String id_camion, int giorno, int mese, int anno) {
+    public void insertPrenotazioneIntoDB(String email, String nome_camion, int giorno, int mese, int anno) {
         executorService.submit(createDaemonThread(() -> {
             try {
                 CompletableFuture<ArrayList<Prenotazione>> future = getPrenotazione(email);
                 ArrayList<Prenotazione> nPre = future.get(10, TimeUnit.SECONDS);
                 boolean find = false;
-                for (Prenotazione id : nPre) {
-                    if (id.id_Camion().equals(id_camion)) {
+                // Verifica che il nome_camion non esista già nelle prenotazioni
+                for (Prenotazione nome : nPre) {
+                    if (nome.nome_camion().equals(nome_camion)) {
                         find = true;
                         break;
                     }
                 }
 
                 if (find) {
+                    // Mostra un messaggio di avviso se il camion è già prenotato
                     Platform.runLater(() -> SceneHandler.getInstance().showAlert("Attenzione", Messaggi.add_prenotazioni_find_information, 1));
                     return;
                 }
 
                 if (nPre.size() < 6) {
-                    if (con == null || con.isClosed())
-                        return;
-                    PreparedStatement stmt = con.prepareStatement("INSERT INTO prenotazioni VALUES(?, ?, ?, ?, ?);");
+                    // Verifica connessione
+                    if (con == null || con.isClosed()) return;
+                    PreparedStatement stmt = con.prepareStatement("INSERT INTO prenotazioni (id_utente, nome_camion, giorno, mese, anno) VALUES(?, ?, ?, ?, ?);");
                     stmt.setString(1, email);
-                    stmt.setString(2, id_camion);
+                    stmt.setString(2, nome_camion);
                     stmt.setInt(3, giorno);
                     stmt.setInt(4, mese);
                     stmt.setInt(5, anno);
                     stmt.execute();
                     stmt.close();
 
+                    // Mostra un messaggio di conferma
                     Platform.runLater(() -> SceneHandler.getInstance().showAlert("Conferma", Messaggi.conferma_prenotazione + LocalDate.of(anno, mese, giorno), 1));
                 } else {
+                    // Mostra un messaggio di avviso se sono state fatte più di 6 prenotazioni
                     Platform.runLater(() -> SceneHandler.getInstance().showAlert("Attenzione", Messaggi.add_prenotazioni_max_information, 1));
                 }
             } catch (SQLException | ExecutionException | InterruptedException | TimeoutException e) {
@@ -590,14 +608,14 @@ public class DBConnessione {
         }));
     }
 
-    public void removeSelectedPrenotazioniItem(String id, String id_utente) {
+    public void removeSelectedPrenotazioniItem(String nome_camion, String id_utente) {
         executorService.submit(createDaemonThread(() -> {
             try {
                 if (con == null || con.isClosed())
                     return;
-                String query = "DELETE FROM prenotazioni where id_Camion = ? and id_utente = ?;";
+                String query = "DELETE FROM prenotazioni where nome_camion = ? and id_utente = ?;";
                 PreparedStatement stmt = con.prepareStatement(query);
-                stmt.setString(1, id);
+                stmt.setString(1, nome_camion);
                 stmt.setString(2, id_utente);
                 stmt.execute();
                 stmt.close();
@@ -680,67 +698,39 @@ public class DBConnessione {
     public boolean rimuoviCamion(String idCamion) {
         try {
             if (con == null || con.isClosed()) {
-                Platform.runLater(() ->
-                        SceneHandler.getInstance().showAlert("Errore Database", "Connessione al database non disponibile.", 0)
-                );
-                return false;
+                throw new SQLException("Connessione al database non disponibile.");
             }
 
-            // Creazione dell'alert di conferma
-            Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-            alert.setTitle("Conferma rimozione");
-            alert.setHeaderText("Sei sicuro di voler rimuovere il camion?");
-            alert.setContentText("ID Camion: " + idCamion);
+            // Rimuovi le prenotazioni associate al camion
+            PreparedStatement deletePrenotazioniStmt = con.prepareStatement("DELETE FROM prenotazioni WHERE id_Camion = ?;");
+            deletePrenotazioniStmt.setString(1, idCamion);
+            int prenotazioniEliminate = deletePrenotazioniStmt.executeUpdate();
+            deletePrenotazioniStmt.close();
 
-            // Mostra l'alert e attendi la risposta dell'utente
-            Optional<ButtonType> result = alert.showAndWait();
+            // Rimuovi il camion dalle wishlist
+            PreparedStatement deleteWishlistStmt = con.prepareStatement("DELETE FROM wishlist WHERE id_camion = ?;");
+            deleteWishlistStmt.setString(1, idCamion);
+            int wishlistEliminate = deleteWishlistStmt.executeUpdate();
+            deleteWishlistStmt.close();
 
-            if (result.isPresent() && result.get() == ButtonType.OK) {
-                // Rimuovi le prenotazioni associate al camion
-                PreparedStatement deletePrenotazioniStmt = con.prepareStatement("DELETE FROM prenotazioni WHERE id_Camion = ?;");
-                deletePrenotazioniStmt.setString(1, idCamion);
-                int prenotazioniEliminate = deletePrenotazioniStmt.executeUpdate();
-                deletePrenotazioniStmt.close();
+            // Esegui la rimozione del camion
+            PreparedStatement deleteCamionStmt = con.prepareStatement("DELETE FROM camion WHERE id = ?;");
+            deleteCamionStmt.setString(1, idCamion);
+            int rowsAffected = deleteCamionStmt.executeUpdate();
+            deleteCamionStmt.close();
 
-                // Rimuovi il camion dalle wishlist
-                PreparedStatement deleteWishlistStmt = con.prepareStatement("DELETE FROM wishlist WHERE id_camion = ?;");
-                deleteWishlistStmt.setString(1, idCamion);
-                int wishlistEliminate = deleteWishlistStmt.executeUpdate();
-                deleteWishlistStmt.close();
-
-                // Esegui la rimozione del camion
-                PreparedStatement deleteCamionStmt = con.prepareStatement("DELETE FROM camion WHERE id = ?;");
-                deleteCamionStmt.setString(1, idCamion);
-                int rowsAffected = deleteCamionStmt.executeUpdate();
-                deleteCamionStmt.close();
-
-                if (rowsAffected > 0) {
-                    Platform.runLater(() -> {
-                        String message = "Camion rimosso con successo.";
-                        if (prenotazioniEliminate > 0) {
-                            message += " Rimosse anche " + prenotazioniEliminate + " prenotazioni associate.";
-                        }
-                        SceneHandler.getInstance().showAlert("Operazione riuscita", message, 1);
-                    });
-                    return true;
-                } else {
-                    Platform.runLater(() ->
-                            SceneHandler.getInstance().showAlert("Errore", "Nessun camion trovato con l'ID fornito.", 0)
-                    );
-                    return false;
-                }
+            if (rowsAffected > 0) {
+                System.out.println("Camion rimosso con successo. Prenotazioni eliminate: " + prenotazioniEliminate);
+                return true;
             } else {
-                // L'utente ha annullato l'operazione
-                Platform.runLater(() ->
-                        SceneHandler.getInstance().showAlert("Operazione annullata", "La rimozione del camion è stata annullata.", 0)
-                );
+                System.out.println("Nessun camion trovato con l'ID fornito: " + idCamion);
                 return false;
             }
+
         } catch (SQLException e) {
-            Platform.runLater(() ->
-                    SceneHandler.getInstance().showAlert("Errore Database", "Impossibile rimuovere il camion: " + e.getMessage(), 0)
-            );
-            return false;
+            System.err.println("Errore SQL nella rimozione camion: " + e.getMessage());
+            e.printStackTrace();
+            throw new RuntimeException("Errore database: " + e.getMessage(), e);
         }
     }
 

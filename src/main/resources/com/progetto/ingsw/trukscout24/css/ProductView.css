@@ -129,38 +129,38 @@
     -fx-font-weight: bold;
 }
 
-/* === CUORE PREFERITI === */
-.wishlist-button-flat {
-    -fx-background-color: white;
-    -fx-border-color: #ff6b35;
-    -fx-border-radius: 30;
-    -fx-background-radius: 30;
-    -fx-text-fill: #ff6b35;
-    -fx-font-size: 24px; /* Ridurre la dimensione del cuore */
-    -fx-font-weight: bold;
-    -fx-cursor: hand;
-    -fx-padding: 5 12;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.05), 2, 0, 0, 1);
-}
-
-/* Hover effect per ingrandire il cuore */
-.wishlist-button-flat:hover {
-    -fx-background-color: #ff6b35;
-    -fx-text-fill: white;
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-}
-
-/* Cambia il colore del cuore quando è attivo */
 .wishlist-button-active {
-    -fx-text-fill: red; /* Imposta un colore rosso per visibilità */
-    -fx-font-size: 26px; /* Imposta una dimensione più grande */
+    -fx-text-fill: red;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-background-color: white;
+    -fx-border-color: red;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
 }
 
-/* Cambia il colore del cuore quando è inattivo */
 .wishlist-button-inactive {
-    -fx-text-fill: gray; /* Colore grigio quando è disattivo */
-    -fx-font-size: 22px; /* Riduci la dimensione */
+    -fx-text-fill: #000;
+    -fx-font-size: 32px;
+    -fx-font-weight: bold;
+    -fx-background-color: white;
+    -fx-border-color: white;
+    -fx-border-width: 2px;
+    -fx-border-radius: 5px;
+    -fx-background-radius: 5px;
+}
+
+.wishlist-button-active:hover {
+    -fx-background-color: white;
+    -fx-text-fill: red;
+    -fx-border-color: red;
+}
+
+.wishlist-button-inactive:hover {
+    -fx-background-color: white;
+    -fx-text-fill: #000;
+    -fx-border-color: #000;
 }
 
 /* ===== SEPARATOR ===== */
@@ -172,13 +172,84 @@
 
 /* ===== SOTTO LA FOTO ===== */
 .content-below-image {
-    -fx-spacing: 50; /* aumentato da 30 */
+    -fx-spacing: 50;
     -fx-padding: 20;
     -fx-alignment: center;
     -fx-max-width: 900;
 }
 
-.description-section,
+/* ===== CONTAINER DESCRIZIONE + PRENOTAZIONE ===== */
+.description-booking-container {
+    -fx-spacing: 30;
+    -fx-alignment: center;
+}
+
+/* ===== DESCRIZIONE (sinistra) ===== */
+.description-section-left {
+    -fx-background-color: white;
+    -fx-background-radius: 12;
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
+    -fx-pref-width: 400;
+}
+
+.description-text {
+    -fx-font-size: 16;
+    -fx-text-fill: #2c3e50;
+    -fx-line-spacing: 6;
+    -fx-text-alignment: left;
+}
+
+/* ===== PRENOTAZIONE (destra) ===== */
+.booking-section {
+    -fx-background-color: #fff5f0;
+    -fx-background-radius: 12;
+    -fx-padding: 30;
+    -fx-spacing: 20;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
+    -fx-pref-width: 350;
+    -fx-alignment: center;
+}
+
+.booking-subtitle {
+    -fx-font-size: 14;
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+}
+
+.date-picker {
+    -fx-pref-width: 250;
+    -fx-font-size: 14;
+}
+
+.booking-button {
+    -fx-background-color: #ff6b35;
+    -fx-text-fill: white;
+    -fx-font-size: 16;
+    -fx-font-weight: bold;
+    -fx-padding: 15 30;
+    -fx-background-radius: 8;
+    -fx-cursor: hand;
+    -fx-pref-width: 250;
+}
+
+.booking-button:hover {
+    -fx-background-color: #e55a2b;
+}
+
+.booking-button:disabled {
+    -fx-background-color: #bdc3c7;
+    -fx-cursor: default;
+}
+
+.booking-info {
+    -fx-font-size: 12;
+    -fx-text-fill: #7f8c8d;
+    -fx-text-alignment: center;
+}
+
+/* ===== VENDITORE ===== */
 .seller-section {
     -fx-background-color: white;
     -fx-background-radius: 12;
@@ -186,13 +257,6 @@
     -fx-spacing: 20;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
     -fx-alignment: center;
-}
-
-.description-text {
-    -fx-font-size: 16;
-    -fx-text-fill: #2c3e50;
-    -fx-line-spacing: 6;
-    -fx-text-alignment: center;
 }
 
 .seller-info {
