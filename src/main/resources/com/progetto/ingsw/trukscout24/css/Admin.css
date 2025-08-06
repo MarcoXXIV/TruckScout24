@@ -12,20 +12,17 @@
 /* Logo con effetti migliorati */
 .logo-image {
     -fx-cursor: hand;
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 6);
 }
 
 .logo-image:hover {
-    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.7), 20, 0, 0, 8);
-    -fx-scale-x: 1.02;
-    -fx-scale-y: 1.02;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Titolo principale */
 .main-title {
     -fx-font-size: 32px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
     -fx-effect: dropshadow(one-pass-box, rgba(0,0,0,0.3), 3, 0, 0, 2);
 }
 

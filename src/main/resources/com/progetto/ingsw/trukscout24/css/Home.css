@@ -110,7 +110,6 @@
 /* Camion Card Styles */
 .camion-card {
     -fx-padding: 10;
-    -fx-border-color: lightgray;
     -fx-border-width: 1;
     -fx-cursor: hand;
     -fx-background-color: white;
@@ -152,10 +151,11 @@
     -fx-alignment: center;
 }
 
-/* Heart Button Styles */
+/* ================================
+   PULSANTI CUORE
+   ================================ */
 .heart-button {
     -fx-background-color: rgba(255, 255, 255, 0.9);
-    -fx-border-width: 1px;
     -fx-border-radius: 15px;
     -fx-background-radius: 15px;
     -fx-font-size: 18px;
@@ -163,33 +163,36 @@
     -fx-padding: 5px 8px;
     -fx-min-width: 35px;
     -fx-min-height: 35px;
+    -fx-border-width: 1px;
 }
 
 .heart-empty {
     -fx-border-color: #cccccc;
     -fx-text-fill: #666666;
-    -fx-text: "♡";
+}
+
+.heart-empty:hover {
+    -fx-border-color: #ff6b35;
+    -fx-text-fill: #ff6b35;
+    -fx-border-width: 2px;
 }
 
 .heart-filled {
     -fx-border-color: #ff6b35;
     -fx-text-fill: #ff6b35;
-    -fx-text: "♥";
-}
-
-.heart-empty:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.95);
-    -fx-border-color: #ff6b35;
+    -fx-background-color: #ffe6e6;
     -fx-border-width: 2px;
-    -fx-text-fill: #ff6b35;
 }
 
 .heart-filled:hover {
-    -fx-background-color: rgba(255, 255, 255, 0.95);
     -fx-border-color: #cc0000;
-    -fx-border-width: 2px;
     -fx-text-fill: #cc0000;
+    -fx-background-color: #ffe6e6;
+    -fx-border-width: 2px;
 }
+
+
+
 
 /* Truck Cards */
 .truck-card {

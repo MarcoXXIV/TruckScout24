@@ -65,6 +65,11 @@
                 </HBox>
             </VBox>
 
+            <!-- Label per messaggi di errore -->
+            <HBox alignment="CENTER" spacing="10">
+                <Label fx:id="errorLabel" styleClass="error-label" text="Errore: Campo obbligatorio non compilato" visible="false" />
+            </HBox>
+
             <!-- Pulsante Registrazione -->
             <HBox alignment="CENTER">
                 <Button fx:id="registerButton"

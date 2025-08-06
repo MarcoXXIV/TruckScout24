@@ -9,6 +9,7 @@
 <?import javafx.scene.control.Separator?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
+<?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.layout.ColumnConstraints?>
 <?import javafx.scene.layout.GridPane?>
 <?import javafx.scene.layout.HBox?>
@@ -30,94 +31,121 @@
     <ScrollPane styleClass="main-scroll-pane" VBox.vgrow="ALWAYS">
         <VBox styleClass="main-content">
 
-            <!-- IMAGE + SPECIFICHE + CUORE -->
-            <HBox styleClass="image-details-container">
+            <!-- LAYOUT: IMMAGINE A SINISTRA + CONTENUTO A DESTRA -->
+            <HBox styleClass="main-product-container">
 
-                <!-- Immagine -->
-                <VBox styleClass="image-wrapper">
-                    <ImageView fx:id="mainImage" preserveRatio="true" styleClass="main-image-centered" />
+                <!-- IMMAGINE A SINISTRA (più piccola e separata) -->
+                <VBox styleClass="image-container">
+                    <ImageView fx:id="mainImage" preserveRatio="true" styleClass="product-image" />
                 </VBox>
 
-                <!-- Specifiche principali con cuore -->
-                <VBox styleClass="key-specs-section">
+                <!-- CONTENUTO A DESTRA (ben separato) -->
+                <VBox styleClass="product-info-container">
 
-                    <HBox alignment="CENTER_RIGHT" prefHeight="45.0" prefWidth="100.0">
-                        <Button fx:id="wishlistButton" onAction="#onWishlistClick" prefHeight="45.0" prefWidth="45.0" styleClass="wishlist-button-flat" text="♥" />
+                    <!-- TITOLO E CUORE SULLA STESSA RIGA -->
+                    <HBox styleClass="title-heart-row">
+                        <VBox styleClass="title-section" HBox.hgrow="ALWAYS">
+                            <Label fx:id="productTitle" styleClass="product-title" />
+                        </VBox>
+                        <Button fx:id="wishlistButton" onAction="#onWishlistClick" styleClass="wishlist-button-flat" text="♥" />
                     </HBox>
 
-                    <VBox styleClass="title-info">
-                        <Label fx:id="productTitle" styleClass="product-title" />
-                        <Label fx:id="productSubtitle" styleClass="product-subtitle" />
-                    </VBox>
+                    <!-- PREZZO -->
                     <VBox styleClass="price-section">
                         <Label fx:id="productPrice" styleClass="product-price" />
                     </VBox>
 
-                    <Label styleClass="section-title" text="Specifiche Principali" />
-                    <GridPane styleClass="specs-grid">
-                        <columnConstraints>
-                            <ColumnConstraints />
-                            <ColumnConstraints />
-                        </columnConstraints>
-                        <rowConstraints>
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                            <RowConstraints />
-                        </rowConstraints>
+                    <!-- CARATTERISTICHE IN GRIGLIA 3x3 -->
+                    <VBox styleClass="specs-section">
+                        <Label styleClass="section-title" text="Caratteristiche Principali" />
+                        <GridPane styleClass="specs-grid-3x3">
+                            <columnConstraints>
+                                <ColumnConstraints minWidth="140" prefWidth="140" />
+                                <ColumnConstraints minWidth="140" prefWidth="140" />
+                                <ColumnConstraints minWidth="140" prefWidth="140" />
+                            </columnConstraints>
+                            <rowConstraints>
+                                <RowConstraints minHeight="60" prefHeight="60" />
+                                <RowConstraints minHeight="60" prefHeight="60" />
+                                <RowConstraints minHeight="60" prefHeight="60" />
+                            </rowConstraints>
 
-                        <Label styleClass="spec-label" text="Potenza:" GridPane.columnIndex="0" GridPane.rowIndex="0" />
-                        <Label fx:id="specPotenza" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="0" />
-                        <Label styleClass="spec-label" text="Chilometraggio:" GridPane.columnIndex="0" GridPane.rowIndex="1" />
-                        <Label fx:id="specKilometri" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="1" />
-                        <Label styleClass="spec-label" text="Carburante:" GridPane.columnIndex="0" GridPane.rowIndex="2" />
-                        <Label fx:id="specCarburante" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="2" />
-                        <Label styleClass="spec-label" text="Cambio:" GridPane.columnIndex="0" GridPane.rowIndex="3" />
-                        <Label fx:id="specCambio" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="3" />
-                        <Label styleClass="spec-label" text="Classe Emissioni:" GridPane.columnIndex="0" GridPane.rowIndex="4" />
-                        <Label fx:id="specEmissioni" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="4" />
-                        <Label styleClass="spec-label" text="Anno:" GridPane.columnIndex="0" GridPane.rowIndex="5" />
-                        <Label fx:id="specAnno" styleClass="spec-value" GridPane.columnIndex="1" GridPane.rowIndex="5" />
-                    </GridPane>
+                            <!-- Prima riga -->
+                            <VBox styleClass="spec-item" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                                <Label styleClass="spec-label" text="Potenza" />
+                                <Label fx:id="specPotenza" styleClass="spec-value" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                                <Label styleClass="spec-label" text="Chilometraggio" />
+                                <Label fx:id="specKilometri" styleClass="spec-value" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                                <Label styleClass="spec-label" text="Carburante" />
+                                <Label fx:id="specCarburante" styleClass="spec-value" />
+                            </VBox>
+
+                            <!-- Seconda riga -->
+                            <VBox styleClass="spec-item" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                                <Label styleClass="spec-label" text="Cambio" />
+                                <Label fx:id="specCambio" styleClass="spec-value" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                                <Label styleClass="spec-label" text="Emissioni" />
+                                <Label fx:id="specEmissioni" styleClass="spec-value" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                                <Label styleClass="spec-label" text="Anno" />
+                                <Label fx:id="specAnno" styleClass="spec-value" />
+                            </VBox>
+
+                            <!-- Terza riga - MODELLO sotto USATO -->
+                            <VBox styleClass="spec-item" GridPane.columnIndex="0" GridPane.rowIndex="2">
+                                <Label styleClass="spec-label" text="Modello" />
+                                <Label fx:id="specModello" styleClass="spec-value" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                                <Label styleClass="spec-label" text="Stato" />
+                                <Label styleClass="spec-value" text="Usato" />
+                            </VBox>
+                            <VBox styleClass="spec-item" GridPane.columnIndex="2" GridPane.rowIndex="2">
+                                <Label styleClass="spec-label" text="Trazione" />
+                                <Label styleClass="spec-value" text="4x2" />
+                            </VBox>
+                        </GridPane>
+                    </VBox>
                 </VBox>
-                <VBox.margin>
-                    <Insets top="10.0" />
-                </VBox.margin>
             </HBox>
 
-            <!-- SEZIONI SUCCESSIVE -->
-            <VBox styleClass="content-below-image">
-                <Separator styleClass="section-separator" />
+            <!-- SEPARATOR -->
+            <Separator styleClass="section-separator" />
 
-                <!-- SEZIONI AFFIANCATE: DESCRIZIONE + PRENOTAZIONE -->
-                <HBox styleClass="description-booking-container">
+            <!-- DESCRIZIONE E PRENOTAZIONE AFFIANCATE -->
+            <HBox styleClass="description-booking-container">
 
-                    <!-- DESCRIZIONE (sinistra) -->
-                    <VBox styleClass="description-section-left">
-                        <Label styleClass="section-title" text="Descrizione" />
+                <!-- DESCRIZIONE CON SCROLLPANE (sinistra) -->
+                <VBox styleClass="description-section">
+                    <Label styleClass="section-title" text="Descrizione" />
+                    <ScrollPane styleClass="description-scroll-pane">
                         <Label fx:id="productDescription" styleClass="description-text" wrapText="true" />
-                    </VBox>
+                    </ScrollPane>
+                </VBox>
 
-                    <!-- PRENOTAZIONE (destra) -->
-                    <VBox styleClass="booking-section">
-                        <Label styleClass="section-title" text="Prenota Test Drive" />
-                        <Label styleClass="booking-subtitle" text="Seleziona una data per il test drive" />
-                        <DatePicker fx:id="datePicker" styleClass="date-picker" />
-                        <Button fx:id="prenotaButton" onAction="#onPrenotaClick" styleClass="booking-button" text="Prenota Appuntamento" />
-                        <Label styleClass="booking-info" text="📍 Appuntamento presso la concessionaria" />
-                    </VBox>
+                <!-- PRENOTAZIONE (destra) -->
+                <VBox styleClass="booking-section">
+                    <Label styleClass="section-title" text="Prenota Test Drive" />
+                    <Label styleClass="booking-subtitle" text="Seleziona una data per il test drive" />
+                    <DatePicker fx:id="datePicker" styleClass="date-picker" />
+                    <Button fx:id="prenotaButton" onAction="#onPrenotaClick" styleClass="booking-button" text="Prenota Appuntamento" />
+                    <Label styleClass="booking-info" text="📍 Appuntamento presso la concessionaria" />
+                </VBox>
+            </HBox>
 
-                </HBox>
-
-                <!-- VENDITORE -->
-                <VBox styleClass="seller-section">
-                    <Label styleClass="section-title" text="Informazioni Venditore" />
-                    <VBox styleClass="seller-info">
-                        <Label styleClass="seller-name" text="Concessionaria TruckScout24" />
-                        <Label styleClass="seller-location" text="📍 Corigliano - Rossano, Calabria, Italy" />
-                    </VBox>
+            <!-- VENDITORE -->
+            <VBox styleClass="seller-section">
+                <Label styleClass="section-title" text="Informazioni Venditore" />
+                <VBox styleClass="seller-info">
+                    <Label styleClass="seller-name" text="Concessionaria TruckScout24" />
+                    <Label styleClass="seller-location" text="📍 Corigliano - Rossano, Calabria, Italy" />
                 </VBox>
             </VBox>
         </VBox>

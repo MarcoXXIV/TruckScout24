@@ -38,7 +38,7 @@
     <Label  layoutX="580" layoutY="110" styleClass="main-title" text="Pannello Amministratore" />
 
     <!-- Container principale con tabs - PIÙ LARGO -->
-    <TabPane layoutX="250.0" layoutY="180" prefHeight="550.0" prefWidth="1000.0" styleClass="main-tab-pane">
+    <TabPane layoutX="250.0" layoutY="180" prefHeight="570.0" prefWidth="1000.0" styleClass="main-tab-pane">
 
         <!-- Tab Aggiungi Camion -->
         <Tab styleClass="tab-header" text="Aggiungi Camion">

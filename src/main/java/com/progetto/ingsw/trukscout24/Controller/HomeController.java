@@ -31,13 +31,12 @@ public class HomeController implements Initializable {
 
     @FXML private Button AdminButton;
     @FXML private Button userButton;
+    @FXML private Button wishlistButton;
+    @FXML private Button loginButton;
 
     // Header elements
     @FXML private TextField mainSearchField;
     @FXML private Button mainSearchButton;
-    @FXML private Button wishlistButton;
-    @FXML private Button loginButton;
-    @FXML private Button registerButton;
 
     // Main content
     @FXML private GridPane trucksGrid;
@@ -60,13 +59,30 @@ public class HomeController implements Initializable {
             dbConnessione.createConnection();
             mainSearchField.setOnAction(e -> onMainSearchAction());
             loadInitialCamions();
+            manageUserButtonsVisibility();
         } catch (SQLException e) {
-            throw new RuntimeException("Errore nella connessione al DB", e);
+            throw new RuntimeException(Messaggi.home_db_connection_error, e);
+        }
+    }
+
+    private void manageUserButtonsVisibility() {
+        if (!scenehandler.isUserAuthenticated()) {
+            // Non autenticato
+            loginButton.setVisible(true);
+            wishlistButton.setVisible(false);
+            userButton.setVisible(false);
+            AdminButton.setVisible(false);
+        } else {
+            // Autenticato
+            loginButton.setVisible(false);
+            userButton.setVisible(true);
+            wishlistButton.setVisible(true);
+            AdminButton.setVisible(scenehandler.isCurrentUserAdmin());
         }
     }
 
     private void loadInitialCamions() {
-        statusLabel.setText("Caricamento camion...");
+        statusLabel.setText(Messaggi.home_loading_camions);
 
         CompletableFuture.supplyAsync(() -> {
             try {
@@ -77,11 +93,11 @@ public class HomeController implements Initializable {
         }, databaseExecutor).thenAccept(camions -> {
             Platform.runLater(() -> {
                 populateGridWithCamions(camions);
-                statusLabel.setText("Visualizzando tutti i camion disponibili (" + camions.size() + ")");
+                statusLabel.setText(Messaggi.home_showing_all_camions + " (" + camions.size() + ")");
             });
         }).exceptionally(e -> {
             Platform.runLater(() -> {
-                statusLabel.setText("Errore nel caricamento");
+                statusLabel.setText(Messaggi.home_loading_error);
                 SceneHandler.getInstance().showAlert("Errore DB", Messaggi.thread_error, 0);
             });
             return null;
@@ -129,7 +145,7 @@ public class HomeController implements Initializable {
                 openProductView(camion);
             } catch (Exception e) {
                 System.err.println("Errore nell'apertura della product view: " + e.getMessage());
-                SceneHandler.getInstance().showAlert("Errore", "Impossibile aprire i dettagli del camion", 0);
+                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_product_view_error, 0);
             }
         });
 
@@ -149,14 +165,12 @@ public class HomeController implements Initializable {
         cardHeader.getChildren().addAll(spacer, heartButton);
 
         ImageView imageView = new ImageView();
-        imageView.setFitHeight(320);
-        imageView.setFitWidth(320);
+        imageView.setFitHeight(300);
+        imageView.setFitWidth(300);
         imageView.setPreserveRatio(true);
         imageView.getStyleClass().add("camion-image");
 
         String imagePath = camion.id();
-        System.out.println(imagePath);
-
         if (imagePath != null && !imagePath.isEmpty()) {
             String fullPath = "/com/progetto/ingsw/trukscout24/immagini/" + imagePath + ".jpg";
             URL imageUrl = getClass().getResource(fullPath);
@@ -165,20 +179,16 @@ public class HomeController implements Initializable {
             } else {
                 System.out.println("Immagine non trovata: " + fullPath);
             }
-        } else {
-            System.out.println("ID immagine non trovato o immagine non disponibile.");
         }
 
-        Label nameLabel = new Label("🚚 " + camion.nome());
+        Label nameLabel = new Label(camion.nome());
         nameLabel.getStyleClass().add("camion-name");
 
-        Label modelLabel = new Label("🔧 " + camion.modello());
-        Label priceLabel = new Label("💰 € " + camion.prezzo());
-        Label kmLabel = new Label("🛣 " + camion.kilometri());
+        Label priceLabel = new Label("💰 " + camion.prezzo() + " €");
+        Label kmLabel = new Label("🛣 " + camion.kilometri() + " KM");
         Label yearLabel = new Label("📅 " + camion.anno());
         Label powerLabel = new Label("⚡ " + camion.potenza() + " CV");
 
-        modelLabel.getStyleClass().add("camion-info");
         priceLabel.getStyleClass().addAll("camion-info", "camion-price");
         kmLabel.getStyleClass().add("camion-info");
         yearLabel.getStyleClass().add("camion-info");
@@ -186,7 +196,7 @@ public class HomeController implements Initializable {
 
         HBox infoRow = new HBox(12);
         infoRow.setAlignment(Pos.CENTER);
-        infoRow.getChildren().addAll(modelLabel, priceLabel, kmLabel, yearLabel, powerLabel);
+        infoRow.getChildren().addAll(priceLabel, kmLabel, yearLabel, powerLabel);
 
         VBox infoBox = new VBox(8);
         infoBox.getStyleClass().add("camion-info-container");
@@ -201,10 +211,26 @@ public class HomeController implements Initializable {
         scenehandler.setProductViewScene();
     }
 
+    private Button createHeartButton(Camion camion) {
+        Button heartButton = new Button("♡");
+        heartButton.getStyleClass().add("heart-button");
+        heartButton.setTooltip(new Tooltip("Aggiungi/Rimuovi dai preferiti"));
+        heartButton.setUserData(false);
+        checkInitialWishlistState(heartButton, camion);
+
+        heartButton.setOnAction(e -> {
+            e.consume();
+            handleWishlistClick(heartButton, camion);
+        });
+
+        return heartButton;
+    }
+
     private void checkInitialWishlistState(Button heartButton, Camion camion) {
         String userEmail = scenehandler.getCurrentUserEmail();
         if (userEmail == null || userEmail.isEmpty()) {
-            heartButton.getStyleClass().addAll("heart-button", "heart-empty");
+            heartButton.setText("♡");
+            heartButton.getStyleClass().add("heart-empty");
             heartButton.setUserData(false);
             return;
         }
@@ -217,21 +243,46 @@ public class HomeController implements Initializable {
                 return false;
             }
         }, databaseExecutor).thenAccept(isInWishlist -> {
+            final boolean inWishlist = isInWishlist;
             Platform.runLater(() -> {
-                if (isInWishlist) {
-                    heartButton.getStyleClass().addAll("heart-button", "heart-filled");
-                } else {
-                    heartButton.getStyleClass().addAll("heart-button", "heart-empty");
-                }
-                heartButton.setUserData(isInWishlist);
+                heartButton.setText(inWishlist ? "♥" : "♡");
+                heartButton.getStyleClass().add(inWishlist ? "heart-filled" : "heart-empty");
+                heartButton.setUserData(inWishlist);
             });
         }).exceptionally(e -> {
             Platform.runLater(() -> {
-                heartButton.getStyleClass().addAll("heart-button", "heart-empty");
+                heartButton.setText("♡");
+                heartButton.getStyleClass().add("heart-empty");
                 heartButton.setUserData(false);
             });
             return null;
         });
+    }
+
+    private void handleWishlistClick(Button heartButton, Camion camion) {
+        String userEmail = scenehandler.getCurrentUserEmail();
+
+        if (userEmail == null || userEmail.isEmpty()) {
+            scenehandler.showAlert("Errore", Messaggi.home_wishlist_login_required, 0);
+            return;
+        }
+
+        String operationKey = userEmail + "_" + camion.id();
+        if (processingWishlist.contains(operationKey)) {
+            return;
+        }
+
+        processingWishlist.add(operationKey);
+        heartButton.setDisable(true);
+
+        Boolean isCurrentlyInWishlist = (Boolean) heartButton.getUserData();
+        if (isCurrentlyInWishlist == null) isCurrentlyInWishlist = false;
+
+        if (isCurrentlyInWishlist) {
+            removeFromWishlist(heartButton, camion, userEmail);
+        } else {
+            addToWishlist(heartButton, camion, userEmail);
+        }
     }
 
     private void addToWishlist(Button heartButton, Camion camion, String userEmail) {
@@ -249,16 +300,14 @@ public class HomeController implements Initializable {
                 heartButton.setDisable(false);
 
                 if (success) {
+                    heartButton.setText("♥");
                     heartButton.getStyleClass().removeAll("heart-empty");
                     heartButton.getStyleClass().add("heart-filled");
                     heartButton.setUserData(true);
                     scenehandler.showAlert("Successo",
-                            "🚛 " + camion.nome() + " aggiunto ai preferiti!", 1);
+                            "🚛 " + camion.nome() + " " + Messaggi.home_camion_added_to_wishlist, 1);
                 } else {
-                    scenehandler.showAlert("Attenzione",
-                            "Impossibile aggiungere ai preferiti.\n" +
-                                    "• Hai raggiunto il limite massimo (6 camion)\n" +
-                                    "• Il camion è già presente nella lista", 0);
+                    scenehandler.showAlert("Attenzione", Messaggi.home_wishlist_add_error, 0);
                 }
             });
         }).exceptionally(throwable -> {
@@ -266,7 +315,7 @@ public class HomeController implements Initializable {
                 processingWishlist.remove(operationKey);
                 heartButton.setDisable(false);
                 scenehandler.showAlert("Errore",
-                        "Errore durante l'aggiunta ai preferiti: " + throwable.getMessage(), 0);
+                        Messaggi.home_wishlist_add_exception + ": " + throwable.getMessage(), 0);
             });
             return null;
         });
@@ -287,14 +336,14 @@ public class HomeController implements Initializable {
                 heartButton.setDisable(false);
 
                 if (success) {
+                    heartButton.setText("♡");
                     heartButton.getStyleClass().removeAll("heart-filled");
                     heartButton.getStyleClass().add("heart-empty");
                     heartButton.setUserData(false);
                     scenehandler.showAlert("Successo",
-                            "🚛 " + camion.nome() + " rimosso dai preferiti!", 1);
+                            "🚛 " + camion.nome() + " " + Messaggi.home_camion_removed_from_wishlist, 1);
                 } else {
-                    scenehandler.showAlert("Errore",
-                            "Impossibile rimuovere dai preferiti", 0);
+                    scenehandler.showAlert("Errore", Messaggi.home_wishlist_remove_error, 0);
                 }
             });
         }).exceptionally(throwable -> {
@@ -302,51 +351,10 @@ public class HomeController implements Initializable {
                 processingWishlist.remove(operationKey);
                 heartButton.setDisable(false);
                 scenehandler.showAlert("Errore",
-                        "Errore durante la rimozione dai preferiti: " + throwable.getMessage(), 0);
+                        Messaggi.home_wishlist_remove_exception + ": " + throwable.getMessage(), 0);
             });
             return null;
         });
-    }
-
-    private void handleWishlistClick(Button heartButton, Camion camion) {
-        String userEmail = scenehandler.getCurrentUserEmail();
-
-        if (userEmail == null || userEmail.isEmpty()) {
-            scenehandler.showAlert("Errore", "Devi essere autenticato per usare la wishlist", 0);
-            return;
-        }
-
-        String operationKey = userEmail + "_" + camion.id();
-        if (processingWishlist.contains(operationKey)) {
-            return; // Operazione già in corso
-        }
-
-        processingWishlist.add(operationKey);
-        heartButton.setDisable(true);
-
-        Boolean isCurrentlyInWishlist = (Boolean) heartButton.getUserData();
-        if (isCurrentlyInWishlist == null) isCurrentlyInWishlist = false;
-
-        if (isCurrentlyInWishlist) {
-            removeFromWishlist(heartButton, camion, userEmail);
-        } else {
-            addToWishlist(heartButton, camion, userEmail);
-        }
-    }
-
-    private Button createHeartButton(Camion camion) {
-        Button heartButton = new Button("♡"); // Cuore vuoto con bordo
-        heartButton.getStyleClass().addAll("heart-button", "heart-empty");
-        heartButton.setTooltip(new Tooltip("Aggiungi/Rimuovi dai preferiti"));
-
-        checkInitialWishlistState(heartButton, camion);
-
-        heartButton.setOnAction(e -> {
-            e.consume(); // Evita la propagazione del click al VBox
-            handleWishlistClick(heartButton, camion);
-        });
-
-        return heartButton;
     }
 
     @FXML
@@ -370,7 +378,7 @@ public class HomeController implements Initializable {
         System.out.println("Ricerca per: " + searchText);
         searchInProgress = true;
 
-        statusLabel.setText("Ricerca in corso per: " + searchText + "...");
+        statusLabel.setText(Messaggi.home_search_in_progress + ": " + searchText + "...");
         trucksGrid.getChildren().clear();
 
         CompletableFuture.supplyAsync(() -> {
@@ -396,7 +404,7 @@ public class HomeController implements Initializable {
                     CompletableFuture.supplyAsync(() -> {
                         try {
                             db.addSearchedCamion(validIds.toArray(new String[0]));
-                            Thread.sleep(500); // Piccola pausa per completare la query
+                            Thread.sleep(500);
                             return db.getSearchedCamion();
                         } catch (Exception e) {
                             throw new RuntimeException(e);
@@ -406,17 +414,17 @@ public class HomeController implements Initializable {
                             searchInProgress = false;
                             if (searchedCamions != null && !searchedCamions.isEmpty()) {
                                 populateGridWithCamions(searchedCamions);
-                                statusLabel.setText("Trovati " + searchedCamions.size() + " risultati per: " + searchText);
+                                statusLabel.setText(Messaggi.home_search_results_found + " " + searchedCamions.size() + " risultati per: " + searchText);
                             } else {
                                 trucksGrid.getChildren().clear();
-                                statusLabel.setText("Nessun risultato trovato per: " + searchText);
+                                statusLabel.setText(Messaggi.home_search_no_results + ": " + searchText);
                             }
                         });
                     }).exceptionally(e -> {
                         Platform.runLater(() -> {
                             searchInProgress = false;
                             statusLabel.setText("Errore nella ricerca");
-                            SceneHandler.getInstance().showAlert("Errore", "Errore durante la ricerca", 0);
+                            SceneHandler.getInstance().showAlert("Errore", Messaggi.home_search_error, 0);
                         });
                         return null;
                     });
@@ -424,21 +432,21 @@ public class HomeController implements Initializable {
                     Platform.runLater(() -> {
                         searchInProgress = false;
                         trucksGrid.getChildren().clear();
-                        statusLabel.setText("Nessun risultato trovato per: " + searchText);
+                        statusLabel.setText(Messaggi.home_search_no_results + ": " + searchText);
                     });
                 }
             } else {
                 Platform.runLater(() -> {
                     searchInProgress = false;
                     trucksGrid.getChildren().clear();
-                    statusLabel.setText("Nessun risultato trovato per: " + searchText);
+                    statusLabel.setText(Messaggi.home_search_no_results + ": " + searchText);
                 });
             }
         }).exceptionally(e -> {
             Platform.runLater(() -> {
                 searchInProgress = false;
                 statusLabel.setText("Errore nella ricerca");
-                SceneHandler.getInstance().showAlert("Errore", "Errore durante la ricerca", 0);
+                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_search_error, 0);
             });
             return null;
         });
@@ -482,7 +490,7 @@ public class HomeController implements Initializable {
     @FXML private void onDafClick() { handleBrandSelection("DAF"); }
 
     private void handleBrandSelection(String brand) {
-        statusLabel.setText("Caricamento camion " + brand + "...");
+        statusLabel.setText(Messaggi.home_brand_loading + " " + brand + "...");
         trucksGrid.getChildren().clear();
 
         CompletableFuture.supplyAsync(() -> {
@@ -498,16 +506,16 @@ public class HomeController implements Initializable {
             Platform.runLater(() -> {
                 if (filteredCamions != null && !filteredCamions.isEmpty()) {
                     populateGridWithCamions(filteredCamions);
-                    statusLabel.setText("Visualizzando " + filteredCamions.size() + " camion " + brand);
+                    statusLabel.setText(Messaggi.home_brand_showing + " " + filteredCamions.size() + " camion " + brand);
                 } else {
                     trucksGrid.getChildren().clear();
-                    statusLabel.setText("Nessun camion trovato per la marca " + brand);
+                    statusLabel.setText(Messaggi.home_brand_no_results + " " + brand);
                 }
             });
         }).exceptionally(e -> {
             Platform.runLater(() -> {
-                statusLabel.setText("Errore nel caricamento");
-                SceneHandler.getInstance().showAlert("Errore", "Errore nel caricamento dei camion", 0);
+                statusLabel.setText(Messaggi.home_loading_error);
+                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_brand_loading_error, 0);
             });
             return null;
         });

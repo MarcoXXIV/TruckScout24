@@ -1,6 +1,7 @@
 package com.progetto.ingsw.trukscout24.View;
 
 import com.progetto.ingsw.trukscout24.Controller.ProductViewController;
+import com.progetto.ingsw.trukscout24.Database.Authenticazione;
 import com.progetto.ingsw.trukscout24.HelloApplication;
 //import com.progetto.ingsw.Message;
 
@@ -35,22 +36,52 @@ public class SceneHandler {
     private String currentUserEmail;
     private Utente currentUser;
 
+    private final Authenticazione auth = Authenticazione.getInstance();
+
     public void setCurrentUserEmail(String email) {
         this.currentUserEmail = email;
     }
 
     public String getCurrentUserEmail() {
-        return currentUserEmail;
+        Utente user = auth.getUser();
+        return user != null ? user.email() : null;
     }
 
     public void setCurrentUser(Utente user) {
         this.currentUser = user;
         this.currentUserEmail = user != null ? user.email() : null;
+        // Sincronizza con Authenticazione
+        if (user != null) {
+            auth.login(user);
+        } else {
+            auth.logout();
+        }
     }
 
     public Utente getCurrentUser() {
-        return currentUser;
+        return auth.getUser();
     }
+
+    public boolean isUserAuthenticated() {
+        return auth.settedUser();
+    }
+
+    public boolean isCurrentUserAdmin() {
+        return auth.settedUser() && auth.isAdmin();
+    }
+
+    public void loginUser(Utente user) {
+        auth.login(user);
+        this.currentUser = user;
+        this.currentUserEmail = user != null ? user.email() : null;
+    }
+
+    public void logoutUser() {
+        auth.logout();
+        this.currentUser = null;
+        this.currentUserEmail = null;
+    }
+
 
     public void setSelectedCamion(Camion camion) {
         this.selectedCamion = camion;

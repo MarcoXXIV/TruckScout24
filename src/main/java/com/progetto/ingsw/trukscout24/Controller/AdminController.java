@@ -2,6 +2,7 @@ package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 import com.progetto.ingsw.trukscout24.Model.Prenotazione;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
@@ -32,14 +33,12 @@ import java.util.concurrent.CompletableFuture;
 
 public class AdminController implements Initializable {
 
-    // Riferimento al database
     private final DBConnessione dbconnessione = DBConnessione.getInstance();
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
+
     @FXML private Rectangle footerBackground;
-    // Header
     @FXML private ImageView logoImageView;
 
-    // Form Aggiungi Camion
     @FXML private TextField idCamionField;
     @FXML private TextField nomeCamionField;
     @FXML private TextField modelloCamionField;
@@ -56,18 +55,15 @@ public class AdminController implements Initializable {
     @FXML private Button aggiungiCamionBtn;
     @FXML private Button clearFormBtn;
 
-    // Componenti per l'immagine
     @FXML private ImageView previewImageView;
     @FXML private Button selezionaImmagineBtn;
     @FXML private Label nomeImmagineLabel;
 
     private File selectedImageFile;
 
-    // Form Rimuovi Camion
     @FXML private TextField idCamionRimuoviField;
     @FXML private Button rimuoviCamionBtn;
 
-    // Tabella Prenotazioni
     @FXML private TableView<Prenotazione> prenotazioniTable;
     @FXML private TableColumn<Prenotazione, String> idUtenteColumn;
     @FXML private TableColumn<Prenotazione, String> nomeCamionColumn;
@@ -86,13 +82,11 @@ public class AdminController implements Initializable {
     }
 
     private void setupImagePreview() {
-        // Imposta immagine placeholder
         previewImageView.setFitHeight(150);
         previewImageView.setFitWidth(200);
         previewImageView.setPreserveRatio(true);
         previewImageView.setStyle("-fx-background-color: #f0f0f0; -fx-border-color: #cccccc; -fx-border-width: 2; -fx-border-style: dashed;");
 
-        // Imposta testo iniziale
         nomeImmagineLabel.setText("Nessuna immagine selezionata");
     }
 
@@ -110,34 +104,26 @@ public class AdminController implements Initializable {
             nomeImmagineLabel.setText(file.getName());
             nomeImmagineLabel.setStyle("-fx-text-fill: #27ae60; -fx-font-weight: bold;");
 
-            // Mostra preview
             try {
                 Image image = new Image(file.toURI().toString());
                 previewImageView.setImage(image);
             } catch (Exception e) {
-                showAlert("Errore", "Impossibile caricare l'immagine selezionata", Alert.AlertType.ERROR);
+                showAlert("Errore", Messaggi.admin_immagine_error, Alert.AlertType.ERROR);
             }
         }
     }
 
-    /**
-     * Salva l'immagine selezionata nel path immagini/{idCamion}.estensione
-     * @param idCamion ID del camion (sarà il nome del file)
-     * @return true se salvata con successo, false altrimenti
-     */
     private boolean salvaImmagine(String idCamion) {
         if (selectedImageFile == null) {
             return true; // Nessuna immagine da salvare, ma non è un errore
         }
 
         try {
-            // Crea directory se non esiste - usa il path delle risorse
             Path resourcesDir = Paths.get("src/main/resources/com/progetto/ingsw/trukscout24/immagini/");
             if (!Files.exists(resourcesDir)) {
                 Files.createDirectories(resourcesDir);
             }
 
-            // Ottieni estensione file originale
             String fileName = selectedImageFile.getName();
             String extension = "";
             int lastDot = fileName.lastIndexOf(".");
@@ -147,7 +133,6 @@ public class AdminController implements Initializable {
                 extension = ".jpg"; // Default se non c'è estensione
             }
 
-            // Validazione estensioni supportate
             String[] supportedExtensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp"};
             String finalExtension = extension;
             boolean isSupported = Arrays.stream(supportedExtensions)
@@ -157,14 +142,11 @@ public class AdminController implements Initializable {
                 extension = ".jpg"; // Forza JPG se l'estensione non è supportata
             }
 
-            // Crea il path di destinazione con l'ID del camion come nome
             String destinationFileName = idCamion + extension;
             Path destinationPath = resourcesDir.resolve(destinationFileName);
 
-            // Rimuovi immagine esistente con lo stesso ID se presente
             rimuoviImmagineEsistente(idCamion);
 
-            // Copia il file
             Files.copy(selectedImageFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
             System.out.println("Immagine salvata: " + destinationPath.toString());
@@ -197,7 +179,6 @@ public class AdminController implements Initializable {
         }
     }
 
-
     private void setupComboBoxes() {
         carburanteCamionCombo.setItems(FXCollections.observableArrayList(
                 "DESEL", "GPL", "Metano", "Ibrido"
@@ -217,39 +198,32 @@ public class AdminController implements Initializable {
     }
 
     private void setupTable() {
-        // Colonna ID Camion (usa il nome_camion del record)
         nomeCamionColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().nome_camion())
         );
 
-        // Colonna ID Utente (non presente nel tuo codice, ma da aggiungere)
         idUtenteColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty(cellData.getValue().id_utente())
         );
 
-        // Colonna Data (formattata)
         dataColumn.setCellValueFactory(cellData -> {
             Prenotazione p = cellData.getValue();
             String dataFormatted = String.format("%02d/%02d/%04d", p.giorno(), p.mese(), p.anno());
             return new SimpleStringProperty(dataFormatted);
         });
 
-        // Colonna Stato (statico)
         statoColumn.setCellValueFactory(cellData ->
                 new SimpleStringProperty("Confermata")
         );
-
         prenotazioniTable.setItems(prenotazioniData);
     }
-
-
 
     @FXML
     private void goToHome() {
         try {
             sceneHandler.setHomeScene();
         } catch (Exception e) {
-            showAlert("Errore", "Impossibile tornare alla home: " + e.getMessage(), Alert.AlertType.ERROR);
+            showAlert("Errore", Messaggi.admin_home_error + ": " + e.getMessage(), Alert.AlertType.ERROR);
         }
     }
 
@@ -259,7 +233,6 @@ public class AdminController implements Initializable {
             return;
         }
 
-        // Verifica che l'ID sia unico prima di procedere
         String idCamion = idCamionField.getText().trim();
 
         aggiungiCamionBtn.setDisable(true);
@@ -282,19 +255,17 @@ public class AdminController implements Initializable {
                     String categoriaCamion = categoriaCamionCombo.getValue();
                     String chiaviCamion = chiaviCamionField.getText().trim();
 
-                    // Prima salva nel database
                     boolean dbSuccess = dbconnessione.aggiungiCamion(idCamion, nomeCamion, modelloCamion,
                             potenzaCamion, kilometriCamion, carburanteCamion, cambioCamion,
                             classeEmissioniCamion, annoCamion, prezzoCamion, descrizioneCamion,
                             categoriaCamion, chiaviCamion);
 
-                    // Se il database ha avuto successo, salva l'immagine
                     if (dbSuccess) {
                         boolean imageSuccess = salvaImmagine(idCamion);
                         if (!imageSuccess && selectedImageFile != null) {
                             // Se l'immagine non è stata salvata ma era selezionata, avvisa l'utente
                             Platform.runLater(() ->
-                                    showAlert("Avviso", "Camion aggiunto ma errore nel salvataggio dell'immagine.", Alert.AlertType.WARNING)
+                                    showAlert("Avviso", Messaggi.admin_immagine_save_warning, Alert.AlertType.WARNING)
                             );
                         }
                         return true;
@@ -304,7 +275,7 @@ public class AdminController implements Initializable {
 
                 } catch (NumberFormatException e) {
                     Platform.runLater(() -> showAlert("Errore Validazione",
-                            "Verifica i campi numerici (potenza, chilometri, prezzo)", Alert.AlertType.ERROR));
+                            Messaggi.admin_numeric_validation_error, Alert.AlertType.ERROR));
                     return false;
                 }
             }
@@ -316,7 +287,7 @@ public class AdminController implements Initializable {
                     aggiungiCamionBtn.setText("Aggiungi Camion");
 
                     if (getValue()) {
-                        // Non mostrare alert qui perché il database già lo fa
+                        showAlert("Successo", Messaggi.admin_camion_aggiunto_success, Alert.AlertType.INFORMATION);
                         clearForm();
                     }
                 });
@@ -327,7 +298,7 @@ public class AdminController implements Initializable {
                 Platform.runLater(() -> {
                     aggiungiCamionBtn.setDisable(false);
                     aggiungiCamionBtn.setText("Aggiungi Camion");
-                    showAlert("Errore", "Errore durante l'aggiunta del camion", Alert.AlertType.ERROR);
+                    showAlert("Errore", Messaggi.admin_camion_aggiunta_error, Alert.AlertType.ERROR);
                 });
             }
         };
@@ -342,23 +313,22 @@ public class AdminController implements Initializable {
         String idCamion = idCamionRimuoviField.getText().trim();
 
         if (idCamion.isEmpty()) {
-            showAlert("Errore Validazione", "Inserisci l'ID del camion da rimuovere", Alert.AlertType.ERROR);
+            showAlert("Errore Validazione", Messaggi.admin_id_camion_empty_error, Alert.AlertType.ERROR);
             return;
         }
 
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
-        alert.setTitle("Conferma rimozione");
-        alert.setHeaderText("Sei sicuro di voler rimuovere il camion?");
+        alert.setTitle(Messaggi.admin_conferma_rimozione_title);
+        alert.setHeaderText(Messaggi.admin_conferma_rimozione_header);
         alert.setContentText("ID Camion: " + idCamion);
 
         Optional<ButtonType> result = alert.showAndWait();
 
         if (result.isEmpty() || result.get() != ButtonType.OK) {
-            showAlert("Operazione annullata", "La rimozione del camion è stata annullata.", Alert.AlertType.INFORMATION);
+            showAlert("Operazione annullata", Messaggi.admin_operazione_annullata, Alert.AlertType.INFORMATION);
             return;
         }
 
-        // Ora procedi con la rimozione
         rimuoviCamionBtn.setDisable(true);
         rimuoviCamionBtn.setText("Rimuovendo...");
 
@@ -367,10 +337,8 @@ public class AdminController implements Initializable {
             protected Boolean call() throws Exception {
                 System.out.println("Tentativo rimozione camion ID: " + idCamion);
 
-                // Prima rimuovi l'immagine
                 rimuoviImmagineEsistente(idCamion);
 
-                // Poi rimuovi dal database (SENZA conferma, già confermato)
                 boolean risultato = dbconnessione.rimuoviCamion(idCamion);
                 System.out.println("Risultato rimozione DB: " + risultato);
 
@@ -384,11 +352,11 @@ public class AdminController implements Initializable {
                     rimuoviCamionBtn.setText("Rimuovi Camion");
 
                     if (getValue()) {
-                        showAlert("Successo", "Camion rimosso con successo!", Alert.AlertType.INFORMATION);
+                        showAlert("Successo", Messaggi.admin_camion_rimosso_success, Alert.AlertType.INFORMATION);
                         idCamionRimuoviField.clear();
                         loadPrenotazioni();
                     } else {
-                        showAlert("Attenzione", "Camion non trovato o già rimosso", Alert.AlertType.WARNING);
+                        showAlert("Attenzione", Messaggi.admin_camion_non_trovato, Alert.AlertType.WARNING);
                     }
                 });
             }
@@ -400,7 +368,7 @@ public class AdminController implements Initializable {
                     rimuoviCamionBtn.setText("Rimuovi Camion");
 
                     Throwable exception = getException();
-                    String errorMessage = "Errore durante la rimozione del camion";
+                    String errorMessage = Messaggi.admin_rimozione_error;
                     if (exception != null) {
                         errorMessage += ": " + exception.getMessage();
                         exception.printStackTrace();
@@ -415,7 +383,6 @@ public class AdminController implements Initializable {
         thread.setDaemon(true);
         thread.start();
     }
-
 
     @FXML
     private void clearForm() {
@@ -461,7 +428,6 @@ public class AdminController implements Initializable {
                 }
             }
 
-
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
@@ -479,7 +445,7 @@ public class AdminController implements Initializable {
                 Platform.runLater(() -> {
                     refreshPrenotazioniBtn.setDisable(false);
                     refreshPrenotazioniBtn.setText("Aggiorna");
-                    showAlert("Errore", "Errore durante il caricamento delle prenotazioni", Alert.AlertType.ERROR);
+                    showAlert("Errore", Messaggi.admin_caricamento_prenotazioni_error, Alert.AlertType.ERROR);
                 });
             }
         };
@@ -504,7 +470,7 @@ public class AdminController implements Initializable {
                 chiaviCamionField.getText().trim().isEmpty() ||
                 descrizioneCamionArea.getText().trim().isEmpty()) {
 
-            showAlert("Errore Validazione", "Tutti i campi sono obbligatori", Alert.AlertType.ERROR);
+            showAlert("Errore Validazione", Messaggi.admin_form_validation_error, Alert.AlertType.ERROR);
             return false;
         }
 
@@ -513,7 +479,7 @@ public class AdminController implements Initializable {
             Double.parseDouble(kilometriCamionField.getText().trim());
             Double.parseDouble(prezzoCamionField.getText().trim());
         } catch (NumberFormatException e) {
-            showAlert("Errore Validazione", "Verifica i campi numerici (potenza, chilometri, prezzo)", Alert.AlertType.ERROR);
+            showAlert("Errore Validazione", Messaggi.admin_numeric_validation_error, Alert.AlertType.ERROR);
             return false;
         }
 

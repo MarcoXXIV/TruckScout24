@@ -1,6 +1,7 @@
 package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
@@ -11,7 +12,6 @@ import javafx.scene.input.MouseEvent;
 public class PasswordDimenticataController {
 
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
-    private final String currentUserEmail = sceneHandler.getCurrentUserEmail();
     private final DBConnessione db = DBConnessione.getInstance();
 
     @FXML private TextField emailField;
@@ -26,28 +26,33 @@ public class PasswordDimenticataController {
         String confirmPassword = confirmPasswordField.getText();
 
         if (email.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            showAlert("Errore", "Tutti i campi sono obbligatori.", Alert.AlertType.ERROR);
+            showAlert("Errore", Messaggi.registration_field_empty_error, Alert.AlertType.ERROR);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            showAlert("Errore", "Le password non corrispondono.", Alert.AlertType.ERROR);
+            showAlert("Errore", Messaggi.registration_password_error, Alert.AlertType.ERROR);
             return;
         }
 
         if (newPassword.length() < 8) {
-            showAlert("Errore", "La password deve essere di almeno 8 caratteri.", Alert.AlertType.ERROR);
+            showAlert("Errore", Messaggi.recovery_password_min_length_error, Alert.AlertType.ERROR);
             return;
         }
 
-        // Verifica che l'utente esista
+        String currentUserEmail = sceneHandler.getCurrentUserEmail();
+
         db.checkExistEmail(email).thenAccept(exists -> {
             if (!exists) {
-                showAlert("Errore", "Email non registrata.", Alert.AlertType.ERROR);
+                showAlert("Errore", Messaggi.recovery_password_email_not_found, Alert.AlertType.ERROR);
                 return;
             }
 
-            // Cripta e aggiorna la password
+            if (currentUserEmail != null && !currentUserEmail.equals(email)) {
+                showAlert("Errore", Messaggi.recovery_password_other_user_error, Alert.AlertType.ERROR);
+                return;
+            }
+
             String encryptedPassword = db.encryptedPassword(newPassword);
             db.updatePassword(email, encryptedPassword);
 
@@ -55,7 +60,7 @@ public class PasswordDimenticataController {
                 newPasswordField.clear();
                 confirmPasswordField.clear();
                 emailField.clear();
-                showAlert("Successo", "Password cambiata con successo!", Alert.AlertType.INFORMATION);
+                showAlert("Successo", Messaggi.update_password_success, Alert.AlertType.INFORMATION);
                 try {
                     sceneHandler.setLoginScene();
                 } catch (Exception e) {
@@ -63,11 +68,10 @@ public class PasswordDimenticataController {
                 }
             });
         }).exceptionally(ex -> {
-            showAlert("Errore", "Errore nel reset della password: " + ex.getMessage(), Alert.AlertType.ERROR);
+            showAlert("Errore", Messaggi.recovery_password_exception + ex.getMessage(), Alert.AlertType.ERROR);
             return null;
         });
     }
-
 
     private void showAlert(String title, String message, Alert.AlertType type) {
         Platform.runLater(() -> {
@@ -84,4 +88,3 @@ public class PasswordDimenticataController {
         sceneHandler.setHomeScene();
     }
 }
-

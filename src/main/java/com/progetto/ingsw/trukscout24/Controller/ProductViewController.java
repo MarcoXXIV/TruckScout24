@@ -2,6 +2,7 @@ package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 import com.progetto.ingsw.trukscout24.Model.Camion;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.application.Platform;
 import javafx.concurrent.Task;
@@ -21,33 +22,16 @@ import java.util.concurrent.CompletableFuture;
 
 public class ProductViewController implements Initializable {
 
-    @FXML private Label productSubtitle1;
-    @FXML private Label productPrice1;
-    @FXML private Label productTitle1;
     @FXML private Label productTitle;
-    @FXML private Label productSubtitle;
     @FXML private Label productPrice;
     @FXML private Label productDescription;
 
-    // Specs labels
-    @FXML private Label specPotenza;
-    @FXML private Label specKilometri;
-    @FXML private Label specCarburante;
-    @FXML private Label specCambio;
-    @FXML private Label specEmissioni;
-    @FXML private Label specAnno;
-
-    // Image
+    @FXML private Label specPotenza, specKilometri, specCarburante, specCambio, specEmissioni, specAnno, specModello;
     @FXML private ImageView mainImage;
-
-    // Buttons
     @FXML private Button wishlistButton;
-
-    // Prenotazione
     @FXML private DatePicker datePicker;
     @FXML private Button prenotaButton;
 
-    // Data
     private Camion currentCamion;
     private boolean isInWishlist = false;
 
@@ -56,27 +40,19 @@ public class ProductViewController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        // Inizializza il pulsante wishlist
         updateWishlistButtonState();
-
-        // Inizializza il DatePicker
         setupDatePicker();
     }
 
     private void setupDatePicker() {
         if (datePicker != null) {
-            // Imposta la data minima a domani
             datePicker.setDayCellFactory(picker -> new javafx.scene.control.DateCell() {
                 @Override
                 public void updateItem(LocalDate date, boolean empty) {
                     super.updateItem(date, empty);
-
-                    // Disabilita le date passate e quella di oggi
                     setDisable(empty || date.isBefore(LocalDate.now().plusDays(1)));
                 }
             });
-
-            // Imposta una data predefinita (domani)
             datePicker.setValue(LocalDate.now().plusDays(1));
         }
     }
@@ -86,12 +62,10 @@ public class ProductViewController implements Initializable {
     }
 
     public void loadCamionData(Camion camion) {
-        if (camion == null) {
-            return;
-        }
+        if (camion == null) return;
 
         this.currentCamion = camion;
-        productTitle.setText(camion.nome() + " " + camion.modello());
+        productTitle.setText(camion.nome());
         productPrice.setText("€ " + camion.prezzo());
         productDescription.setText(camion.descrizione());
         specPotenza.setText(camion.potenza() + " CV");
@@ -100,6 +74,7 @@ public class ProductViewController implements Initializable {
         specCambio.setText(camion.cambio());
         specEmissioni.setText("Euro " + camion.classeEmissioni());
         specAnno.setText(camion.anno());
+        specModello.setText(camion.modello());
 
         loadMainImage();
         checkWishlistStatus();
@@ -107,34 +82,25 @@ public class ProductViewController implements Initializable {
 
     private void checkWishlistStatus() {
         String userEmail = getCurrentUserEmail();
-        if (currentCamion == null || userEmail == null) {
-            return;
-        }
+        if (currentCamion == null || userEmail == null) return;
 
-        Task<Boolean> checkTask = new Task<Boolean>() {
+        Task<Boolean> checkTask = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
-                CompletableFuture<ArrayList<Camion>> future =
-                        dbconnessione.getWishlist(userEmail);
+                CompletableFuture<ArrayList<Camion>> future = dbconnessione.getWishlist(userEmail);
                 ArrayList<Camion> wishlist = future.get();
-
-                return wishlist.stream()
-                        .anyMatch(truck -> truck.id().equals(currentCamion.id()));
+                return wishlist.stream().anyMatch(truck -> truck.id().equals(currentCamion.id()));
             }
         };
 
-        checkTask.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                isInWishlist = checkTask.getValue();
-                updateWishlistButtonState();
-            });
-        });
+        checkTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            isInWishlist = checkTask.getValue();
+            updateWishlistButtonState();
+        }));
 
-        checkTask.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                System.out.println("Errore nel controllo wishlist: " + e.getSource().getException());
-            });
-        });
+        checkTask.setOnFailed(e -> Platform.runLater(() ->
+                System.out.println("Errore nel controllo wishlist: " + e.getSource().getException())
+        ));
 
         Thread checkThread = new Thread(checkTask);
         checkThread.setDaemon(true);
@@ -158,17 +124,13 @@ public class ProductViewController implements Initializable {
     }
 
     private void loadMainImage() {
-        if (currentCamion == null || currentCamion.id() == null) {
-            return;
-        }
+        if (currentCamion == null || currentCamion.id() == null) return;
 
         try {
             String imagePath = "/com/progetto/ingsw/trukscout24/immagini/" + currentCamion.id() + ".jpg";
             URL imageUrl = getClass().getResource(imagePath);
-
             if (imageUrl != null) {
-                Image image = new Image(imageUrl.toExternalForm());
-                mainImage.setImage(image);
+                mainImage.setImage(new Image(imageUrl.toExternalForm()));
             } else {
                 mainImage.setImage(null);
             }
@@ -187,12 +149,12 @@ public class ProductViewController implements Initializable {
         String userEmail = getCurrentUserEmail();
 
         if (currentCamion == null) {
-            sceneHandler.showAlert("Errore", "Nessun camion selezionato", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_no_camion_selected, 0);
             return;
         }
 
         if (userEmail == null || userEmail.isEmpty()) {
-            sceneHandler.showAlert("Errore", "Devi essere autenticato per usare la wishlist", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_login_required, 0);
             return;
         }
 
@@ -210,62 +172,49 @@ public class ProductViewController implements Initializable {
         String userEmail = getCurrentUserEmail();
 
         if (currentCamion == null) {
-            sceneHandler.showAlert("Errore", "Nessun camion selezionato", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_no_camion_selected, 0);
             return;
         }
 
         if (userEmail == null || userEmail.isEmpty()) {
-            sceneHandler.showAlert("Errore", "Devi essere autenticato per prenotare un test drive", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_login_required, 0);
             return;
         }
 
         LocalDate selectedDate = datePicker.getValue();
         if (selectedDate == null) {
-            sceneHandler.showAlert("Errore", "Seleziona una data per la prenotazione", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_no_date_selected, 0);
             return;
         }
 
         if (selectedDate.isBefore(LocalDate.now().plusDays(1))) {
-            sceneHandler.showAlert("Errore", "Seleziona una data futura (almeno da domani)", 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_invalid_date, 0);
             return;
         }
 
-        // Disabilita il pulsante durante l'operazione
         prenotaButton.setDisable(true);
         prenotaCamion(userEmail, selectedDate);
     }
 
     private void prenotaCamion(String userEmail, LocalDate date) {
-        Task<Void> prenotaTask = new Task<Void>() {
+        Task<Void> prenotaTask = new Task<>() {
             @Override
             protected Void call() throws Exception {
-                // Usa il metodo del database esistente
                 dbconnessione.insertPrenotazioneIntoDB(
-                        userEmail,
-                        currentCamion.nome(),
-                        date.getDayOfMonth(),
-                        date.getMonthValue(),
-                        date.getYear()
+                        userEmail, currentCamion.nome(),
+                        date.getDayOfMonth(), date.getMonthValue(), date.getYear()
                 );
                 return null;
             }
         };
-        System.out.println(currentCamion.nome());
-        prenotaTask.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                prenotaButton.setDisable(false);
-                // Il messaggio di successo viene già mostrato dal metodo insertPrenotazioneIntoDB
-            });
-        });
 
-        prenotaTask.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                prenotaButton.setDisable(false);
-                sceneHandler.showAlert("Errore",
-                        "Errore durante la prenotazione: " +
-                                e.getSource().getException().getMessage(), 0);
-            });
-        });
+        prenotaTask.setOnSucceeded(e -> Platform.runLater(() -> prenotaButton.setDisable(false)));
+
+        prenotaTask.setOnFailed(e -> Platform.runLater(() -> {
+            prenotaButton.setDisable(false);
+            sceneHandler.showAlert("Errore",
+                    Messaggi.productview_booking_failed + e.getSource().getException().getMessage(), 0);
+        }));
 
         Thread prenotaThread = new Thread(prenotaTask);
         prenotaThread.setDaemon(true);
@@ -273,39 +222,31 @@ public class ProductViewController implements Initializable {
     }
 
     private void addToWishlist(String userEmail) {
-        Task<Boolean> addTask = new Task<Boolean>() {
+        Task<Boolean> addTask = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 return dbconnessione.insertWishlistCamionIntoDB(userEmail, currentCamion.id());
             }
         };
 
-        addTask.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                wishlistButton.setDisable(false);
+        addTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            wishlistButton.setDisable(false);
 
-                if (addTask.getValue()) {
-                    isInWishlist = true;
-                    updateWishlistButtonState();
-                    sceneHandler.showAlert("Successo",
-                            "🚛 " + currentCamion.nome() + " aggiunto ai preferiti!", 1);
-                } else {
-                    sceneHandler.showAlert("Attenzione",
-                            "Impossibile aggiungere ai preferiti.\n" +
-                                    "• Hai raggiunto il limite massimo (6 camion)\n" +
-                                    "• Il camion è già presente nella lista", 0);
-                }
-            });
-        });
+            if (addTask.getValue()) {
+                isInWishlist = true;
+                updateWishlistButtonState();
+                sceneHandler.showAlert("Successo",
+                        "🚛 " + currentCamion.nome() + " " + Messaggi.wishlist_added, 1);
+            } else {
+                sceneHandler.showAlert("Attenzione", Messaggi.wishlist_limit_or_duplicate, 0);
+            }
+        }));
 
-        addTask.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                wishlistButton.setDisable(false);
-                sceneHandler.showAlert("Errore",
-                        "Errore durante l'aggiunta ai preferiti: " +
-                                e.getSource().getException().getMessage(), 0);
-            });
-        });
+        addTask.setOnFailed(e -> Platform.runLater(() -> {
+            wishlistButton.setDisable(false);
+            sceneHandler.showAlert("Errore",
+                    Messaggi.wishlist_add_failed + e.getSource().getException().getMessage(), 0);
+        }));
 
         Thread addThread = new Thread(addTask);
         addThread.setDaemon(true);
@@ -313,37 +254,31 @@ public class ProductViewController implements Initializable {
     }
 
     private void removeFromWishlist(String userEmail) {
-        Task<Boolean> removeTask = new Task<Boolean>() {
+        Task<Boolean> removeTask = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 return dbconnessione.removeCamionFromWishlist(userEmail, currentCamion.id());
             }
         };
 
-        removeTask.setOnSucceeded(e -> {
-            Platform.runLater(() -> {
-                wishlistButton.setDisable(false);
+        removeTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            wishlistButton.setDisable(false);
 
-                if (removeTask.getValue()) {
-                    isInWishlist = false;
-                    updateWishlistButtonState();
-                    sceneHandler.showAlert("Successo",
-                            "🚛 " + currentCamion.nome() + " rimosso dai preferiti!", 1);
-                } else {
-                    sceneHandler.showAlert("Errore",
-                            "Impossibile rimuovere dai preferiti", 0);
-                }
-            });
-        });
+            if (removeTask.getValue()) {
+                isInWishlist = false;
+                updateWishlistButtonState();
+                sceneHandler.showAlert("Successo",
+                        "🚛 " + currentCamion.nome() + " " + Messaggi.wishlist_removed, 1);
+            } else {
+                sceneHandler.showAlert("Errore", Messaggi.wishlist_remove_failed, 0);
+            }
+        }));
 
-        removeTask.setOnFailed(e -> {
-            Platform.runLater(() -> {
-                wishlistButton.setDisable(false);
-                sceneHandler.showAlert("Errore",
-                        "Errore durante la rimozione dai preferiti: " +
-                                e.getSource().getException().getMessage(), 0);
-            });
-        });
+        removeTask.setOnFailed(e -> Platform.runLater(() -> {
+            wishlistButton.setDisable(false);
+            sceneHandler.showAlert("Errore",
+                    Messaggi.wishlist_remove_error + e.getSource().getException().getMessage(), 0);
+        }));
 
         Thread removeThread = new Thread(removeTask);
         removeThread.setDaemon(true);

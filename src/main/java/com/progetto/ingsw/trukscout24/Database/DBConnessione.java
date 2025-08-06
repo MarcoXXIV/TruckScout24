@@ -71,8 +71,6 @@ public class DBConnessione {
         executorService.shutdownNow();
     }
 
-    // Aggiungi questo metodo alla classe DBConnessione esistente
-
     public CompletableFuture<Boolean> checkLoginCredentials(String email, String password) {
         CompletableFuture<Boolean> future = new CompletableFuture<>();
 

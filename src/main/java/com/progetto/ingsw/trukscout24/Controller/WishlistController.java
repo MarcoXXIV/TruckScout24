@@ -1,9 +1,11 @@
 package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.Model.Camion;
+import com.progetto.ingsw.trukscout24.Model.Utente;
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.animation.*;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import javafx.application.Platform;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -28,36 +30,33 @@ import java.util.concurrent.CompletableFuture;
 
 public class WishlistController implements Initializable {
 
-    @FXML private Button clearAllButton;
+    @FXML private Button clearAllButton, startBrowsingButton;
     @FXML private FlowPane trucksFlowPane;
     @FXML private VBox emptyStateBox;
-    @FXML private Button startBrowsingButton;
     @FXML private Label wishlistCountLabel;
     @FXML private ProgressIndicator loadingIndicator;
 
-
-    private final SceneHandler sceneHandler = SceneHandler.getInstance();
+    private final SceneHandler scenehandler = SceneHandler.getInstance();
     private final DBConnessione dbconnessione = DBConnessione.getInstance();
     private ObservableList<Camion> wishlistTrucks;
     private String currentUserEmail;
+    private Utente currentUser;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         wishlistTrucks = FXCollections.observableArrayList();
         setupFlowPane();
 
-        currentUserEmail = getCurrentUserEmail();
-        System.out.println(currentUserEmail);
+        currentUser = scenehandler.getCurrentUser();
 
-        if (currentUserEmail != null && !currentUserEmail.isEmpty()) {
+        if (currentUser != null) {
+            currentUserEmail = currentUser.email();
+            System.out.println(currentUserEmail);
             loadWishlistFromDatabase();
         } else {
+            System.out.println("Utente non autenticato - mostrando stato vuoto");
             showEmptyState();
         }
-    }
-
-    private String getCurrentUserEmail() {
-        return sceneHandler.getCurrentUserEmail();
     }
 
     private void setupFlowPane() {
@@ -93,7 +92,7 @@ public class WishlistController implements Initializable {
         loadTask.setOnFailed(e -> {
             Platform.runLater(() -> {
                 showLoadingState(false);
-                showErrorAlert("Errore Caricamento", "Impossibile caricare la wishlist dal database.");
+                showErrorAlert(Messaggi.WISHLIST_CARICAMENTO_ERRORE, Messaggi.WISHLIST_CARICAMENTO_ERRORE);
                 showEmptyState();
             });
         });
@@ -116,21 +115,20 @@ public class WishlistController implements Initializable {
         VBox card = new VBox();
         card.getStyleClass().add("truck-card-compact");
         card.setPrefWidth(480);
-
         card.setAlignment(Pos.CENTER);
+        card.setSpacing(10);
+        card.setPadding(new Insets(10));
 
-        // Click handler per aprire i dettagli del camion
         card.setOnMouseClicked(event -> {
             if (event.getTarget() instanceof Button) return;
             try {
                 System.out.println("Apertura dettagli camion: " + camion.nome());
             } catch (Exception e) {
                 System.err.println("Errore nell'apertura della product view: " + e.getMessage());
-                showErrorAlert("Errore", "Impossibile aprire i dettagli del camion");
+                showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, Messaggi.WISHLIST_CAMION_ERRORE_APERTURA);
             }
         });
 
-        // HEADER CON CUORE
         HBox cardHeader = new HBox();
         cardHeader.getStyleClass().add("card-header-compact");
 
@@ -140,7 +138,6 @@ public class WishlistController implements Initializable {
         Button heartButton = createHeartButton(camion);
         cardHeader.getChildren().addAll(spacer, heartButton);
 
-        // IMMAGINE DEL CAMION
         ImageView imageView = new ImageView();
         imageView.getStyleClass().add("truck-image-compact");
         imageView.setFitHeight(220);
@@ -167,20 +164,24 @@ public class WishlistController implements Initializable {
             System.out.println("ID immagine non trovato o immagine non disponibile.");
         }
 
-        card.setSpacing(10); // tra intestazione, immagine, nome, e info
-        card.setPadding(new Insets(10));
+        imageView.setOnMouseClicked(event -> {
+            try {
+                openProductView(camion);
+            } catch (Exception e) {
+                System.err.println("Errore nell'apertura della product view: " + e.getMessage());
+                showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, Messaggi.WISHLIST_CAMION_ERRORE_APERTURA);
+            }
+            event.consume(); // evita la propagazione
+        });
 
-        Label nameLabel = new Label("🚚 " + camion.nome());
+        Label nameLabel = new Label(camion.nome());
         nameLabel.getStyleClass().add("truck-name-compact");
 
-        // INFO IN UNA RIGA
-        Label modelLabel = new Label("🔧 " + camion.modello());
-        Label priceLabel = new Label("💰 €" + camion.prezzo());
+        Label priceLabel = new Label("💰 " + camion.prezzo() + " €");
         Label kmLabel = new Label("🛣 " + camion.kilometri() + " km");
         Label yearLabel = new Label("📅 " + camion.anno());
         Label powerLabel = new Label("⚡ " + camion.potenza() + " CV");
 
-        modelLabel.getStyleClass().add("truck-info-compact");
         priceLabel.getStyleClass().add("truck-price-compact");
         kmLabel.getStyleClass().add("truck-info-compact");
         yearLabel.getStyleClass().add("truck-info-compact");
@@ -188,15 +189,19 @@ public class WishlistController implements Initializable {
 
         HBox infoRow = new HBox();
         infoRow.getStyleClass().add("info-row-compact");
-        infoRow.getChildren().addAll(modelLabel, priceLabel, kmLabel, yearLabel, powerLabel);
+        infoRow.getChildren().addAll(priceLabel, kmLabel, yearLabel, powerLabel);
 
-        // INFOBOX FINALE
         VBox infoBox = new VBox();
         infoBox.getStyleClass().add("info-box-compact");
         infoBox.getChildren().addAll(nameLabel, infoRow);
 
         card.getChildren().addAll(cardHeader, imageView, infoBox);
         return card;
+    }
+
+    private void openProductView(Camion camion) throws Exception {
+        scenehandler.setSelectedCamion(camion);
+        scenehandler.setProductViewScene();
     }
 
     private Button createHeartButton(Camion camion) {
@@ -262,7 +267,7 @@ public class WishlistController implements Initializable {
     // EVENT HANDLERS
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
-        sceneHandler.setHomeScene();
+        scenehandler.setHomeScene();
     }
 
     @FXML
@@ -283,7 +288,7 @@ public class WishlistController implements Initializable {
 
     @FXML
     private void handleStartBrowsing() throws Exception {
-        sceneHandler.setHomeScene();
+        scenehandler.setHomeScene();
     }
 
     // DATABASE OPERATIONS
@@ -313,14 +318,14 @@ public class WishlistController implements Initializable {
                 if (removeTask.getValue()) {
                     animateCardRemoval(camion);
                 } else {
-                    showErrorAlert("Errore", "Impossibile rimuovere il camion dai preferiti.");
+                    showErrorAlert(Messaggi.WISHLIST_RIMOZIONE_ERRORE, Messaggi.WISHLIST_RIMOZIONE_ERRORE);
                 }
             });
         });
 
         removeTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert("Errore Database", "Errore durante la rimozione dal database.");
+                showErrorAlert(Messaggi.WISHLIST_RIMOZIONE_CAMION_ERRORE, Messaggi.WISHLIST_RIMOZIONE_CAMION_ERRORE);
             });
         });
 
@@ -369,14 +374,14 @@ public class WishlistController implements Initializable {
                     });
                     fadeOut.play();
                 } else {
-                    showErrorAlert("Errore", "Impossibile svuotare la wishlist.");
+                    showErrorAlert(Messaggi.WISHLIST_SVUOTAMENTO_ERRORE, Messaggi.WISHLIST_SVUOTAMENTO_ERRORE);
                 }
             });
         });
 
         clearTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert("Errore Database", "Errore durante lo svuotamento della wishlist.");
+                showErrorAlert(Messaggi.WISHLIST_ERRORE, Messaggi.WISHLIST_ERRORE);
             });
         });
 
@@ -385,20 +390,19 @@ public class WishlistController implements Initializable {
         clearThread.start();
     }
 
-    // PUBLIC METHODS
     public void addTruckToWishlist(Camion camion) {
-        if (currentUserEmail == null || currentUserEmail.isEmpty()) {
-            showErrorAlert("Errore", "Devi essere autenticato per aggiungere ai preferiti.");
+        if (currentUser == null) {
+            showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA);
             return;
         }
 
         if (wishlistTrucks.size() >= 6) {
-            showErrorAlert("Limite Raggiunto", "Puoi avere massimo 6 camion nei preferiti.");
+            showErrorAlert(Messaggi.WISHLIST_LIMITE_RAGGIUNTO, Messaggi.WISHLIST_LIMITE_RAGGIUNTO);
             return;
         }
 
         if (containsCamion(camion.id())) {
-            showInfoAlert("Già Presente", "Questo camion è già nei tuoi preferiti.");
+            showInfoAlert(Messaggi.WISHLIST_CAMION_GIA_PRESENTE, Messaggi.WISHLIST_CAMION_GIA_PRESENTE);
             return;
         }
 
@@ -414,16 +418,16 @@ public class WishlistController implements Initializable {
                 if (addTask.getValue()) {
                     wishlistTrucks.add(camion);
                     updateUI();
-                    showSuccessAlert("Aggiunto!", "Camion aggiunto ai preferiti con successo.");
+                    showSuccessAlert(Messaggi.WISHLIST_CAMION_AGGIUNTO, Messaggi.WISHLIST_CAMION_AGGIUNTO);
                 } else {
-                    showErrorAlert("Errore", "Impossibile aggiungere il camion ai preferiti.");
+                    showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA);
                 }
             });
         });
 
         addTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert("Errore Database", "Errore durante l'aggiunta al database.");
+                showErrorAlert(Messaggi.WISHLIST_ERRORE, Messaggi.WISHLIST_ERRORE);
             });
         });
 

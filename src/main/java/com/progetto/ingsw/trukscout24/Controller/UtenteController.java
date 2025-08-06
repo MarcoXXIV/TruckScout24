@@ -1,12 +1,10 @@
-// File: UtenteController.java
-
 package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.VBox;
@@ -14,6 +12,7 @@ import javafx.event.ActionEvent;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import com.progetto.ingsw.trukscout24.Model.Prenotazione;
+import com.progetto.ingsw.trukscout24.Model.Utente;
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 
 import java.net.URL;
@@ -22,12 +21,14 @@ import java.util.ResourceBundle;
 public class UtenteController implements Initializable {
 
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
-    private final String currentUserEmail = sceneHandler.getCurrentUserEmail();
     private final DBConnessione db = DBConnessione.getInstance();
+
+    private String currentUserEmail;
+    private Utente currentUser;
 
     @FXML private ImageView homeLogoImageView;
     @FXML private Button updateProfileButton;
-    @FXML private TextField telefono, email,cognome, nome;
+    @FXML private TextField telefono, email, cognome, nome;
     @FXML private Label profileUpdateStatus;
 
     @FXML private TableColumn<?, ?> camionColumn;
@@ -54,99 +55,105 @@ public class UtenteController implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
+        currentUser = sceneHandler.getCurrentUser();
+
+        if (currentUser == null) {
+            showAlert(Messaggi.UTENTE_NON_AUTENTICATO, Messaggi.UTENTE_NON_AUTENTICATO, Alert.AlertType.WARNING);
+            try {
+                sceneHandler.setHomeScene();
+                return;
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }
+
+        currentUserEmail = currentUser.email();
+
         try {
             setupTable();
             loadUserData();
         } catch (Exception e) {
-            showAlert("Errore di inizializzazione", "Errore durante l'inizializzazione: " + e.getMessage(), Alert.AlertType.ERROR);
+            showAlert(Messaggi.ERRORE_GENERICO, Messaggi.ERRORE_GENERICO, Alert.AlertType.ERROR);
         }
     }
 
-
     private void loadUserData() {
+        if (currentUserEmail == null) {
+            showAlert(Messaggi.EMAIL_NON_DISPONIBILE, Messaggi.EMAIL_NON_DISPONIBILE, Alert.AlertType.ERROR);
+            return;
+        }
+
         db.setUser(currentUserEmail).thenAccept(user -> {
-            if (currentUserEmail == null) {
-                showAlert("Errore", "Utente non trovato", Alert.AlertType.ERROR);
+            if (user == null) {
+                showAlert(Messaggi.UTENTE_NON_TROVATO, Messaggi.UTENTE_NON_TROVATO, Alert.AlertType.ERROR);
                 return;
-            }else{
+            } else {
                 javafx.application.Platform.runLater(() -> {
                     email.setText(user.email());
                     nome.setText(user.nome());
                     cognome.setText(user.cognome());
-                    telefono.setText(String.valueOf(user.numero_di_telefono()));
-                });}
-            loadPrenotazioni(); // carica le prenotazioni solo dopo aver caricato l'utente
+                    String telefonoText = user.numero_di_telefono() != null ? String.valueOf(user.numero_di_telefono()) : "";
+                    telefono.setText(telefonoText);
+                });
+            }
+            loadPrenotazioni();
         }).exceptionally(ex -> {
-            showAlert("Errore", "Errore nel caricamento utente: " + ex.getMessage(), Alert.AlertType.ERROR);
+            showAlert(Messaggi.CARICAMENTO_UTENTE_FALLITO, Messaggi.CARICAMENTO_UTENTE_FALLITO + ex.getMessage(), Alert.AlertType.ERROR);
             return null;
         });
     }
 
     private void setupTable() {
-        idCamionColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty(cellData.getValue().nome_camion())
-        );
+        idCamionColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().nome_camion()));
+        dataColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty(cellData.getValue().giorno() + "/" + cellData.getValue().mese() + "/" + cellData.getValue().anno()));
+        statoColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty("Confermata"));
+        azioniColumn.setCellValueFactory(cellData -> new javafx.beans.property.SimpleStringProperty("Cancella"));
 
-        dataColumn.setCellValueFactory(cellData -> {
-            Prenotazione p = cellData.getValue();
-            String dataFormatted = p.giorno() + "/" + p.mese() + "/" + p.anno();
-            return new javafx.beans.property.SimpleStringProperty(dataFormatted);
-        });
+        azioniColumn.setCellFactory(column -> new TableCell<Prenotazione, String>() {
+            private final Button btn = new Button("Cancella");
 
-        statoColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty("Confermata")
-        );
-
-        // Colonna Azioni per il bottone di cancellazione
-        azioniColumn.setCellValueFactory(cellData ->
-                new javafx.beans.property.SimpleStringProperty("Cancella")
-        );
-
-        azioniColumn.setCellFactory(column -> {
-            return new TableCell<Prenotazione, String>() {
-                private final Button btn = new Button("Cancella");
-
-                {
-                    btn.getStyleClass().add("danger-btn");
-                    btn.setOnAction(event -> {
-                        Prenotazione prenotazione = getTableRow().getItem();
-                        if (prenotazione != null) {
-                            deletePrenotazione(prenotazione);
-                        }
-                    });
-                }
-
-                @Override
-                protected void updateItem(String item, boolean empty) {
-                    super.updateItem(item, empty);
-                    if (!empty) {
-                        setGraphic(btn);
-                    } else {
-                        setGraphic(null);
+            {
+                btn.getStyleClass().add("danger-btn");
+                btn.setOnAction(event -> {
+                    Prenotazione prenotazione = getTableRow().getItem();
+                    if (prenotazione != null) {
+                        deletePrenotazione(prenotazione);
                     }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    setGraphic(btn);
+                } else {
+                    setGraphic(null);
                 }
-            };
+            }
         });
 
         prenotazioniTable.setItems(prenotazioni);
     }
 
-    private void deletePrenotazione(Prenotazione prenotazione){
+    private void deletePrenotazione(Prenotazione prenotazione) {
         db.removeSelectedPrenotazioniItem(prenotazione.nome_camion(), prenotazione.id_utente());
-        showAlert("Conferma", "Prenotazione cancellata con successo.", Alert.AlertType.INFORMATION);
-        setupTable();
+        showAlert(Messaggi.PRENOTAZIONE_CANCELLATA, Messaggi.PRENOTAZIONE_CANCELLATA, Alert.AlertType.INFORMATION);
+        loadPrenotazioni();
     }
 
     private void loadPrenotazioni() {
-        if (currentUserEmail== null) return;
+        if (currentUserEmail == null) return;
 
         db.getPrenotazione(currentUserEmail).thenAccept(lista -> {
             javafx.application.Platform.runLater(() -> {
                 prenotazioni.clear();
-                prenotazioni.addAll(lista);
+                if (lista != null) {
+                    prenotazioni.addAll(lista);
+                }
             });
         }).exceptionally(ex -> {
-            showAlert("Errore", "Errore nel caricamento prenotazioni: " + ex.getMessage(), Alert.AlertType.ERROR);
+            showAlert(Messaggi.PRENOTAZIONI_ERROR, Messaggi.PRENOTAZIONI_ERROR + ex.getMessage(), Alert.AlertType.ERROR);
             return null;
         });
     }
@@ -157,38 +164,39 @@ public class UtenteController implements Initializable {
         String repeatPassword = repeatPasswordField.getText();
 
         if (password.isEmpty() || repeatPassword.isEmpty()) {
-            showAlert("Errore", "Tutti i campi password sono obbligatori.", Alert.AlertType.ERROR);
+            showAlert(Messaggi.CAMPI_PASSWORD_OBBLIGATORI, Messaggi.CAMPI_PASSWORD_OBBLIGATORI, Alert.AlertType.ERROR);
             return;
         }
 
         if (!password.equals(repeatPassword)) {
-            showAlert("Errore", "Le password non corrispondono.", Alert.AlertType.ERROR);
+            showAlert(Messaggi.PASSWORD_NON_COINCIDONO, Messaggi.PASSWORD_NON_COINCIDONO, Alert.AlertType.ERROR);
             return;
         }
 
-        if (password.length() < 8) {
-            showAlert("Errore", "La password deve essere di almeno 8 caratteri.", Alert.AlertType.ERROR);
+        if (password.length() < 6) {
+            showAlert(Messaggi.PASSWORD_TROPPO_CORTA, Messaggi.PASSWORD_TROPPO_CORTA, Alert.AlertType.ERROR);
             return;
         }
 
-        // Cripta la password prima di aggiornarla nel DB
+        if (currentUserEmail == null) {
+            showAlert(Messaggi.UTENTE_NON_IDENTIFICATO, Messaggi.UTENTE_NON_IDENTIFICATO, Alert.AlertType.ERROR);
+            return;
+        }
+
         String encryptedPassword = db.encryptedPassword(password);
 
-        // Aggiorna la password criptata nel database
         db.updatePassword(currentUserEmail, encryptedPassword);
 
-        // Pulisci i campi delle password
         passwordField.clear();
         repeatPasswordField.clear();
 
-        showAlert("Successo", "Password cambiata con successo!", Alert.AlertType.INFORMATION);
+        showAlert(Messaggi.PASSWORD_CAMBIATA, Messaggi.PASSWORD_CAMBIATA, Alert.AlertType.INFORMATION);
     }
-
 
     @FXML
     void logoutAction(ActionEvent event) throws Exception {
-        sceneHandler.setCurrentUserEmail(null);
-        showAlert("Logout", "Logout effettuato con successo.", Alert.AlertType.INFORMATION);
+        sceneHandler.logoutUser();
+        showAlert(Messaggi.LOGOUT, Messaggi.LOGOUT, Alert.AlertType.INFORMATION);
         sceneHandler.setHomeScene();
     }
 
@@ -213,10 +221,8 @@ public class UtenteController implements Initializable {
     }
 
     @FXML public void newBookingAction(ActionEvent actionEvent) {
-        // Da implementare in seguito
     }
 
     @FXML public void updateProfileAction(ActionEvent actionEvent) {
-        // Da implementare in seguito
     }
 }

@@ -18,7 +18,7 @@
     <!-- TOP HEADER -->
     <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="top-header">
         <!-- Logo Section -->
-        <HBox alignment="CENTER" prefHeight="90.0" prefWidth="203.0" styleClass="logo-container">
+        <HBox alignment="CENTER" prefHeight="90.0" prefWidth="203.0" styleClass="logo-container" onMouseClicked="#HomeClick">
             <ImageView fitHeight="90.0" fitWidth="203.0" onMouseClicked="#HomeClick" preserveRatio="true" styleClass="cursor-hand" >
                 <Image url="@../Icone/TruckScout24.png" />
             </ImageView>

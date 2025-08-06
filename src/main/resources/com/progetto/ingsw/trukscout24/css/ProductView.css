@@ -20,6 +20,12 @@
     -fx-cursor: hand;
 }
 
+.logo-image:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.1);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
 .main-scroll-pane {
     -fx-fit-to-width: true;
     -fx-background-color: #f8f9fa;
@@ -32,36 +38,88 @@
     -fx-alignment: center;
 }
 
-.product-header {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 30;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
-    -fx-max-width: 900;
-    -fx-alignment: center;
-}
-
-.product-title-section {
-    -fx-alignment: center;
+/* CONTAINER PRINCIPALE - SEPARATO CHIARAMENTE */
+.main-product-container {
     -fx-spacing: 40;
+    -fx-alignment: center;
+    -fx-padding: 0;
+    -fx-max-width: 1300;
 }
 
-.title-info {
-    -fx-spacing: 10;
+/* SEZIONE IMMAGINE - PIÙ PICCOLA E SEPARATA */
+.image-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
     -fx-alignment: center;
+    -fx-pref-width: 400;
+    -fx-max-width: 400;
+}
+
+.product-image {
+    -fx-fit-height: 250;
+    -fx-fit-width: 350;
+    -fx-preserve-ratio: true;
+}
+
+/* SEZIONE INFORMAZIONI PRODOTTO - BEN SEPARATA */
+.product-info-container {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-spacing: 25;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
+    -fx-alignment: top-left;
+    -fx-pref-width: 600;
+    -fx-max-width: 600;
+}
+
+/* TITOLO E CUORE SULLA STESSA RIGA */
+.title-heart-row {
+    -fx-alignment: center-left;
+    -fx-spacing: 20;
+}
+
+.title-section {
+    -fx-alignment: center-left;
 }
 
 .product-title {
-    -fx-font-size: 24;
+    -fx-font-size: 26;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
-    -fx-text-alignment: center;
+    -fx-text-alignment: left;
+    -fx-wrap-text: true;
 }
 
-.product-subtitle {
-    -fx-font-size: 18;
+.wishlist-button-flat {
     -fx-text-fill: #7f8c8d;
-    -fx-text-alignment: center;
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-background-color: transparent;
+    -fx-border-color: #7f8c8d;
+    -fx-border-width: 2px;
+    -fx-border-radius: 20px;
+    -fx-background-radius: 20px;
+    -fx-pref-width: 40;
+    -fx-pref-height: 40;
+    -fx-cursor: hand;
+}
+
+.wishlist-button-flat:hover {
+    -fx-text-fill: #ff6b35;
+    -fx-border-color: #ff6b35;
+}
+
+.wishlist-button-active {
+    -fx-text-fill: #ff6b35;
+    -fx-border-color: #ff6b35;
+}
+
+.wishlist-button-inactive {
+    -fx-text-fill: #7f8c8d;
+    -fx-border-color: #7f8c8d;
 }
 
 .price-section {
@@ -70,144 +128,112 @@
 }
 
 .product-price {
-    -fx-font-size: 18;
+    -fx-font-size: 22;
     -fx-font-weight: bold;
     -fx-text-fill: #ff6b35;
     -fx-text-alignment: left;
 }
 
-.image-details-container {
-    -fx-spacing: 30;
-    -fx-padding: 20 0;
-    -fx-alignment: center;
-}
-
-.image-wrapper {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
-}
-
-.main-image-centered {
-    -fx-fit-height: 400;
-    -fx-fit-width: 550;
-    -fx-preserve-ratio: true;
-}
-
-.key-specs-section {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 30;
-    -fx-spacing: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
-    -fx-alignment: center;
+/* SEZIONE CARATTERISTICHE */
+.specs-section {
+    -fx-spacing: 15;
 }
 
 .section-title {
-    -fx-font-size: 16;
+    -fx-font-size: 18;
     -fx-font-weight: bold;
     -fx-text-fill: #2c3e50;
     -fx-text-alignment: left;
 }
 
-.specs-grid {
-    -fx-vgap: 15;
-    -fx-hgap: 30;
-    -fx-alignment: center;
+/* GRIGLIA 3x3 DELLE CARATTERISTICHE - PIÙ DISTANZIATE */
+.specs-grid-3x3 {
+    -fx-vgap: 18;
+    -fx-hgap: 20;
+    -fx-alignment: center-left;
+    -fx-padding: 10 0;
+}
+
+.spec-item {
+    -fx-spacing: 8;
+    -fx-alignment: center-left;
+    -fx-background-color: #f8f9fa;
+    -fx-background-radius: 10;
+    -fx-padding: 16 18;
+    -fx-border-color: #ecf0f1;
+    -fx-border-width: 1;
+    -fx-border-radius: 10;
+    -fx-min-height: 65;
+}
+
+.spec-item:hover {
+    -fx-background-color: #fff5f0;
+    -fx-border-color: #ff6b35;
 }
 
 .spec-label {
-    -fx-font-size: 16;
+    -fx-font-size: 11;
     -fx-text-fill: #7f8c8d;
     -fx-font-weight: normal;
-}
-
-.spec-value {
-    -fx-font-size: 16;
-    -fx-text-fill: #2c3e50;
-    -fx-font-weight: bold;
-}
-
-.wishlist-button-active {
-    -fx-text-fill: red;
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
-    -fx-background-color: white;
-    -fx-border-color: red;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
-}
-
-.wishlist-button-inactive {
-    -fx-text-fill: #000;
-    -fx-font-size: 32px;
-    -fx-font-weight: bold;
-    -fx-background-color: white;
-    -fx-border-color: white;
-    -fx-border-width: 2px;
-    -fx-border-radius: 5px;
-    -fx-background-radius: 5px;
-}
-
-.wishlist-button-active:hover {
-    -fx-background-color: white;
-    -fx-text-fill: red;
-    -fx-border-color: red;
-}
-
-.wishlist-button-inactive:hover {
-    -fx-background-color: white;
-    -fx-text-fill: #000;
-    -fx-border-color: #000;
-}
-
-/* ===== SEPARATOR ===== */
-.section-separator {
-    -fx-background-color: #ecf0f1;
-    -fx-pref-height: 2;
-    -fx-max-width: 800;
-}
-
-/* ===== SOTTO LA FOTO ===== */
-.content-below-image {
-    -fx-spacing: 50;
-    -fx-padding: 20;
-    -fx-alignment: center;
-    -fx-max-width: 900;
-}
-
-/* ===== CONTAINER DESCRIZIONE + PRENOTAZIONE ===== */
-.description-booking-container {
-    -fx-spacing: 30;
-    -fx-alignment: center;
-}
-
-/* ===== DESCRIZIONE (sinistra) ===== */
-.description-section-left {
-    -fx-background-color: white;
-    -fx-background-radius: 12;
-    -fx-padding: 30;
-    -fx-spacing: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
-    -fx-pref-width: 400;
-}
-
-.description-text {
-    -fx-font-size: 16;
-    -fx-text-fill: #2c3e50;
-    -fx-line-spacing: 6;
     -fx-text-alignment: left;
 }
 
-/* ===== PRENOTAZIONE (destra) ===== */
+.spec-value {
+    -fx-font-size: 13;
+    -fx-text-fill: #2c3e50;
+    -fx-font-weight: bold;
+    -fx-text-alignment: left;
+}
+
+/* SEPARATOR */
+.section-separator {
+    -fx-background-color: #ecf0f1;
+    -fx-pref-height: 2;
+    -fx-max-width: 1300;
+}
+
+/* CONTAINER DESCRIZIONE + PRENOTAZIONE */
+.description-booking-container {
+    -fx-spacing: 30;
+    -fx-alignment: top-center;
+    -fx-max-width: 1300;
+}
+
+/* DESCRIZIONE CON SCROLLPANE (sinistra) */
+.description-section {
+    -fx-background-color: white;
+    -fx-background-radius: 15;
+    -fx-padding: 30;
+    -fx-spacing: 15;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
+    -fx-pref-width: 700;
+    -fx-alignment: top-left;
+}
+
+.description-scroll-pane {
+    -fx-fit-to-width: true;
+    -fx-pref-height: 200;
+    -fx-background-color: transparent;
+    -fx-border-color: #ecf0f1;
+    -fx-border-width: 1;
+    -fx-border-radius: 8;
+}
+
+.description-text {
+    -fx-font-size: 15;
+    -fx-text-fill: #2c3e50;
+    -fx-line-spacing: 5;
+    -fx-text-alignment: left;
+    -fx-padding: 15;
+}
+
+/* PRENOTAZIONE (destra) */
 .booking-section {
     -fx-background-color: #fff5f0;
-    -fx-background-radius: 12;
+    -fx-background-radius: 15;
     -fx-padding: 30;
     -fx-spacing: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
     -fx-pref-width: 350;
     -fx-alignment: center;
 }
@@ -229,7 +255,7 @@
     -fx-font-size: 16;
     -fx-font-weight: bold;
     -fx-padding: 15 30;
-    -fx-background-radius: 8;
+    -fx-background-radius: 10;
     -fx-cursor: hand;
     -fx-pref-width: 250;
 }
@@ -249,14 +275,15 @@
     -fx-text-alignment: center;
 }
 
-/* ===== VENDITORE ===== */
+/* VENDITORE */
 .seller-section {
     -fx-background-color: white;
-    -fx-background-radius: 12;
+    -fx-background-radius: 15;
     -fx-padding: 30;
     -fx-spacing: 20;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 8, 0, 0, 2);
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 10, 0, 0, 3);
     -fx-alignment: center;
+    -fx-max-width: 1300;
 }
 
 .seller-info {
@@ -277,7 +304,7 @@
     -fx-text-alignment: center;
 }
 
-/* ===== FOOTER ===== */
+/* FOOTER */
 .footer {
     -fx-alignment: center-left;
     -fx-spacing: 20;

@@ -17,6 +17,8 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class RegistrazioneController {
 
@@ -55,7 +57,6 @@ public class RegistrazioneController {
         if (successLabel != null) successLabel.setVisible(false);
         if (loadingIndicator != null) loadingIndicator.setVisible(false);
 
-        // Inizializza campi password testuali come nascosti
         if (passwordTextField != null) passwordTextField.setVisible(false);
         if (confermaPasswordTextField != null) confermaPasswordTextField.setVisible(false);
     }
@@ -90,6 +91,7 @@ public class RegistrazioneController {
 
     @FXML
     private void onRegisterClick(ActionEvent event) {
+        System.out.println("cliccato");
         performRegistration();
     }
 
@@ -135,7 +137,6 @@ public class RegistrazioneController {
     }
 
     private void performRegistration() {
-        // Raccogli dati
         String nome = nomeField.getText().trim();
         String cognome = cognomeField.getText().trim();
         String email = emailField.getText().trim().toLowerCase();
@@ -145,115 +146,95 @@ public class RegistrazioneController {
 
         hideMessages();
 
-        // Validazione basic
-        if (!validateBasicInput(nome, cognome, email, password, confermaPassword, telefono)) {
+        if (!validateInput(nome, cognome, email, password, confermaPassword, telefono)) {
+            System.out.println("Validazione fallita. Registrazione interrotta.");
             return;
         }
 
-        // Controllo privacy
-        if (privacyCheckBox != null && !privacyCheckBox.isSelected()) {
-            showError("Devi accettare i termini e condizioni");
-            return;
-        }
-
-        // Disabilita UI
         setUIEnabled(false);
         showLoading(true);
 
-        // Esegui registrazione asincrona
-        performRegistrationAsync(nome, cognome, email, telefono, password, confermaPassword);
+        // Vai direttamente all'inserimento, senza doppia validazione
+        insertNewUser(nome, cognome, email, telefono, password);
     }
 
-    private boolean validateBasicInput(String nome, String cognome, String email, String password, String confermaPassword, String telefono) {
-        if (nome.isEmpty() || cognome.isEmpty() || email.isEmpty() || password.isEmpty() || confermaPassword.isEmpty()) {
-            showError("Tutti i campi sono obbligatori");
+    private boolean validateInput(String nome, String cognome, String email, String password, String confermaPassword, String telefono) {
+
+        // Validazione nome
+        System.out.println("Validazione nome: " + nome);
+        if (!Validazione.getInstance().isValidName(nome)) {
+            showError("Il nome deve contenere almeno 3 caratteri e solo lettere", nomeField);
             return false;
         }
 
-        if (!Validazione.getInstance().isValidEmail(email)) {
-            showError("Formato email non valido");
+        // Validazione cognome
+        System.out.println("Validazione cognome: " + cognome);
+        if (!Validazione.getInstance().isValidSurname(cognome)) {
+            showError("Il cognome deve contenere almeno 3 caratteri e solo lettere", cognomeField);
             return false;
         }
 
+        // Validazione telefono (opzionale ma se inserito deve essere valido)
+        System.out.println("Validazione telefono: " + telefono);
+        if (telefono != null && !telefono.isEmpty() && !Validazione.getInstance().isValidPhoneNumber(telefono)) {
+            showError("Il numero di telefono deve contenere tra 9 e 12 cifre", telefonoField);
+            return false;
+        }
+
+        // Validazione email
+        System.out.println("Validazione email: " + email);
+        if (!Validazione.getInstance().isValidEmailFormat(email)) {
+            showError("Formato email non valido (es. nome@dominio.it)", emailField);
+            return false;
+        }
+
+        // Validazione password
+        System.out.println("Validazione password");
+        if (!Validazione.getInstance().isValidPassword(password)) {
+            showError("La password deve contenere almeno 6 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale (!@#$%^&*)", passwordField);
+            return false;
+        }
+
+        // Validazione conferma password
+        System.out.println("Validazione conferma password");
         if (!password.equals(confermaPassword)) {
-            showError("Le password non coincidono");
+            showError("Le password non coincidono", confermaPasswordField);
             return false;
         }
 
-        if (password.length() < 6) {
-            showError("La password deve contenere almeno 6 caratteri");
-            return false;
-        }
-
-        if (!telefono.isEmpty() && !Validazione.getInstance().isValidPhoneNumber(telefono)) {
-            showError("Numero di telefono non valido");
-            return false;
-        }
-
+        System.out.println("✅ Tutte le validazioni superate!");
         return true;
-    }
-
-    private void performRegistrationAsync(String nome, String cognome, String email, String telefono, String password, String confermaPassword) {
-        Task<Boolean> registrationTask = new Task<Boolean>() {
-            @Override
-            protected Boolean call() throws Exception {
-                try {
-                    return Validazione.getInstance().checkRegistration(nome, cognome, email, telefono, password, confermaPassword).get();
-                } catch (Exception e) {
-                    throw new RuntimeException("Errore durante la registrazione: " + e.getMessage());
-                }
-            }
-
-            @Override
-            protected void succeeded() {
-                Platform.runLater(() -> {
-                    setUIEnabled(true);
-                    showLoading(false);
-
-                    if (getValue()) {
-                        SceneHandler.getInstance().setCurrentUserEmail(email);
-                        insertNewUser(nome, cognome, email, telefono, password);
-                    }
-                    // Gli errori sono già gestiti dalla validazione
-                });
-            }
-
-            @Override
-            protected void failed() {
-                Platform.runLater(() -> {
-                    setUIEnabled(true);
-                    showLoading(false);
-                    showError("Errore di connessione. Riprova.");
-                });
-            }
-        };
-
-        Thread registrationThread = new Thread(registrationTask);
-        registrationThread.setDaemon(true);
-        registrationThread.start();
     }
 
     private void insertNewUser(String nome, String cognome, String email, String telefono, String password) {
         Task<Void> insertTask = new Task<Void>() {
             @Override
             protected Void call() throws Exception {
-                Long numeroTelefono = telefono.isEmpty() ? null : Long.parseLong(telefono.replaceAll("[^0-9]", ""));
-                DBConnessione.getInstance().insertUsers(nome, cognome, email, numeroTelefono, password, false);
+                try {
+                    Long numeroTelefono = telefono.isEmpty() ? null : Long.parseLong(telefono.replaceAll("[^0-9]", ""));
+                    System.out.println("Inizio inserimento utente nel database: " + nome + " " + cognome + " " + email);
+                    DBConnessione.getInstance().insertUsers(nome, cognome, email, numeroTelefono, password, false);
+                    System.out.println("Inserimento completato con successo");
+                } catch (Exception e) {
+                    Logger.getLogger(RegistrazioneController.class.getName()).log(Level.SEVERE, "Errore nel salvataggio utente", e);
+                    throw new RuntimeException("Errore nel salvataggio utente: " + e.getMessage());
+                }
                 return null;
             }
 
             @Override
             protected void succeeded() {
                 Platform.runLater(() -> {
+                    setUIEnabled(true);
+                    showLoading(false);
                     showSuccess("Registrazione completata con successo!");
                     clearFields();
-
-                    // Ritorna al login dopo 2 secondi
-                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2), e -> {
+                    Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2.5), e -> {
                         try {
+                            System.out.println("Cambio scena verso il login...");
                             SceneHandler.getInstance().setLoginScene();
                         } catch (Exception ex) {
-                            ex.printStackTrace();
+                            Logger.getLogger(RegistrazioneController.class.getName()).log(Level.SEVERE, "Errore nel reindirizzamento", ex);
                         }
                     }));
                     timeline.play();
@@ -263,7 +244,11 @@ public class RegistrazioneController {
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
-                    showError("Errore nel salvataggio. Riprova.");
+                    setUIEnabled(true);
+                    showLoading(false);
+                    Throwable exception = getException();
+                    String errorMessage = exception != null ? exception.getMessage() : "Errore sconosciuto durante la registrazione";
+                    showError("Errore durante la registrazione: " + errorMessage, registerButton);
                 });
             }
         };
@@ -274,14 +259,12 @@ public class RegistrazioneController {
     }
 
     private void setupValidation() {
-        // Validazione real-time per email
         emailField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && errorLabel != null && errorLabel.isVisible()) {
                 hideMessages();
             }
         });
 
-        // Validazione password match
         if (confermaPasswordField != null) {
             confermaPasswordField.textProperty().addListener((observable, oldValue, newValue) -> {
                 validatePasswordMatch();
@@ -293,20 +276,30 @@ public class RegistrazioneController {
                 validatePasswordMatch();
             });
         }
+
+        passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
+            validatePasswordMatch();
+        });
+
+        if (passwordTextField != null) {
+            passwordTextField.textProperty().addListener((observable, oldValue, newValue) -> {
+                validatePasswordMatch();
+            });
+        }
     }
 
     private void validatePasswordMatch() {
         String password = passwordVisible ? (passwordTextField != null ? passwordTextField.getText() : "") : passwordField.getText();
-        String confirmPassword = confirmPasswordVisible ? (confermaPasswordTextField != null ? confermaPasswordTextField.getText() : "") :
-                (confermaPasswordField != null ? confermaPasswordField.getText() : "");
+        String confirmPassword = confirmPasswordVisible ? (confermaPasswordTextField != null ? confermaPasswordTextField.getText() : "") : (confermaPasswordField != null ? confermaPasswordField.getText() : "");
 
         if (!password.isEmpty() && !confirmPassword.isEmpty() && !password.equals(confirmPassword)) {
-            // Potresti mostrare un feedback visivo qui
+            confermaPasswordField.setStyle("-fx-border-color: #ff6b6b;");
+        } else if (password.equals(confirmPassword) && !confirmPassword.isEmpty()) {
+            confermaPasswordField.setStyle("");
         }
     }
 
     private void setupKeyHandling() {
-        // Gestione Enter su tutti i campi
         nomeField.setOnKeyPressed(this::handleEnterKey);
         cognomeField.setOnKeyPressed(this::handleEnterKey);
         emailField.setOnKeyPressed(this::handleEnterKey);
@@ -315,30 +308,90 @@ public class RegistrazioneController {
         if (passwordTextField != null) passwordTextField.setOnKeyPressed(this::handleEnterKey);
         if (confermaPasswordField != null) confermaPasswordField.setOnKeyPressed(this::handleEnterKey);
         if (confermaPasswordTextField != null) confermaPasswordTextField.setOnKeyPressed(this::handleEnterKey);
+
+        setupTabOrder();
+    }
+
+    private void setupTabOrder() {
+        nomeField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB) {
+                cognomeField.requestFocus();
+            }
+        });
+
+        cognomeField.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER || event.getCode() == KeyCode.TAB) {
+                emailField.requestFocus();
+            }
+        });
     }
 
     private void handleEnterKey(KeyEvent event) {
         if (event.getCode() == KeyCode.ENTER) {
-            performRegistration();
+            if (areRequiredFieldsFilled()) {
+                performRegistration();
+            } else {
+                focusFirstEmptyField();
+            }
         }
     }
 
-    private void showError(String message) {
+    private boolean areRequiredFieldsFilled() {
+        return !nomeField.getText().trim().isEmpty() &&
+                !cognomeField.getText().trim().isEmpty() &&
+                !emailField.getText().trim().isEmpty() &&
+                !passwordField.getText().isEmpty() &&
+                (confermaPasswordField == null || !confermaPasswordField.getText().isEmpty());
+    }
+
+    private void focusFirstEmptyField() {
+        if (nomeField.getText().trim().isEmpty()) {
+            nomeField.requestFocus();
+        } else if (cognomeField.getText().trim().isEmpty()) {
+            cognomeField.requestFocus();
+        } else if (emailField.getText().trim().isEmpty()) {
+            emailField.requestFocus();
+        } else if (passwordField.getText().isEmpty()) {
+            passwordField.requestFocus();
+        } else if (confermaPasswordField != null && confermaPasswordField.getText().isEmpty()) {
+            confermaPasswordField.requestFocus();
+        }
+    }
+
+    private void showError(String message, Node field) {
+        // Reset tutti i campi
+        resetFieldStyles();
+
+        // Evidenzia il campo con errore
+        if (field instanceof TextField) {
+            ((TextField) field).setStyle("-fx-border-color: #ff6b6b;");
+        } else if (field instanceof PasswordField) {
+            ((PasswordField) field).setStyle("-fx-border-color: #ff6b6b;");
+        }
+
         if (errorLabel != null) {
             errorLabel.setText(message);
             errorLabel.setVisible(true);
         }
-        if (successLabel != null) {
-            successLabel.setVisible(false);
-        }
+    }
+
+    private void resetFieldStyles() {
+        nomeField.setStyle("");
+        cognomeField.setStyle("");
+        emailField.setStyle("");
+        if (telefonoField != null) telefonoField.setStyle("");
+        passwordField.setStyle("");
+        if (confermaPasswordField != null) confermaPasswordField.setStyle("");
     }
 
     private void showSuccess(String message) {
         if (successLabel != null) {
-            successLabel.setText(message);
-            successLabel.setVisible(true);
+            if (!successLabel.isVisible() || !successLabel.getText().equals(message)) {
+                successLabel.setText(message);
+                successLabel.setVisible(true);
+            }
         }
-        if (errorLabel != null) {
+        if (errorLabel != null && errorLabel.isVisible()) {
             errorLabel.setVisible(false);
         }
     }
@@ -346,6 +399,7 @@ public class RegistrazioneController {
     private void hideMessages() {
         if (errorLabel != null) errorLabel.setVisible(false);
         if (successLabel != null) successLabel.setVisible(false);
+        resetFieldStyles();
     }
 
     private void setUIEnabled(boolean enabled) {
@@ -361,6 +415,7 @@ public class RegistrazioneController {
         if (togglePasswordButton != null) togglePasswordButton.setDisable(!enabled);
         if (toggleConfirmPasswordButton != null) toggleConfirmPasswordButton.setDisable(!enabled);
         if (privacyCheckBox != null) privacyCheckBox.setDisable(!enabled);
+        if (loginLink != null) loginLink.setDisable(!enabled);
     }
 
     private void showLoading(boolean show) {
@@ -379,5 +434,14 @@ public class RegistrazioneController {
         if (confermaPasswordField != null) confermaPasswordField.clear();
         if (confermaPasswordTextField != null) confermaPasswordTextField.clear();
         if (privacyCheckBox != null) privacyCheckBox.setSelected(false);
+
+        passwordVisible = false;
+        confirmPasswordVisible = false;
+        if (passwordTextField != null) passwordTextField.setVisible(false);
+        if (confermaPasswordTextField != null) confermaPasswordTextField.setVisible(false);
+        passwordField.setVisible(true);
+        if (confermaPasswordField != null) confermaPasswordField.setVisible(true);
+        if (togglePasswordButton != null) togglePasswordButton.setText("👁");
+        if (toggleConfirmPasswordButton != null) toggleConfirmPasswordButton.setText("👁");
     }
 }

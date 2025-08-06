@@ -27,7 +27,7 @@
         <HBox alignment="CENTER" spacing="10.0" styleClass="header-actions" VBox.vgrow="NEVER">
 
             <!-- Logo centrato -->
-            <HBox alignment="CENTER" prefHeight="90.0" prefWidth="1200.0" HBox.hgrow="ALWAYS">
+            <HBox alignment="CENTER" prefHeight="90.0" prefWidth="1200.0" HBox.hgrow="ALWAYS" onMouseClicked="#HomeClick">
                 <VBox alignment="CENTER" onMouseClicked="#HomeClick" spacing="5" styleClass="logo-section">
                     <ImageView fitHeight="90.0" preserveRatio="true">
                         <Image url="@../Icone/TruckScout24.png" />

@@ -1,8 +1,8 @@
 package com.progetto.ingsw.trukscout24.Controller;
 
-import com.progetto.ingsw.trukscout24.Database.Authenticazione;
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 import com.progetto.ingsw.trukscout24.Database.Validazione;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.Model.Utente;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.animation.TranslateTransition;
@@ -26,7 +26,6 @@ public class LoginController {
     @FXML private PasswordField passwordField;
     @FXML private TextField passwordTextField;
     @FXML private Button loginButton;
-    @FXML private CheckBox rememberMeCheckBox;
     @FXML private Hyperlink forgotPasswordLink;
     @FXML private Hyperlink registerLink;
     @FXML private Label errorLabel;
@@ -84,35 +83,31 @@ public class LoginController {
 
         hideMessages();
 
-        // Validazione input
         if (email.isEmpty() || password.isEmpty()) {
-            showError("Inserisci email e password");
+            showError(Messaggi.login_campi_vuoti);
             return;
         }
 
-        if (!Validazione.getInstance().isValidEmail(email)) {
-            showError("Formato email non valido");
+        if (!Validazione.getInstance().isValidEmailFormat(email)) {
+            showError(Messaggi.login_email_non_valida);
             return;
         }
 
-        // Disabilita UI durante il login
         setUIEnabled(false);
         showLoading(true);
 
-        // Esegui login asincrono
         performLoginAsync(email, password);
     }
 
     private void performLoginAsync(String email, String password) {
-        Task<Boolean> loginTask = new Task<Boolean>() {
+        Task<Boolean> loginTask = new Task<>() {
             @Override
             protected Boolean call() throws Exception {
                 try {
                     CompletableFuture<Boolean> loginResult = DBConnessione.getInstance().checkLoginCredentials(email, password);
-                    SceneHandler.getInstance().setCurrentUserEmail(email);
                     return loginResult.get();
                 } catch (Exception e) {
-                    throw new RuntimeException("Errore durante il login: " + e.getMessage());
+                    throw new RuntimeException(Messaggi.login_error + ": " + e.getMessage());
                 }
             }
 
@@ -123,10 +118,9 @@ public class LoginController {
                     showLoading(false);
 
                     if (getValue()) {
-                        // Login riuscito - carica utente
                         loadUserAndProceed(email);
                     } else {
-                        showError("Email o password non corrette");
+                        showError(Messaggi.login_errore_credenziali);
                     }
                 });
             }
@@ -136,19 +130,18 @@ public class LoginController {
                 Platform.runLater(() -> {
                     setUIEnabled(true);
                     showLoading(false);
-                    showError("Errore di connessione. Riprova.");
+                    showError(Messaggi.login_connessione_error);
                 });
             }
         };
 
-        // Esegui task in background
         Thread loginThread = new Thread(loginTask);
         loginThread.setDaemon(true);
         loginThread.start();
     }
 
     private void loadUserAndProceed(String email) {
-        Task<Utente> userTask = new Task<Utente>() {
+        Task<Utente> userTask = new Task<>() {
             @Override
             protected Utente call() throws Exception {
                 CompletableFuture<Utente> userFuture = DBConnessione.getInstance().setUser(email);
@@ -162,27 +155,23 @@ public class LoginController {
                     if (user != null) {
                         System.out.println("Login successo per l'email: " + email);
 
-                        Authenticazione.getInstance().login(user);
+                        sceneHandler.loginUser(user);
 
-                        if (rememberMeCheckBox.isSelected()) {
-                            saveCredentials(email);
-                        }
                         try {
                             sceneHandler.setHomeScene();
                         } catch (Exception e) {
-                            showError("Errore nel caricamento della home");
+                            showError(Messaggi.returnHome_error);
                         }
                     } else {
-                        showError("Errore nel caricamento dei dati utente");
+                        showError(Messaggi.login_user_data_error);
                     }
                 });
             }
 
-
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
-                    showError("Errore nel caricamento dei dati utente");
+                    showError(Messaggi.login_user_data_error);
                 });
             }
         };
@@ -242,14 +231,12 @@ public class LoginController {
     }
 
     private void setupFieldValidation() {
-        // Validazione real-time per email
         emailField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && errorLabel.isVisible()) {
                 hideMessages();
             }
         });
 
-        // Validazione real-time per password
         passwordField.textProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue.isEmpty() && errorLabel.isVisible()) {
                 hideMessages();
@@ -296,7 +283,6 @@ public class LoginController {
         }
         loginButton.setDisable(!enabled);
         togglePasswordButton.setDisable(!enabled);
-        rememberMeCheckBox.setDisable(!enabled);
     }
 
     private void showLoading(boolean show) {
@@ -306,8 +292,6 @@ public class LoginController {
     }
 
     private void saveCredentials(String email) {
-        // Implementa salvataggio credenziali (preferenze utente)
-        // Esempio: salvare solo email, mai la password
         System.out.println("Credenziali salvate per: " + email);
     }
 }

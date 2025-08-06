@@ -5,6 +5,8 @@ import com.progetto.ingsw.trukscout24.Model.Prenotazione;
 import java.util.ArrayList;
 import java.util.concurrent.CompletableFuture;
 
+// PATTERN DA UTILIZZARE IN ADMIN E UTENTE
+
 public class ProxyPrenotazione {
     private static ProxyPrenotazione instance = null;
     public static ProxyPrenotazione getInstance(){
@@ -22,6 +24,5 @@ public class ProxyPrenotazione {
             return DBConnessione.getInstance().getPrenotazione(Authenticazione.getInstance().getUser().email());
         }
     }
-
 }
 
