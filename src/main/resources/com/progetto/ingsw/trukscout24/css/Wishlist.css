@@ -8,7 +8,7 @@
 }
 
 .header-container {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35 0%, #f7931e 100%);
+    -fx-background-color: linear-gradient(to right, #ff6b35, #f7931e);
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.08), 12, 0, 0, 2);
     -fx-border-color: transparent transparent #e2e8f0 transparent;
     -fx-border-width: 0 0 1 0;
@@ -191,7 +191,7 @@
 
 .truck-card-compact:hover {
     -fx-effect: dropshadow(gaussian, rgba(255,107,53,0.3), 12, 0, 0, 5);
-    -fx-border-color: #ff6b35;
+    -fx-border-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-border-width: 2;
     -fx-background-color: #f0f8ff;
 }
@@ -338,26 +338,36 @@
     -fx-scale-x: 1.05;
 }
 
-/* ================================
-   FOOTER
-   ================================ */
+/* Footer */
 .footer {
     -fx-background-color: #2c3e50;
-    -fx-border-color: #34495e transparent transparent transparent;
-    -fx-border-width: 1 0 0 0;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 6, 0, 0, -2);
+    -fx-padding: 15 30;
+    -fx-min-height: 50px;
 }
 
-.footer-text {
-    -fx-text-fill: #ecf0f1;
-    -fx-font-size: 12px;
-    -fx-font-weight: 500;
+/* Label a sinistra */
+.footer-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #bdc3c7;
+    -fx-font-weight: bold;
 }
 
-.footer-separator {
-    -fx-background-color: #556b7d;
-    -fx-pref-height: 14;
-    -fx-pref-width: 1;
+/* Label a destra */
+.footer-right-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95a5a6;
+}
+
+/* Etichette cliccabili (link) */
+.footer-link {
+    -fx-font-size: 13px;
+    -fx-text-fill: #3498db;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.footer-link:hover {
+    -fx-text-fill: #5dade2;
 }
 
 /* ================================

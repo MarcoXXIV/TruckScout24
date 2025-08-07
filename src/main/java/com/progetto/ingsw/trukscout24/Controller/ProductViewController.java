@@ -13,6 +13,7 @@ import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
+import javafx.scene.input.MouseEvent;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -31,6 +32,9 @@ public class ProductViewController implements Initializable {
     @FXML private Button wishlistButton;
     @FXML private DatePicker datePicker;
     @FXML private Button prenotaButton;
+
+    // Footer
+    @FXML private Label statusLabel;
 
     private Camion currentCamion;
     private boolean isInWishlist = false;
@@ -141,7 +145,12 @@ public class ProductViewController implements Initializable {
 
     @FXML
     private void onLogoClick() throws Exception {
-        SceneHandler.getInstance().setHomeScene();
+        try{
+            sceneHandler.setHomeScene();
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @FXML
@@ -212,8 +221,7 @@ public class ProductViewController implements Initializable {
 
         prenotaTask.setOnFailed(e -> Platform.runLater(() -> {
             prenotaButton.setDisable(false);
-            sceneHandler.showAlert("Errore",
-                    Messaggi.productview_booking_failed + e.getSource().getException().getMessage(), 0);
+            sceneHandler.showAlert("Errore", Messaggi.productview_booking_failed, 0);
         }));
 
         Thread prenotaThread = new Thread(prenotaTask);
@@ -287,5 +295,33 @@ public class ProductViewController implements Initializable {
 
     public void setCamion(Camion camion) {
         loadCamionData(camion);
+    }
+
+    @FXML private void onInfoAppClick(MouseEvent event) throws Exception {
+        try{
+            sceneHandler.showAlert("Informazioni sull'app", Messaggi.app_information, 1);
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            sceneHandler.setHomeScene();
+        }
+    }
+
+
+    @FXML private void onPrivacyClick(MouseEvent event) throws Exception {
+        try {
+            sceneHandler.showAlert("Privacy", Messaggi.privacy_information, 1);
+        } catch (Exception e) {
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            sceneHandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onCondizioniClick(MouseEvent event) throws Exception {
+        try{
+            sceneHandler.showAlert("Condizioni generali", Messaggi.general_condition, 1);
+        } catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            sceneHandler.setHomeScene();
+        }
     }
 }

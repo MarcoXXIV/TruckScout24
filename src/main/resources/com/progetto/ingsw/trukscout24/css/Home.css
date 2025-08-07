@@ -45,6 +45,21 @@
     -fx-scale-y: 1.05;
 }
 
+.advanced-search-button {
+    -fx-background-color: #4CAF50;
+    -fx-text-fill: white;
+    -fx-background-radius: 20px;
+    -fx-font-size: 12px;
+    -fx-cursor: hand;
+    -fx-padding: 8 12;
+}
+
+.advanced-search-button:hover {
+    -fx-background-color: #45a049;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
 .user-actions-button {
     -fx-background-color: rgba(255,255,255,0.2);
     -fx-text-fill: white;
@@ -58,6 +73,7 @@
 .user-actions-button:focused {
     -fx-background-color: transparent;
 }
+
 .user-actions-button:hover {
     -fx-background-color: rgba(255, 255, 255, 0.1);
     -fx-scale-x: 1.05;
@@ -84,27 +100,225 @@
     -fx-scale-y: 1.05;
 }
 
-.login-button {
-    -fx-background-color: white;
-    -fx-text-fill: #ff6b35;
+.Accedi-button {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-text-fill: white;
     -fx-font-weight: bold;
     -fx-background-radius: 20px;
     -fx-cursor: hand;
     -fx-padding: 8 20;
+    -fx-font-size: 14;
 }
 
-.login-button:hover{
+.Accedi-button:hover{
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
 }
 
-/* Hero Section */
+/* Hero Section Styles */
 .hero-section {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-background-radius: 20px;
+    -fx-padding: 50px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 20, 0, 0, 5);
+    -fx-border-radius: 20px;
+}
+
+.hero-main-title {
+    -fx-font-size: 28px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-text-alignment: center;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.3), 5, 0, 2, 2);
+}
+
+.hero-subtitle {
+    -fx-font-size: 16px;
+    -fx-text-fill: rgba(255, 255, 255, 0.9);
+    -fx-text-alignment: center;
+    -fx-font-weight: 500;
+}
+
+/* Advanced Search Link */
+.advanced-search-link {
+    -fx-font-size: 16px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #ffffff;
+    -fx-underline: false;
+    -fx-cursor: hand;
+    -fx-padding: 12 20;
+    -fx-background-radius: 25px;
+    -fx-background-color: rgba(255, 255, 255, 0.2);
+    -fx-border-color: rgba(255, 255, 255, 0.3);
+    -fx-border-width: 1px;
+    -fx-border-radius: 25px;
+}
+
+.advanced-search-link:hover {
+    -fx-background-color: rgba(255, 255, 255, 0.3);
+    -fx-border-color: rgba(255, 255, 255, 0.5);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+/* Advanced Search Section */
+.advanced-search-section {
+    -fx-background-color: linear-gradient(to right, #f5f7fa, #c3cfe2);
+    -fx-background-radius: 20px;
+    -fx-padding: 35px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 15, 0, 0, 5);
+    -fx-border-color: rgba(0,0,0,0.1);
+    -fx-border-width: 1px;
+    -fx-border-radius: 20px;
+}
+
+.advanced-search-title {
+    -fx-font-size: 24px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 3, 0, 1, 1);
+}
+
+.advanced-search-grid {
+    -fx-padding: 20px;
+}
+
+.filter-label {
+    -fx-font-size: 14px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #34495e;
+}
+
+/* ComboBox Styling */
+.filter-combo {
+    -fx-background-radius: 12px;
+    -fx-border-radius: 12px;
+    -fx-border-color: #bdc3c7;
+    -fx-border-width: 2px;
+    -fx-padding: 10px;
+    -fx-font-size: 13px;
+    -fx-cursor: hand;
     -fx-background-color: white;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 5, 0, 0, 2);
+}
+
+.filter-combo:hover {
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 2px;
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
+}
+
+.filter-combo:focused {
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 3px;
+    -fx-effect: dropshadow(gaussian, rgba(255, 107, 53, 0.3), 8, 0, 0, 0);
+}
+
+.filter-combo .arrow {
+    -fx-background-color: #ff6b35;
+}
+
+.filter-combo .arrow-button {
+    -fx-background-color: transparent;
+    -fx-background-radius: 0 10 10 0;
+}
+
+.filter-combo .arrow-button:hover {
+    -fx-background-color: rgba(255, 107, 53, 0.1);
+}
+
+/* Slider Styling */
+.km-slider, .price-slider, .potenza-slider {
+    -fx-show-tick-labels: true;
+    -fx-show-tick-marks: true;
+}
+
+.km-slider {
+    -fx-major-tick-unit: 500000;
+    -fx-minor-tick-count: 4;
+}
+
+.price-slider {
+    -fx-major-tick-unit: 20000;
+    -fx-minor-tick-count: 3;
+}
+
+.potenza-slider {
+    -fx-major-tick-unit: 100;
+    -fx-minor-tick-count: 4;
+}
+
+.km-slider .track, .price-slider .track, .potenza-slider .track {
+    -fx-background-color: #ecf0f1;
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+}
+
+.km-slider .filled-track, .price-slider .filled-track, .potenza-slider .filled-track {
+    -fx-background-color: linear-gradient(to right, #ff6b35, #f7931e);
+    -fx-background-radius: 10px;
+    -fx-background-insets: 0;
+}
+
+.km-slider .thumb, .price-slider .thumb, .potenza-slider .thumb {
+    -fx-background-color: linear-gradient(to bottom, #ffffff, #f8f9fa);
+    -fx-background-radius: 12px;
+    -fx-border-color: #ff6b35;
+    -fx-border-width: 3px;
+    -fx-border-radius: 12px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 5, 0, 0, 2);
+}
+
+.km-slider .thumb:hover, .price-slider .thumb:hover, .potenza-slider .thumb:hover {
+    -fx-background-color: linear-gradient(to bottom, #ff6b35, #e55a2b);
+    -fx-border-color: #ffffff;
+    -fx-scale-x: 1.1;
+    -fx-scale-y: 1.1;
+}
+
+.slider-value-label {
+    -fx-font-size: 13px;
+    -fx-font-weight: bold;
+    -fx-text-fill: #2c3e50;
+    -fx-alignment: center;
+    -fx-background-color: rgba(255, 107, 53, 0.1);
+    -fx-padding: 5px 10px;
     -fx-background-radius: 15px;
-    -fx-padding: 40px;
-    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.1), 15, 0, 0, 3);
-    -fx-font-size: 18px;
+}
+
+.apply-filters-button {
+    -fx-background-color: linear-gradient(to bottom, #ff6b35, #e55a2b);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+    -fx-padding: 15 25;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+}
+
+.apply-filters-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #e55a2b, #cc4125);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}
+
+.reset-filters-button {
+    -fx-background-color: linear-gradient(to bottom, #95a5a6, #7f8c8d);
+    -fx-text-fill: white;
+    -fx-font-weight: bold;
+    -fx-background-radius: 15px;
+    -fx-cursor: hand;
+    -fx-padding: 15 25;
+    -fx-font-size: 14px;
+    -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.2), 8, 0, 0, 3);
+}
+
+.reset-filters-button:hover {
+    -fx-background-color: linear-gradient(to bottom, #7f8c8d, #6c7b7d);
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
 }
 
 /* Camion Card Styles */
@@ -118,7 +332,7 @@
 }
 
 .camion-card-hover {
-    -fx-border-color: #ff6b35;
+    -fx-border-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-border-width: 2;
     -fx-background-color: #f0f8ff;
 }
@@ -191,9 +405,6 @@
     -fx-border-width: 2px;
 }
 
-
-
-
 /* Truck Cards */
 .truck-card {
     -fx-background-color: white;
@@ -223,9 +434,9 @@
 }
 
 .services-section-label {
-    -fx-font-size: 20px;
+    -fx-font-size: 22px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: #1f2937;
 }
 
 .services-icon-label {
@@ -237,40 +448,6 @@
     -fx-text-fill: #7f8c8d;
     -fx-text-alignment: center;
     -fx-wrap-text: true;
-}
-
-/* Footer */
-.footer {
-    -fx-background-color: #2c3e50;
-    -fx-padding: 15 30;
-    -fx-min-height: 60px;
-}
-
-.footer-label {
-    -fx-font-size: 14px;
-    -fx-text-fill: #bdc3c7;
-    -fx-font-weight: bold;
-}
-
-.footer-right-label {
-    -fx-font-size: 11px;
-    -fx-text-fill: #95a5a6;
-}
-
-/* Misc */
-.cursor-hand {
-    -fx-cursor: hand;
-}
-.cursor-hand:hover{
-    -fx-background-color: rgba(255, 255, 255, 0.1);
-    -fx-scale-x: 1.05;
-    -fx-scale-y: 1.05;
-}
-
-.services-section-label {
-    -fx-font-size: 22px;
-    -fx-font-weight: bold;
-    -fx-text-fill: #1f2937;
 }
 
 .service-card {
@@ -294,4 +471,46 @@
     -fx-text-alignment: center;
 }
 
+/* Footer */
+.footer {
+    -fx-background-color: #2c3e50;
+    -fx-padding: 15 30;
+    -fx-min-height: 50px;
+}
 
+/* Label a sinistra */
+.footer-label {
+    -fx-font-size: 14px;
+    -fx-text-fill: #bdc3c7;
+    -fx-font-weight: bold;
+}
+
+/* Label a destra */
+.footer-right-label {
+    -fx-font-size: 11px;
+    -fx-text-fill: #95a5a6;
+}
+
+/* Etichette cliccabili (link) */
+.footer-link {
+    -fx-font-size: 13px;
+    -fx-text-fill: #3498db;
+    -fx-underline: true;
+    -fx-cursor: hand;
+}
+
+.footer-link:hover {
+    -fx-text-fill: #5dade2;
+}
+
+/* Misc */
+.cursor-hand {
+    -fx-cursor: hand;
+    -fx-background-radius: 12;
+}
+
+.cursor-hand:hover{
+    -fx-background-color: #000;
+    -fx-scale-x: 1.05;
+    -fx-scale-y: 1.05;
+}

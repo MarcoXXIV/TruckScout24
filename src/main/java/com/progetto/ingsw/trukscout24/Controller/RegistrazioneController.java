@@ -2,6 +2,7 @@ package com.progetto.ingsw.trukscout24.Controller;
 
 import com.progetto.ingsw.trukscout24.Database.DBConnessione;
 import com.progetto.ingsw.trukscout24.Database.Validazione;
+import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.animation.KeyFrame;
 import javafx.animation.Timeline;
@@ -45,6 +46,8 @@ public class RegistrazioneController {
     private boolean passwordVisible = false;
     private boolean confirmPasswordVisible = false;
 
+    private final SceneHandler sceneHandler = SceneHandler.getInstance();
+
     @FXML
     private void initialize() {
         setupUI();
@@ -86,7 +89,12 @@ public class RegistrazioneController {
 
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
-        SceneHandler.getInstance().setHomeScene();
+        try{
+            sceneHandler.setHomeScene();
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @FXML
@@ -97,7 +105,12 @@ public class RegistrazioneController {
 
     @FXML
     private void handleGoToLogin() throws Exception {
-        SceneHandler.getInstance().setLoginScene();
+        try{
+            sceneHandler.setLoginScene();
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_login, 0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @FXML

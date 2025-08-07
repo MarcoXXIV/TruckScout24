@@ -5,6 +5,7 @@ import com.progetto.ingsw.trukscout24.Model.Camion;
 import com.progetto.ingsw.trukscout24.Messaggi;
 import com.progetto.ingsw.trukscout24.View.SceneHandler;
 import javafx.application.Platform;
+import javafx.collections.FXCollections;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
@@ -17,14 +18,11 @@ import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.*;
 import javafx.scene.layout.Priority;
 import javafx.scene.layout.Region;
-import javafx.concurrent.Task;
 
 import java.net.URL;
-import java.sql.*;
 import java.util.*;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 import java.util.concurrent.CompletableFuture;
 
 public class HomeController implements Initializable {
@@ -32,16 +30,31 @@ public class HomeController implements Initializable {
     @FXML private Button AdminButton;
     @FXML private Button userButton;
     @FXML private Button wishlistButton;
-    @FXML private Button loginButton;
+    @FXML private Button AccediButton;
 
     // Header elements
     @FXML private TextField mainSearchField;
     @FXML private Button mainSearchButton;
 
+    // Advanced Search Elements
+    @FXML private Label advancedSearchLink;
+    @FXML private VBox advancedSearchSection;
+    @FXML private VBox brandSelectionSection;
+    @FXML private VBox servicesSection;
+    @FXML private ComboBox<String> categoryComboBox;
+    @FXML private ComboBox<String> modelloCombobox;
+    @FXML private Slider kmSlider;
+    @FXML private Label kmValueLabel;
+    @FXML private Slider priceSlider;
+    @FXML private Label priceValueLabel;
+    @FXML private Slider potenzaSlider;
+    @FXML private Label potenzaValueLabel;
+    @FXML private ComboBox<String> cambioComboBox;
+    @FXML private Button applyFiltersButton;
+    @FXML private Button resetFiltersButton;
+
     // Main content
     @FXML private GridPane trucksGrid;
-    @FXML private Button viewMoreButton;
-    @FXML private Button showAllButton;
 
     // Footer
     @FXML private Label statusLabel;
@@ -51,30 +64,165 @@ public class HomeController implements Initializable {
     private final ExecutorService databaseExecutor = Executors.newSingleThreadExecutor();
     private final Set<String> processingWishlist = Collections.synchronizedSet(new HashSet<>());
     private volatile boolean searchInProgress = false;
+    private boolean isAdvancedSearchVisible = false;
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
             DBConnessione dbConnessione = DBConnessione.getInstance();
             dbConnessione.createConnection();
-            mainSearchField.setOnAction(e -> onMainSearchAction());
+
+            mainSearchField.setOnAction(e -> {
+                try {
+                    onMainSearchAction();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
+            });
+
+            initializeAdvancedSearchComponents();
             loadInitialCamions();
             manageUserButtonsVisibility();
-        } catch (SQLException e) {
+        } catch (Exception e) {
             throw new RuntimeException(Messaggi.home_db_connection_error, e);
         }
+    }
+
+    private void initializeAdvancedSearchComponents() {
+        // Inizializza ComboBox categorie
+        categoryComboBox.setItems(FXCollections.observableArrayList(
+                "Tutti", "VOLVO", "MERCEDES BENZ", "MAN", "SCANIA", "IVECO", "RENAULT", "DAF"
+        ));
+        categoryComboBox.setValue("Tutti");
+
+        // Inizializza ComboBox cambio
+        cambioComboBox.setItems(FXCollections.observableArrayList(
+                "Tutti", "MANUALE", "AUTOMATICO", "SEMI-AUTOMATICO"
+        ));
+        cambioComboBox.setValue("Tutti");
+
+        // Inizializza ComboBox modello
+        modelloCombobox.setItems(FXCollections.observableArrayList(
+                "Tutti", "TRATTORE", "SEMI RIMORCHIO", "SCARRABILE", "RIBALTABILE", "COPERTO"
+        ));
+        modelloCombobox.setValue("Tutti");
+
+        // Inizializza slider kilometri con formato corretto
+        kmSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int kmValue = newVal.intValue();
+            kmValueLabel.setText(String.format("%,d km", kmValue).replace(",", "."));
+        });
+
+        // Inizializza slider prezzo con formato corretto
+        priceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int priceValue = newVal.intValue();
+            priceValueLabel.setText(String.format("%,d €", priceValue).replace(",", "."));
+        });
+
+        // Inizializza slider potenza con formato corretto
+        potenzaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
+            int potenzaValue = newVal.intValue();
+            potenzaValueLabel.setText(potenzaValue + " CV");
+        });
+    }
+
+    @FXML
+    private void toggleAdvancedSearch() {
+        isAdvancedSearchVisible = !isAdvancedSearchVisible;
+
+        advancedSearchSection.setVisible(isAdvancedSearchVisible);
+        advancedSearchSection.setManaged(isAdvancedSearchVisible);
+
+        advancedSearchLink.setText(isAdvancedSearchVisible ? "🔼 Nascondi Ricerca Avanzata" : "🔍 Ricerca Avanzata");
+
+        if (!isAdvancedSearchVisible) {
+            // Reset filtri quando chiudo la ricerca avanzata
+            resetAdvancedFilters();
+            loadInitialCamions();
+        }
+    }
+
+    @FXML
+    private void applyAdvancedFilters() {
+        if (searchInProgress) {
+            return;
+        }
+
+        // Raccogli i parametri di ricerca
+        int maxPrice = (int) priceSlider.getValue();
+        String category = categoryComboBox.getValue();
+        int maxKm = (int) kmSlider.getValue();
+        String cambio = cambioComboBox.getValue();
+        String modello = modelloCombobox.getValue();
+        int potenza = (int) potenzaSlider.getValue();
+
+        searchInProgress = true;
+        statusLabel.setText("🔍 Ricerca avanzata in corso...");
+        trucksGrid.getChildren().clear();
+
+        CompletableFuture.supplyAsync(() -> {
+            try {
+                return db.advancedSearchCamions(modello, potenza, String.valueOf(maxPrice), category, maxKm, cambio).get();
+            } catch (Exception e) {
+                throw new RuntimeException(e);
+            }
+        }, databaseExecutor).thenAccept(results -> {
+            Platform.runLater(() -> {
+                searchInProgress = false;
+                if (results != null && !results.isEmpty()) {
+                    populateGridWithCamions(results);
+                    statusLabel.setText("✅ Trovati " + results.size() + " risultati con i filtri applicati");
+                } else {
+                    trucksGrid.getChildren().clear();
+                    statusLabel.setText("❌ " + Messaggi.advanced_search_no_results_return_home);
+                    scenehandler.showAlert("Nessun risultato", Messaggi.advanced_search_no_results_return_home, 0);
+
+                    // Torna alla visualizzazione normale dopo 2 secondi
+                    new Thread(() -> {
+                        try {
+                            Thread.sleep(2000);
+                            Platform.runLater(() -> {
+                                toggleAdvancedSearch(); // Chiude la ricerca avanzata
+                                loadInitialCamions(); // Ricarica tutti i camion
+                            });
+                        } catch (InterruptedException e) {
+                            Thread.currentThread().interrupt();
+                        }
+                    }).start();
+                }
+            });
+        }).exceptionally(e -> {
+            Platform.runLater(() -> {
+                searchInProgress = false;
+                statusLabel.setText("❌ Errore durante la ricerca avanzata");
+                scenehandler.showAlert("Errore", "Errore durante la ricerca avanzata: " + e.getMessage(), 0);
+            });
+            return null;
+        });
+    }
+
+    @FXML
+    private void resetAdvancedFilters() {
+        priceSlider.setValue(100000);
+        categoryComboBox.setValue("Tutti");
+        modelloCombobox.setValue("Tutti");
+        potenzaSlider.setValue(200);
+        kmSlider.setValue(2500000);
+        cambioComboBox.setValue("Tutti");
+
+        statusLabel.setText("🔄 Filtri resettati");
     }
 
     private void manageUserButtonsVisibility() {
         if (!scenehandler.isUserAuthenticated()) {
             // Non autenticato
-            loginButton.setVisible(true);
+            AccediButton.setVisible(true);
             wishlistButton.setVisible(false);
             userButton.setVisible(false);
             AdminButton.setVisible(false);
         } else {
             // Autenticato
-            loginButton.setVisible(false);
+            AccediButton.setVisible(false);
             userButton.setVisible(true);
             wishlistButton.setVisible(true);
             AdminButton.setVisible(scenehandler.isCurrentUserAdmin());
@@ -98,7 +246,7 @@ public class HomeController implements Initializable {
         }).exceptionally(e -> {
             Platform.runLater(() -> {
                 statusLabel.setText(Messaggi.home_loading_error);
-                SceneHandler.getInstance().showAlert("Errore DB", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore DB", Messaggi.thread_error, 0);
             });
             return null;
         });
@@ -145,7 +293,7 @@ public class HomeController implements Initializable {
                 openProductView(camion);
             } catch (Exception e) {
                 System.err.println("Errore nell'apertura della product view: " + e.getMessage());
-                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_product_view_error, 0);
+                scenehandler.showAlert("Errore", Messaggi.home_product_view_error, 0);
             }
         });
 
@@ -358,17 +506,28 @@ public class HomeController implements Initializable {
     }
 
     @FXML
-    private void onMainSearchAction() {
-        String searchText = mainSearchField.getText();
-        if (!searchText.trim().isEmpty()) {
-            performSearch(searchText);
+    private void onMainSearchAction() throws Exception {
+        try {
+            String searchText = mainSearchField.getText();
+            if (!searchText.trim().isEmpty()) {
+                performSearch(searchText);
+            }
+        } catch (Exception e) {
+            scenehandler.showAlert("errore", Messaggi.errore_generico,0);
+            scenehandler.setHomeScene();
         }
     }
 
     @FXML
-    private void onMainSearchClick(ActionEvent event) {
-        onMainSearchAction();
+    private void onMainSearchClick(ActionEvent event) throws Exception {
+        try {
+            onMainSearchAction();
+        } catch (Exception e) {
+            scenehandler.showAlert("errore", Messaggi.errore_generico,0);
+            scenehandler.setHomeScene();
+        }
     }
+
 
     private void performSearch(String searchText) {
         if (searchInProgress) {
@@ -424,7 +583,7 @@ public class HomeController implements Initializable {
                         Platform.runLater(() -> {
                             searchInProgress = false;
                             statusLabel.setText("Errore nella ricerca");
-                            SceneHandler.getInstance().showAlert("Errore", Messaggi.home_search_error, 0);
+                            scenehandler.showAlert("Errore", Messaggi.home_search_error, 0);
                         });
                         return null;
                     });
@@ -446,48 +605,75 @@ public class HomeController implements Initializable {
             Platform.runLater(() -> {
                 searchInProgress = false;
                 statusLabel.setText("Errore nella ricerca");
-                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_search_error, 0);
+                scenehandler.showAlert("Errore", Messaggi.home_search_error, 0);
             });
             return null;
         });
     }
 
-    @FXML
-    private void onTruckImageClick(MouseEvent event) throws Exception {
-        scenehandler.setTruckDetailsScene();
-    }
-
-    @FXML
-    private void onBrandLogoClick(MouseEvent event) {
-        ImageView clickedLogo = (ImageView) event.getSource();
-        String brand = (String) clickedLogo.getUserData();
-
-        if (brand != null && !brand.isEmpty()) {
-            handleBrandSelection(brand);
+    // Brand selection methods con gestione errori
+    @FXML private void onVolvoClick() throws Exception {
+        try {
+            handleBrandSelection("VOLVO");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
         }
     }
 
-    @FXML private void onVolvoLogoClick(MouseEvent event) { handleBrandSelection("VOLVO"); }
-    @FXML private void onMercedesLogoClick(MouseEvent event) { handleBrandSelection("MERCEDES BENZ"); }
-    @FXML private void onManLogoClick(MouseEvent event) { handleBrandSelection("MAN"); }
-    @FXML private void onScaniaLogoClick(MouseEvent event) { handleBrandSelection("SCANIA"); }
-    @FXML private void onIvecoLogoClick(MouseEvent event) { handleBrandSelection("IVECO"); }
-    @FXML private void onRenaultLogoClick(MouseEvent event) { handleBrandSelection("RENAULT"); }
-    @FXML private void onDafLogoClick(MouseEvent event) { handleBrandSelection("DAF"); }
-
-    @FXML
-    private void onBrandClick(ActionEvent event) {
-        String brand = ((Button) event.getSource()).getText();
-        handleBrandSelection(brand);
+    @FXML private void onMercedesClick() throws Exception {
+        try {
+            handleBrandSelection("MERCEDES BENZ");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 
-    @FXML private void onVolvoClick() { handleBrandSelection("VOLVO"); }
-    @FXML private void onMercedesClick() { handleBrandSelection("MERCEDES BENZ"); }
-    @FXML private void onManClick() { handleBrandSelection("MAN"); }
-    @FXML private void onScaniaClick() { handleBrandSelection("SCANIA"); }
-    @FXML private void onIvecoClick() { handleBrandSelection("IVECO"); }
-    @FXML private void onRenaultClick() { handleBrandSelection("RENAULT"); }
-    @FXML private void onDafClick() { handleBrandSelection("DAF"); }
+    @FXML private void onManClick() throws Exception {
+        try {
+            handleBrandSelection("MAN");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onScaniaClick() throws Exception {
+        try {
+            handleBrandSelection("SCANIA");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onIvecoClick() throws Exception {
+        try {
+            handleBrandSelection("IVECO");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onRenaultClick() throws Exception {
+        try {
+            handleBrandSelection("RENAULT");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onDafClick() throws Exception {
+        try {
+            handleBrandSelection("DAF");
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
 
     private void handleBrandSelection(String brand) {
         statusLabel.setText(Messaggi.home_brand_loading + " " + brand + "...");
@@ -515,53 +701,84 @@ public class HomeController implements Initializable {
         }).exceptionally(e -> {
             Platform.runLater(() -> {
                 statusLabel.setText(Messaggi.home_loading_error);
-                SceneHandler.getInstance().showAlert("Errore", Messaggi.home_brand_loading_error, 0);
+                scenehandler.showAlert("Errore", Messaggi.home_brand_loading_error, 0);
             });
             return null;
         });
     }
 
-    @FXML
-    private void onShowAllTrucksClick() {
-        mainSearchField.clear();
-        loadInitialCamions();
-    }
-
-    @FXML
-    private void userClick(MouseEvent event) throws Exception {
-        scenehandler.setUtenteScene();
-    }
-
-    @FXML
-    private void wishlistClick(MouseEvent event) throws Exception {
-        scenehandler.setWishlistScene();
-    }
-
-    @FXML
-    private void loginClick(MouseEvent event) throws Exception {
-        scenehandler.setLoginScene();
-    }
-
-    @FXML
-    public void HomeClick(MouseEvent event) throws Exception {
-        scenehandler.setHomeScene();
-    }
-
-    public void shutdown() {
-        if (databaseExecutor != null && !databaseExecutor.isShutdown()) {
-            databaseExecutor.shutdown();
-            try {
-                if (!databaseExecutor.awaitTermination(5, TimeUnit.SECONDS)) {
-                    databaseExecutor.shutdownNow();
-                }
-            } catch (InterruptedException e) {
-                databaseExecutor.shutdownNow();
-                Thread.currentThread().interrupt();
-            }
+    // Navigation methods
+    @FXML private void userClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.setUtenteScene();
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_utente, 0);
+            scenehandler.setHomeScene();
         }
     }
 
-    public void AdminClick(MouseEvent event) throws Exception {
-        scenehandler.setAdminScene();
+    @FXML private void wishlistClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.setWishlistScene();
+
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_wishlist, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void AccediClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.setLoginScene();
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_login, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML public void HomeClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.setHomeScene();
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onInfoAppClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.showAlert("Informazioni sull'app", Messaggi.app_information, 1);
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+
+    @FXML private void onPrivacyClick(MouseEvent event) throws Exception {
+        try {
+            scenehandler.showAlert("Privacy", Messaggi.privacy_information, 1);
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void onCondizioniClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.showAlert("Condizioni generali", Messaggi.general_condition, 1);
+        } catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
+    }
+
+    @FXML private void AdminClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.setAdminScene();
+        } catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_admin, 0);
+            scenehandler.setHomeScene();
+        }
     }
 }

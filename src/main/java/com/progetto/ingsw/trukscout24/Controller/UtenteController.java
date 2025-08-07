@@ -50,7 +50,12 @@ public class UtenteController implements Initializable {
 
     @FXML
     private void homeAction(MouseEvent event) throws Exception {
-        sceneHandler.setHomeScene();
+        try{
+            sceneHandler.setHomeScene();
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @Override
@@ -58,12 +63,17 @@ public class UtenteController implements Initializable {
         currentUser = sceneHandler.getCurrentUser();
 
         if (currentUser == null) {
-            showAlert(Messaggi.UTENTE_NON_AUTENTICATO, Messaggi.UTENTE_NON_AUTENTICATO, Alert.AlertType.WARNING);
+            sceneHandler.showAlert("Errore", Messaggi.UTENTE_NON_AUTENTICATO, 0);
             try {
                 sceneHandler.setHomeScene();
                 return;
-            } catch (Exception e) {
-                e.printStackTrace();
+            } catch (Exception e){
+                sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+                try {
+                    sceneHandler.setHomeScene();
+                } catch (Exception ex) {
+                    throw new RuntimeException(ex);
+                }
             }
         }
 
@@ -73,19 +83,19 @@ public class UtenteController implements Initializable {
             setupTable();
             loadUserData();
         } catch (Exception e) {
-            showAlert(Messaggi.ERRORE_GENERICO, Messaggi.ERRORE_GENERICO, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.ERRORE_GENERICO, 0);
         }
     }
 
     private void loadUserData() {
         if (currentUserEmail == null) {
-            showAlert(Messaggi.EMAIL_NON_DISPONIBILE, Messaggi.EMAIL_NON_DISPONIBILE, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.EMAIL_NON_DISPONIBILE, 0);
             return;
         }
 
         db.setUser(currentUserEmail).thenAccept(user -> {
             if (user == null) {
-                showAlert(Messaggi.UTENTE_NON_TROVATO, Messaggi.UTENTE_NON_TROVATO, Alert.AlertType.ERROR);
+                sceneHandler.showAlert("Errore", Messaggi.UTENTE_NON_TROVATO, 0);
                 return;
             } else {
                 javafx.application.Platform.runLater(() -> {
@@ -98,7 +108,7 @@ public class UtenteController implements Initializable {
             }
             loadPrenotazioni();
         }).exceptionally(ex -> {
-            showAlert(Messaggi.CARICAMENTO_UTENTE_FALLITO, Messaggi.CARICAMENTO_UTENTE_FALLITO + ex.getMessage(), Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.CARICAMENTO_UTENTE_FALLITO + ex.getMessage(), 0);
             return null;
         });
     }
@@ -138,7 +148,7 @@ public class UtenteController implements Initializable {
 
     private void deletePrenotazione(Prenotazione prenotazione) {
         db.removeSelectedPrenotazioniItem(prenotazione.nome_camion(), prenotazione.id_utente());
-        showAlert(Messaggi.PRENOTAZIONE_CANCELLATA, Messaggi.PRENOTAZIONE_CANCELLATA, Alert.AlertType.INFORMATION);
+        sceneHandler.showAlert("Errore", Messaggi.PRENOTAZIONE_CANCELLATA, 0);
         loadPrenotazioni();
     }
 
@@ -153,7 +163,7 @@ public class UtenteController implements Initializable {
                 }
             });
         }).exceptionally(ex -> {
-            showAlert(Messaggi.PRENOTAZIONI_ERROR, Messaggi.PRENOTAZIONI_ERROR + ex.getMessage(), Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.PRENOTAZIONI_ERROR + ex.getMessage(), 0);
             return null;
         });
     }
@@ -164,22 +174,22 @@ public class UtenteController implements Initializable {
         String repeatPassword = repeatPasswordField.getText();
 
         if (password.isEmpty() || repeatPassword.isEmpty()) {
-            showAlert(Messaggi.CAMPI_PASSWORD_OBBLIGATORI, Messaggi.CAMPI_PASSWORD_OBBLIGATORI, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.CAMPI_PASSWORD_OBBLIGATORI,0);
             return;
         }
 
         if (!password.equals(repeatPassword)) {
-            showAlert(Messaggi.PASSWORD_NON_COINCIDONO, Messaggi.PASSWORD_NON_COINCIDONO, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.PASSWORD_NON_COINCIDONO, 0);
             return;
         }
 
         if (password.length() < 6) {
-            showAlert(Messaggi.PASSWORD_TROPPO_CORTA, Messaggi.PASSWORD_TROPPO_CORTA, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.PASSWORD_TROPPO_CORTA, 0);
             return;
         }
 
         if (currentUserEmail == null) {
-            showAlert(Messaggi.UTENTE_NON_IDENTIFICATO, Messaggi.UTENTE_NON_IDENTIFICATO, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.UTENTE_NON_IDENTIFICATO, 0);
             return;
         }
 
@@ -190,13 +200,13 @@ public class UtenteController implements Initializable {
         passwordField.clear();
         repeatPasswordField.clear();
 
-        showAlert(Messaggi.PASSWORD_CAMBIATA, Messaggi.PASSWORD_CAMBIATA, Alert.AlertType.INFORMATION);
+        sceneHandler.showAlert("Info", Messaggi.PASSWORD_CAMBIATA, 1);
     }
 
     @FXML
     void logoutAction(ActionEvent event) throws Exception {
         sceneHandler.logoutUser();
-        showAlert(Messaggi.LOGOUT, Messaggi.LOGOUT, Alert.AlertType.INFORMATION);
+        sceneHandler.showAlert("Info", Messaggi.LOGOUT, 1);
         sceneHandler.setHomeScene();
     }
 
@@ -204,16 +214,6 @@ public class UtenteController implements Initializable {
     void aggiungiCamionAction(ActionEvent event) {
         aggiungiCamionForm.setVisible(true);
         aggiungiCamionForm.setManaged(true);
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        javafx.application.Platform.runLater(() -> {
-            Alert alert = new Alert(type);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
-        });
     }
 
     @FXML public void refreshBookingsAction(ActionEvent actionEvent) {

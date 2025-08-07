@@ -34,14 +34,13 @@ public class LoginController {
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private Label logoLabel;
 
+    private final SceneHandler sceneHandler = SceneHandler.getInstance();
+
     private boolean passwordVisible = false;
-    private SceneHandler sceneHandler;
     private double mouseX, mouseY;
 
     @FXML
     public void initialize() {
-        sceneHandler = SceneHandler.getInstance();
-
         errorLabel.setVisible(false);
         if (successLabel != null) {
             successLabel.setVisible(false);
@@ -84,12 +83,12 @@ public class LoginController {
         hideMessages();
 
         if (email.isEmpty() || password.isEmpty()) {
-            showError(Messaggi.login_campi_vuoti);
+            sceneHandler.showAlert("Errore", Messaggi.login_campi_vuoti,0);
             return;
         }
 
         if (!Validazione.getInstance().isValidEmailFormat(email)) {
-            showError(Messaggi.login_email_non_valida);
+            sceneHandler.showAlert("Errpre",Messaggi.login_email_non_valida,0);
             return;
         }
 
@@ -120,7 +119,7 @@ public class LoginController {
                     if (getValue()) {
                         loadUserAndProceed(email);
                     } else {
-                        showError(Messaggi.login_errore_credenziali);
+                        sceneHandler.showAlert("Errore",Messaggi.login_errore_credenziali,0);
                     }
                 });
             }
@@ -130,7 +129,7 @@ public class LoginController {
                 Platform.runLater(() -> {
                     setUIEnabled(true);
                     showLoading(false);
-                    showError(Messaggi.login_connessione_error);
+                    sceneHandler.showAlert("Errore",Messaggi.login_connessione_error,0);
                 });
             }
         };
@@ -160,10 +159,10 @@ public class LoginController {
                         try {
                             sceneHandler.setHomeScene();
                         } catch (Exception e) {
-                            showError(Messaggi.returnHome_error);
+                            sceneHandler.showAlert("Errore",Messaggi.returnHome_error,0);
                         }
                     } else {
-                        showError(Messaggi.login_user_data_error);
+                        sceneHandler.showAlert("Errore",Messaggi.login_user_data_error,0);
                     }
                 });
             }
@@ -171,7 +170,7 @@ public class LoginController {
             @Override
             protected void failed() {
                 Platform.runLater(() -> {
-                    showError(Messaggi.login_user_data_error);
+                    sceneHandler.showAlert("Errore",Messaggi.login_user_data_error,0);
                 });
             }
         };
@@ -183,23 +182,45 @@ public class LoginController {
 
     @FXML
     private void PasswordDimenticataClick(MouseEvent event) throws Exception {
-        sceneHandler.setRecoveryScene();
+        try {
+            sceneHandler.setRecoveryScene();
+        } catch (Exception e) {
+            sceneHandler.showAlert("Errore", Messaggi.errore_recupero_password,0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
-        sceneHandler.setHomeScene();
+        try {
+            sceneHandler.setHomeScene();
+        } catch (Exception e) {
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
+            sceneHandler.setHomeScene();
+
+        }
     }
 
     @FXML
     private void RegistrazioneClick(MouseEvent event) throws Exception {
-        sceneHandler.setRegistrationScene();
+        try {
+            sceneHandler.setRegistrationScene();
+        } catch (Exception e) {
+            sceneHandler.showAlert("Errore", Messaggi.errore_registrazione,0);
+            sceneHandler.setHomeScene();
+        }
     }
 
     @FXML
     private void onEnterPressed(KeyEvent event) throws Exception {
-        if (event.getCode() == KeyCode.ENTER) {
-            handleLogin(new ActionEvent());
+        try {
+            if (event.getCode() == KeyCode.ENTER) {
+                handleLogin(new ActionEvent());
+            }
+        } catch (Exception e) {
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
+            sceneHandler.setHomeScene();
+
         }
     }
 
@@ -252,21 +273,6 @@ public class LoginController {
         }
     }
 
-    private void showError(String message) {
-        errorLabel.setText(message);
-        errorLabel.setVisible(true);
-        if (successLabel != null) {
-            successLabel.setVisible(false);
-        }
-    }
-
-    private void showSuccess(String message) {
-        if (successLabel != null) {
-            successLabel.setText(message);
-            successLabel.setVisible(true);
-        }
-        errorLabel.setVisible(false);
-    }
 
     private void hideMessages() {
         errorLabel.setVisible(false);
@@ -291,7 +297,4 @@ public class LoginController {
         }
     }
 
-    private void saveCredentials(String email) {
-        System.out.println("Credenziali salvate per: " + email);
-    }
 }

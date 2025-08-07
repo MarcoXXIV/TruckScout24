@@ -72,6 +72,16 @@ public class Messaggi {
     public final static String home_brand_showing = "Visualizzando";
     public final static String home_brand_no_results = "Nessun camion trovato per la marca";
     public final static String home_brand_loading_error = "Errore nel caricamento dei camion";
+    public static final String advanced_search_no_results_return_home = "Nessun risultato trovato con i filtri applicati. Ritorno alla Home.";
+
+    public static final String errore_utente = "Errore nel caricamento della schermata Utente, sarai reindirizzato nella schermata Home.";
+    public static final String errore_wishlist = "Errore nel caricamento della schermata Wishlist sarai reindirizzato nella schermata Home.";
+    public static final String errore_login = "Errore nel caricamento della schermata di Login, sarai reindirizzato nella schermata Home.";
+    public static final String errore_admin = "Errore nel caricamento della schermata Admin, sarai reindirizzato nella schermata Home.";
+    public static final String errore_generico = "Si è verificato un errore imprevisto, sarai reindirizzato nella schermata Home.";
+    public static final String errore_recupero_password= "Si è verificato un errore nel caricamento della schermata recupero password, sarai reindirizzato nella schermata Home.";
+    public static final String errore_registrazione= "Si è verificato un errore nel caricamento della schermata di registrazione, sarai reindirizzato nella schermata Home.";
+
 
     // MESSAGGI LOGIN
     public final static String login_error = "";

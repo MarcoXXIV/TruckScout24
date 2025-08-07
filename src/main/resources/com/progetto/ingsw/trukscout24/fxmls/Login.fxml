@@ -39,7 +39,7 @@
         <VBox fx:id="formBox" alignment="CENTER" maxWidth="400" spacing="15" styleClass="form-box">
 
             <!-- Logo - FUORI dal form-box -->
-            <VBox alignment="CENTER" onMouseClicked="#HomeClick" spacing="5" style="-fx-cursor: hand;" styleClass="logo-container">
+            <VBox alignment="CENTER" onMouseClicked="#HomeClick" spacing="5" styleClass="logo-container">
                 <Label fx:id="logoLabel" onMouseDragged="#handleMouseDragged" onMousePressed="#handleMousePressed" style="-fx-cursor: hand;">
                     <graphic>
                         <ImageView fitHeight="90.0" fitWidth="203.0" preserveRatio="true">
@@ -57,7 +57,7 @@
                 <StackPane>
                     <PasswordField fx:id="passwordField" promptText="Password" styleClass="password-field" />
                     <TextField fx:id="passwordTextField" promptText="Password" styleClass="password-field" visible="false" />
-                    <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" styleClass="button" text="👁" StackPane.alignment="CENTER_RIGHT">
+                    <Button fx:id="togglePasswordButton" onAction="#togglePasswordVisibility" styleClass="password-button" text="👁" StackPane.alignment="CENTER_RIGHT">
                   <font>
                      <Font size="14.0" />
                   </font></Button>

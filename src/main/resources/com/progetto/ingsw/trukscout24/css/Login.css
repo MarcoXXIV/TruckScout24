@@ -82,12 +82,12 @@
     -fx-pref-width: 250px;
     -fx-font-size: 14px;
     -fx-padding: 10;
-    -fx-border-color: #ccc;
+    -fx-border-color: linear-gradient(to right, #ff6b35, #f7931e);
     -fx-border-radius: 6;
     -fx-background-radius: 6;
     -fx-background-color: white;
     -fx-prompt-text-fill: #aaa;
-    -fx-text-fill: #333;
+    -fx-text-fill: #000;
 }
 
 .text-field:focused,
@@ -121,4 +121,23 @@
     -fx-background-color: rgba(211, 47, 47, 0.1);
     -fx-background-radius: 4;
     -fx-padding: 8;
+}
+
+.password-button {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 18px;
+    -fx-padding: 5;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-text-fill: white;
+}
+.password-button:hover {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-background-radius: 6;
+}
+
+.password-button:pressed {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
 }

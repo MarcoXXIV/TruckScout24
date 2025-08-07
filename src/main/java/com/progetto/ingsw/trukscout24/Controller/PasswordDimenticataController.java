@@ -26,17 +26,17 @@ public class PasswordDimenticataController {
         String confirmPassword = confirmPasswordField.getText();
 
         if (email.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            showAlert("Errore", Messaggi.registration_field_empty_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.registration_field_empty_error, 0);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            showAlert("Errore", Messaggi.registration_password_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.registration_password_error, 0);
             return;
         }
 
         if (newPassword.length() < 8) {
-            showAlert("Errore", Messaggi.recovery_password_min_length_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.recovery_password_min_length_error, 0);
             return;
         }
 
@@ -44,12 +44,12 @@ public class PasswordDimenticataController {
 
         db.checkExistEmail(email).thenAccept(exists -> {
             if (!exists) {
-                showAlert("Errore", Messaggi.recovery_password_email_not_found, Alert.AlertType.ERROR);
+                sceneHandler.showAlert("Errore", Messaggi.recovery_password_email_not_found,0);
                 return;
             }
 
             if (currentUserEmail != null && !currentUserEmail.equals(email)) {
-                showAlert("Errore", Messaggi.recovery_password_other_user_error, Alert.AlertType.ERROR);
+                sceneHandler.showAlert("Errore", Messaggi.recovery_password_other_user_error, 0);
                 return;
             }
 
@@ -60,7 +60,7 @@ public class PasswordDimenticataController {
                 newPasswordField.clear();
                 confirmPasswordField.clear();
                 emailField.clear();
-                showAlert("Successo", Messaggi.update_password_success, Alert.AlertType.INFORMATION);
+                sceneHandler.showAlert("Successo", Messaggi.update_password_success, 0);
                 try {
                     sceneHandler.setLoginScene();
                 } catch (Exception e) {
@@ -68,23 +68,18 @@ public class PasswordDimenticataController {
                 }
             });
         }).exceptionally(ex -> {
-            showAlert("Errore", Messaggi.recovery_password_exception + ex.getMessage(), Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.recovery_password_exception + ex.getMessage(), 0);
             return null;
-        });
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        Platform.runLater(() -> {
-            Alert alert = new Alert(type);
-            alert.setTitle(title);
-            alert.setHeaderText(null);
-            alert.setContentText(message);
-            alert.showAndWait();
         });
     }
 
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
-        sceneHandler.setHomeScene();
+        try{
+            sceneHandler.setHomeScene();
+        }catch (Exception e){
+            sceneHandler.showAlert("Errore",Messaggi.errore_generico,0);
+            sceneHandler.setHomeScene();
+        }
     }
 }

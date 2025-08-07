@@ -92,7 +92,7 @@
     -fx-font-size: 16px;
     -fx-font-weight: bold;
     -fx-text-fill: white;
-    -fx-background-color: linear-gradient(to bottom, #3498db, #2980b9);
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-padding: 15 30;
     -fx-border-radius: 25;
     -fx-background-radius: 25;
@@ -102,7 +102,7 @@
 }
 
 .primary-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #2980b9, #21618c);
+    -fx-background-color: linear-gradient(to right, #5a6fd8, #6a42a0);
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 6);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
@@ -111,8 +111,8 @@
 .secondary-button {
     -fx-font-size: 14px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
-    -fx-background-color: linear-gradient(to bottom, #ecf0f1, #bdc3c7);
+    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-padding: 12 25;
     -fx-border-radius: 22;
     -fx-background-radius: 22;
@@ -122,7 +122,7 @@
 }
 
 .secondary-button:hover {
-    -fx-background-color: linear-gradient(to bottom, #bdc3c7, #95a5a6);
+    -fx-background-color: linear-gradient(to right, #5a6fd8, #6a42a0);
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 12, 0, 0, 5);
     -fx-scale-x: 1.03;
     -fx-scale-y: 1.03;
@@ -146,6 +146,27 @@
     -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.5), 15, 0, 0, 6);
     -fx-scale-x: 1.05;
     -fx-scale-y: 1.05;
+}
+
+/* Bottone danger-btn per eliminazione (piccolo per le tabelle) */
+.danger-btn {
+    -fx-font-size: 12px;
+    -fx-font-weight: bold;
+    -fx-text-fill: white;
+    -fx-background-color: linear-gradient(to bottom, #e74c3c, #c0392b);
+    -fx-padding: 8 16;
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-cursor: hand;
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.3), 6, 0, 0, 2);
+    -fx-min-width: 80px;
+}
+
+.danger-btn:hover {
+    -fx-background-color: linear-gradient(to bottom, #c0392b, #a93226);
+    -fx-effect: dropshadow(three-pass-box, rgba(0,0,0,0.4), 8, 0, 0, 3);
+    -fx-scale-x: 1.02;
+    -fx-scale-y: 1.02;
 }
 
 /* Tabella migliorata */
@@ -219,32 +240,37 @@
 .tab-header .tab-label {
     -fx-font-size: 16px;
     -fx-font-weight: bold;
-    -fx-text-fill: #2c3e50;
+    -fx-text-fill: white;
+    -fx-cursor: hand;
 }
 
 .tab-pane .tab-header-area .tab-header-background {
-    -fx-background-color: #ecf0f1;
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-background-radius: 20 20 0 0;
 }
 
 .tab-pane .tab {
-    -fx-background-color: #bdc3c7;
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-background-radius: 15 15 0 0;
     -fx-padding: 12 25;
 }
 
 .tab-pane .tab:selected {
-    -fx-background-color: white;
-    -fx-border-color: #3498db;
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-border-width: 0 0 4 0;
+}
+
+.tab-pane .tab .tab-label {
+    -fx-text-fill: white;
 }
 
 /* Container del form */
 .form-container {
-    -fx-padding: 30 30 30 30; /* ← se serve, puoi ridurre i 30 laterali */
+    -fx-padding: 30 30 30 30;
     -fx-alignment: center;
     -fx-spacing: 20;
 }
+
 /* Separatori */
 .section-separator {
     -fx-background-color: linear-gradient(to right, transparent, #ecf0f1, transparent);

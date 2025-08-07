@@ -2,8 +2,10 @@
 
 <?import javafx.geometry.Insets?>
 <?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
 <?import javafx.scene.control.Label?>
 <?import javafx.scene.control.ScrollPane?>
+<?import javafx.scene.control.Slider?>
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.image.Image?>
 <?import javafx.scene.image.ImageView?>
@@ -28,7 +30,7 @@
         </HBox>
 
         <!-- Spacer sinistro per centrare la search bar -->
-        <Region prefHeight="100.0" prefWidth="250.0" HBox.hgrow="ALWAYS" />
+        <Region prefHeight="100.0" prefWidth="180.0" HBox.hgrow="ALWAYS" />
 
         <!-- Center Search Bar -->
         <HBox alignment="CENTER" spacing="10.0">
@@ -36,11 +38,12 @@
             <Button fx:id="mainSearchButton" onAction="#onMainSearchClick" prefHeight="38.0" prefWidth="40.0" styleClass="search-button" text="🔍">
                 <font>
                     <Font size="16.0" />
-                </font></Button>
+                </font>
+            </Button>
         </HBox>
 
         <!-- Spacer destro per centrare la search bar -->
-        <Region prefHeight="100.0" prefWidth="190.0" HBox.hgrow="ALWAYS" />
+        <Region prefHeight="100.0" prefWidth="120.0" HBox.hgrow="ALWAYS" />
 
         <!-- User Actions Section on the Right -->
         <HBox alignment="CENTER" spacing="20.0">
@@ -64,8 +67,8 @@
                 </font>
             </Button>
 
-            <!-- Login -->
-            <Button fx:id="loginButton" onMouseClicked="#loginClick" styleClass="login-button" text="Login" />
+            <!-- Accedi -->
+            <Button fx:id="AccediButton" onMouseClicked="#AccediClick" styleClass="Accedi-button" text="ACCEDI" />
             <HBox.margin>
                 <Insets right="50.0" />
             </HBox.margin>
@@ -78,14 +81,77 @@
         <VBox spacing="30.0">
             <!-- HERO SECTION -->
             <VBox alignment="CENTER" prefHeight="150.0" prefWidth="1400.0" spacing="20.0" styleClass="hero-section">
-                <VBox alignment="CENTER" spacing="10.0">
-                    <Label text="Trova il tuo camion ideale!" />
-                    <Label text="Oltre 50 veicoli commerciali premium dai migliori marchi europei" />
+                <VBox alignment="CENTER" spacing="15.0">
+                    <Label text="🚛 TrukScout24 - Il tuo marketplace dei camion" styleClass="hero-main-title" />
+                    <Label text="Scopri una vasta gamma di veicoli commerciali premium dai migliori marchi europei" styleClass="hero-subtitle" />
+                    <Label fx:id="advancedSearchLink" text="🔍 Ricerca Avanzata" styleClass="advanced-search-link" onMouseClicked="#toggleAdvancedSearch" />
                 </VBox>
             </VBox>
 
+            <!-- ADVANCED SEARCH SECTION -->
+            <VBox fx:id="advancedSearchSection" alignment="CENTER" prefHeight="200.0" prefWidth="1400.0" spacing="20.0" styleClass="advanced-search-section" visible="false" managed="false">
+                <Label text="🔍 Trova il tuo camion ideale - Ricerca Avanzata" styleClass="advanced-search-title" />
+
+                <GridPane alignment="CENTER" hgap="30.0" vgap="20.0" styleClass="advanced-search-grid">
+                    <columnConstraints>
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="300.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="300.0" />
+                        <ColumnConstraints hgrow="SOMETIMES" minWidth="250.0" prefWidth="300.0" />
+                    </columnConstraints>
+
+                    <!-- Prima riga -->
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="0">
+                        <Label text="💰 Prezzo massimo" styleClass="filter-label" />
+                        <VBox spacing="5.0">
+                            <Slider fx:id="priceSlider" min="10000" max="100000" value="100000" showTickLabels="true" showTickMarks="true" majorTickUnit="20000" styleClass="price-slider" />
+                            <Label fx:id="priceValueLabel" text="100.000 €" styleClass="slider-value-label" />
+                        </VBox>
+                    </VBox>
+
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="0">
+                        <Label text="🚛 Categoria" styleClass="filter-label" />
+                        <ComboBox fx:id="categoryComboBox" prefWidth="200.0" promptText="Seleziona Categoria..." styleClass="filter-combo" />
+                    </VBox>
+
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="2" GridPane.rowIndex="0">
+                        <Label text="🛣️ Chilometri massimi" styleClass="filter-label" />
+                        <VBox spacing="5.0">
+                            <Slider fx:id="kmSlider" min="0" max="2500000" value="2500000" showTickLabels="true" showTickMarks="true" majorTickUnit="500000" styleClass="km-slider" />
+                            <Label fx:id="kmValueLabel" text="2.500.000 km" styleClass="slider-value-label" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Seconda riga -->
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="0" GridPane.rowIndex="1">
+                        <Label text="⚙️ Tipo di Cambio" styleClass="filter-label" />
+                        <ComboBox fx:id="cambioComboBox" prefWidth="200.0" promptText="Seleziona Cambio..." styleClass="filter-combo" />
+                    </VBox>
+
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="1">
+                        <Label text="🚛 Modello di camion" styleClass="filter-label" />
+                        <ComboBox fx:id="modelloCombobox" prefWidth="200.0" promptText="Seleziona Modello..." styleClass="filter-combo" />
+                    </VBox>
+
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="2" GridPane.rowIndex="1">
+                        <Label text="🚀 Potenza in CV minima" styleClass="filter-label" />
+                        <VBox spacing="5.0">
+                            <Slider fx:id="potenzaSlider" min="200" max="700" value="200" showTickLabels="true" showTickMarks="true" majorTickUnit="100" styleClass="potenza-slider" />
+                            <Label fx:id="potenzaValueLabel" text="200 CV" styleClass="slider-value-label" />
+                        </VBox>
+                    </VBox>
+
+                    <!-- Terza riga -->
+                    <VBox alignment="CENTER_LEFT" spacing="8.0" GridPane.columnIndex="1" GridPane.rowIndex="2">
+                        <HBox alignment="CENTER" spacing="15.0">
+                            <Button fx:id="applyFiltersButton" onAction="#applyAdvancedFilters" styleClass="apply-filters-button" text="🔍 Cerca" />
+                            <Button fx:id="resetFiltersButton" onAction="#resetAdvancedFilters" styleClass="reset-filters-button" text="🗑️ Reset" />
+                        </HBox>
+                    </VBox>
+                </GridPane>
+            </VBox>
+
             <!-- BRAND SELECTION SECTION -->
-            <VBox alignment="CENTER" spacing="20.0">
+            <VBox fx:id="brandSelectionSection" alignment="CENTER" spacing="20.0">
                 <HBox alignment="CENTER" spacing="30.0">
                     <ImageView fitHeight="100.0" fitWidth="180.0" onMouseClicked="#onVolvoClick" preserveRatio="true" styleClass="cursor-hand">
                         <Image url="@../loghi/Volvo.png" />
@@ -123,7 +189,7 @@
             </VBox>
 
             <!-- SERVICES SECTION -->
-            <VBox alignment="CENTER" spacing="15.0" styleClass="services-section">
+            <VBox fx:id="servicesSection" alignment="CENTER" spacing="15.0" styleClass="services-section">
                 <Label styleClass="services-section-label" text="I Nostri Servizi" />
 
                 <HBox alignment="CENTER" spacing="30.0">
@@ -154,9 +220,34 @@
     </ScrollPane>
 
     <!-- FOOTER FISSO (fuori dal ScrollPane) -->
-    <HBox alignment="CENTER_LEFT" spacing="20.0" styleClass="footer">
-        <Label fx:id="statusLabel" styleClass="footer-label" text="TrukScout24 - La tua piattaforma per veicoli commerciali premium" />
+    <HBox alignment="CENTER" spacing="20.0" styleClass="footer">
+
+        <!-- Sinistra -->
+        <Label fx:id="statusLabel" styleClass="footer-label"
+               text="TrukScout24 - La tua piattaforma per veicoli commerciali premium" />
+
+        <!-- Spazio flessibile -->
         <Region HBox.hgrow="ALWAYS" />
-        <Label styleClass="footer-right-label" text="© 2024 TrukScout24 S.r.l. - P.IVA: 12345678901" />
+
+        <!-- Link informativi -->
+        <HBox spacing="200.0" alignment="CENTER">
+            <Label text="Informazioni sull'app"
+                   onMouseClicked="#onInfoAppClick"
+                   styleClass="footer-link" />
+            <Label text="Privacy"
+                   onMouseClicked="#onPrivacyClick"
+                   styleClass="footer-link" />
+            <Label text="Condizioni generali"
+                   onMouseClicked="#onCondizioniClick"
+                   styleClass="footer-link" />
+        </HBox>
+
+        <!-- Spazio flessibile -->
+        <Region HBox.hgrow="ALWAYS" />
+
+        <!-- Destra -->
+        <Label styleClass="footer-right-label"
+               text="© 2024 TrukScout24 S.r.l. - P.IVA: 12345678901" />
+
     </HBox>
 </VBox>

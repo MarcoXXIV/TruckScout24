@@ -11,7 +11,7 @@
 
 /* Header */
 .header-section {
-    -fx-background-color: linear-gradient(from 0% 0% to 100% 100%, #ff6b35, #f7931e);
+    -fx-background-color: linear-gradient(to right, #ff6b35, #f7931e);
     -fx-background-radius: 12;
     -fx-effect: dropshadow(gaussian, rgba(0,0,0,0.15), 8, 0, 0, 2);
 }

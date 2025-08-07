@@ -30,6 +30,7 @@ import java.util.concurrent.CompletableFuture;
 
 public class WishlistController implements Initializable {
 
+    @FXML private Label statusLabel;
     @FXML private Button clearAllButton, startBrowsingButton;
     @FXML private FlowPane trucksFlowPane;
     @FXML private VBox emptyStateBox;
@@ -92,7 +93,7 @@ public class WishlistController implements Initializable {
         loadTask.setOnFailed(e -> {
             Platform.runLater(() -> {
                 showLoadingState(false);
-                showErrorAlert(Messaggi.WISHLIST_CARICAMENTO_ERRORE, Messaggi.WISHLIST_CARICAMENTO_ERRORE);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_CARICAMENTO_ERRORE, 0);
                 showEmptyState();
             });
         });
@@ -125,7 +126,7 @@ public class WishlistController implements Initializable {
                 System.out.println("Apertura dettagli camion: " + camion.nome());
             } catch (Exception e) {
                 System.err.println("Errore nell'apertura della product view: " + e.getMessage());
-                showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, Messaggi.WISHLIST_CAMION_ERRORE_APERTURA);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, 0);
             }
         });
 
@@ -169,7 +170,7 @@ public class WishlistController implements Initializable {
                 openProductView(camion);
             } catch (Exception e) {
                 System.err.println("Errore nell'apertura della product view: " + e.getMessage());
-                showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, Messaggi.WISHLIST_CAMION_ERRORE_APERTURA);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, 0);
             }
             event.consume(); // evita la propagazione
         });
@@ -267,7 +268,12 @@ public class WishlistController implements Initializable {
     // EVENT HANDLERS
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
-        scenehandler.setHomeScene();
+        try{
+            scenehandler.setHomeScene();
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 
     @FXML
@@ -288,7 +294,12 @@ public class WishlistController implements Initializable {
 
     @FXML
     private void handleStartBrowsing() throws Exception {
-        scenehandler.setHomeScene();
+        try{
+            scenehandler.setHomeScene();
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 
     // DATABASE OPERATIONS
@@ -318,14 +329,14 @@ public class WishlistController implements Initializable {
                 if (removeTask.getValue()) {
                     animateCardRemoval(camion);
                 } else {
-                    showErrorAlert(Messaggi.WISHLIST_RIMOZIONE_ERRORE, Messaggi.WISHLIST_RIMOZIONE_ERRORE);
+                    scenehandler.showAlert("Errore",Messaggi.WISHLIST_RIMOZIONE_ERRORE, 0);
                 }
             });
         });
 
         removeTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert(Messaggi.WISHLIST_RIMOZIONE_CAMION_ERRORE, Messaggi.WISHLIST_RIMOZIONE_CAMION_ERRORE);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_RIMOZIONE_CAMION_ERRORE, 0);
             });
         });
 
@@ -374,14 +385,14 @@ public class WishlistController implements Initializable {
                     });
                     fadeOut.play();
                 } else {
-                    showErrorAlert(Messaggi.WISHLIST_SVUOTAMENTO_ERRORE, Messaggi.WISHLIST_SVUOTAMENTO_ERRORE);
+                    scenehandler.showAlert("Errore",Messaggi.WISHLIST_SVUOTAMENTO_ERRORE, 0);
                 }
             });
         });
 
         clearTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert(Messaggi.WISHLIST_ERRORE, Messaggi.WISHLIST_ERRORE);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_ERRORE, 0);
             });
         });
 
@@ -392,17 +403,17 @@ public class WishlistController implements Initializable {
 
     public void addTruckToWishlist(Camion camion) {
         if (currentUser == null) {
-            showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA);
+            scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, 0);
             return;
         }
 
         if (wishlistTrucks.size() >= 6) {
-            showErrorAlert(Messaggi.WISHLIST_LIMITE_RAGGIUNTO, Messaggi.WISHLIST_LIMITE_RAGGIUNTO);
+            scenehandler.showAlert("Errore",Messaggi.WISHLIST_LIMITE_RAGGIUNTO, 0);
             return;
         }
 
         if (containsCamion(camion.id())) {
-            showInfoAlert(Messaggi.WISHLIST_CAMION_GIA_PRESENTE, Messaggi.WISHLIST_CAMION_GIA_PRESENTE);
+            scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_GIA_PRESENTE, 0);
             return;
         }
 
@@ -418,16 +429,16 @@ public class WishlistController implements Initializable {
                 if (addTask.getValue()) {
                     wishlistTrucks.add(camion);
                     updateUI();
-                    showSuccessAlert(Messaggi.WISHLIST_CAMION_AGGIUNTO, Messaggi.WISHLIST_CAMION_AGGIUNTO);
+                    scenehandler.showAlert("Successo",Messaggi.WISHLIST_CAMION_AGGIUNTO, 1);
                 } else {
-                    showErrorAlert(Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA);
+                    scenehandler.showAlert("Errore", Messaggi.WISHLIST_CAMION_ERRORE_AGGIUNTA, 0);
                 }
             });
         });
 
         addTask.setOnFailed(e -> {
             Platform.runLater(() -> {
-                showErrorAlert(Messaggi.WISHLIST_ERRORE, Messaggi.WISHLIST_ERRORE);
+                scenehandler.showAlert("Errore",Messaggi.WISHLIST_ERRORE, 0);
             });
         });
 
@@ -456,28 +467,31 @@ public class WishlistController implements Initializable {
         loadWishlistFromDatabase();
     }
 
-    // UTILITY METHODS
-    private void showErrorAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.ERROR);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+
+    @FXML private void onInfoAppClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.showAlert("Informazioni sull'app", Messaggi.app_information, 1);
+        }catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 
-    private void showInfoAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
+    @FXML private void onPrivacyClick(MouseEvent event) throws Exception {
+        try {
+            scenehandler.showAlert("Privacy", Messaggi.privacy_information, 1);
+        } catch (Exception e) {
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 
-    private void showSuccessAlert(String title, String message) {
-        Alert alert = new Alert(Alert.AlertType.INFORMATION);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText("✅ " + message);
-        alert.showAndWait();
+    @FXML private void onCondizioniClick(MouseEvent event) throws Exception {
+        try{
+            scenehandler.showAlert("Condizioni generali", Messaggi.general_condition, 1);
+        } catch (Exception e){
+            scenehandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            scenehandler.setHomeScene();
+        }
     }
 }

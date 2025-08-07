@@ -42,11 +42,42 @@
 /* Input */
 .input-field {
     -fx-padding: 8;
-    -fx-border-color: #ccc;
+    -fx-border-color: linear-gradient(to right, #ff6b35, #f7931e);
     -fx-border-radius: 8;
     -fx-background-radius: 8;
     -fx-font-size: 13px;
     -fx-pref-width: 250px;
+}
+
+/* Campi Password con StackPane */
+.password-field {
+    -fx-padding: 8 35 8 8; /* Padding extra a destra per il pulsante */
+    -fx-border-color: linear-gradient(to right, #ff6b35, #f7931e);
+    -fx-border-radius: 8;
+    -fx-background-radius: 8;
+    -fx-font-size: 13px;
+    -fx-pref-width: 250px;
+}
+
+/* Pulsante toggle password */
+.toggle-button {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-border-color: transparent;
+    -fx-cursor: hand;
+    -fx-font-size: 15px;
+    -fx-padding: 5;
+    -fx-background-radius: 6;
+    -fx-border-radius: 6;
+    -fx-text-fill: white;
+}
+
+.toggle-button:hover {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-background-radius: 6;
+}
+
+.toggle-button:pressed {
+    -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
 }
 
 /* Pulsante Registrazione */
@@ -59,6 +90,7 @@
     -fx-background-radius: 8;
     -fx-font-weight: bold;
 }
+
 .register-button:hover {
     -fx-background-color: #FF4500;
 }
@@ -68,6 +100,7 @@
     -fx-font-size: 12px;
     -fx-text-fill: #666666;
 }
+
 .login-link {
     -fx-font-size: 12px;
     -fx-font-weight: bold;
@@ -75,6 +108,7 @@
     -fx-cursor: hand;
 }
 
+/* Labels di errore e successo */
 .error-label {
     -fx-text-fill: red;
     -fx-font-size: 14px;
@@ -82,6 +116,17 @@
     -fx-background-color: #ffcccc;
     -fx-border-color: red;
     -fx-border-width: 1px;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
 }
 
-
+.success-label {
+    -fx-text-fill: green;
+    -fx-font-size: 14px;
+    -fx-padding: 10px;
+    -fx-background-color: #ccffcc;
+    -fx-border-color: green;
+    -fx-border-width: 1px;
+    -fx-background-radius: 5;
+    -fx-border-radius: 5;
+}

@@ -15,6 +15,7 @@ import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.beans.property.SimpleStringProperty;
+import javafx.scene.input.MouseEvent;
 import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
@@ -36,7 +37,6 @@ public class AdminController implements Initializable {
     private final DBConnessione dbconnessione = DBConnessione.getInstance();
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
 
-    @FXML private Rectangle footerBackground;
     @FXML private ImageView logoImageView;
 
     @FXML private TextField idCamionField;
@@ -69,6 +69,7 @@ public class AdminController implements Initializable {
     @FXML private TableColumn<Prenotazione, String> nomeCamionColumn;
     @FXML private TableColumn<Prenotazione, String> dataColumn;
     @FXML private TableColumn<Prenotazione, String> statoColumn;
+    @FXML private TableColumn<Prenotazione, String> azioniColumn;
     @FXML private Button refreshPrenotazioniBtn;
 
     private final ObservableList<Prenotazione> prenotazioniData = FXCollections.observableArrayList();
@@ -108,7 +109,7 @@ public class AdminController implements Initializable {
                 Image image = new Image(file.toURI().toString());
                 previewImageView.setImage(image);
             } catch (Exception e) {
-                showAlert("Errore", Messaggi.admin_immagine_error, Alert.AlertType.ERROR);
+                sceneHandler.showAlert("Errore", Messaggi.admin_immagine_error, 0);
             }
         }
     }
@@ -155,7 +156,7 @@ public class AdminController implements Initializable {
         } catch (IOException e) {
             System.err.println("Errore nel salvataggio dell'immagine: " + e.getMessage());
             Platform.runLater(() ->
-                    showAlert("Errore Immagine", "Impossibile salvare l'immagine: " + e.getMessage(), Alert.AlertType.ERROR)
+                    sceneHandler.showAlert("Errore Immagine", Messaggi.errore_generico, 0)
             );
             return false;
         }
@@ -212,18 +213,58 @@ public class AdminController implements Initializable {
             return new SimpleStringProperty(dataFormatted);
         });
 
-        statoColumn.setCellValueFactory(cellData ->
-                new SimpleStringProperty("Confermata")
-        );
+        // Imposta la colonna Azioni con pulsante Elimina
+        azioniColumn.setCellValueFactory(cellData -> new SimpleStringProperty("Elimina"));
+
+        azioniColumn.setCellFactory(column -> new TableCell<Prenotazione, String>() {
+            private final Button btn = new Button("Elimina");
+
+            {
+                btn.getStyleClass().add("danger-btn");
+                btn.setOnAction(event -> {
+                    Prenotazione prenotazione = getTableRow().getItem();
+                    if (prenotazione != null) {
+                        eliminaPrenotazione(prenotazione);
+                    }
+                });
+            }
+
+            @Override
+            protected void updateItem(String item, boolean empty) {
+                super.updateItem(item, empty);
+                if (!empty) {
+                    setGraphic(btn);
+                } else {
+                    setGraphic(null);
+                }
+            }
+        });
+
         prenotazioniTable.setItems(prenotazioniData);
     }
 
+    private void eliminaPrenotazione(Prenotazione prenotazione) {
+        Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
+        alert.setTitle("Conferma Eliminazione");
+        alert.setHeaderText("Eliminare la prenotazione?");
+        alert.setContentText("Utente: " + prenotazione.id_utente() + "\nCamion: " + prenotazione.nome_camion());
+
+        Optional<ButtonType> result = alert.showAndWait();
+
+        if (result.isPresent() && result.get() == ButtonType.OK) {
+            dbconnessione.removeSelectedPrenotazioniItem(prenotazione.nome_camion(), prenotazione.id_utente());
+            sceneHandler.showAlert("Successo", "Prenotazione eliminata con successo", 1);
+            loadPrenotazioni();
+        }
+    }
+
     @FXML
-    private void goToHome() {
+    private void goToHome() throws Exception {
         try {
             sceneHandler.setHomeScene();
         } catch (Exception e) {
-            showAlert("Errore", Messaggi.admin_home_error + ": " + e.getMessage(), Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
+            sceneHandler.setHomeScene();
         }
     }
 
@@ -265,8 +306,7 @@ public class AdminController implements Initializable {
                         if (!imageSuccess && selectedImageFile != null) {
                             // Se l'immagine non è stata salvata ma era selezionata, avvisa l'utente
                             Platform.runLater(() ->
-                                    showAlert("Avviso", Messaggi.admin_immagine_save_warning, Alert.AlertType.WARNING)
-                            );
+                                    sceneHandler.showAlert("Avviso", Messaggi.admin_immagine_save_warning, 0));
                         }
                         return true;
                     }
@@ -274,8 +314,8 @@ public class AdminController implements Initializable {
                     return false;
 
                 } catch (NumberFormatException e) {
-                    Platform.runLater(() -> showAlert("Errore Validazione",
-                            Messaggi.admin_numeric_validation_error, Alert.AlertType.ERROR));
+                    sceneHandler.showAlert("Errore ", Messaggi.admin_numeric_validation_error, 0);
+                    sceneHandler.setHomeScene();
                     return false;
                 }
             }
@@ -287,7 +327,7 @@ public class AdminController implements Initializable {
                     aggiungiCamionBtn.setText("Aggiungi Camion");
 
                     if (getValue()) {
-                        showAlert("Successo", Messaggi.admin_camion_aggiunto_success, Alert.AlertType.INFORMATION);
+                        sceneHandler.showAlert("Successo", Messaggi.admin_camion_aggiunto_success, 1);
                         clearForm();
                     }
                 });
@@ -298,7 +338,7 @@ public class AdminController implements Initializable {
                 Platform.runLater(() -> {
                     aggiungiCamionBtn.setDisable(false);
                     aggiungiCamionBtn.setText("Aggiungi Camion");
-                    showAlert("Errore", Messaggi.admin_camion_aggiunta_error, Alert.AlertType.ERROR);
+                    sceneHandler.showAlert("Errore", Messaggi.admin_camion_aggiunta_error, 0);
                 });
             }
         };
@@ -313,7 +353,7 @@ public class AdminController implements Initializable {
         String idCamion = idCamionRimuoviField.getText().trim();
 
         if (idCamion.isEmpty()) {
-            showAlert("Errore Validazione", Messaggi.admin_id_camion_empty_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.admin_id_camion_empty_error,0);
             return;
         }
 
@@ -325,7 +365,7 @@ public class AdminController implements Initializable {
         Optional<ButtonType> result = alert.showAndWait();
 
         if (result.isEmpty() || result.get() != ButtonType.OK) {
-            showAlert("Operazione annullata", Messaggi.admin_operazione_annullata, Alert.AlertType.INFORMATION);
+            sceneHandler.showAlert("Operazione annullata", Messaggi.admin_operazione_annullata, 1);
             return;
         }
 
@@ -352,11 +392,11 @@ public class AdminController implements Initializable {
                     rimuoviCamionBtn.setText("Rimuovi Camion");
 
                     if (getValue()) {
-                        showAlert("Successo", Messaggi.admin_camion_rimosso_success, Alert.AlertType.INFORMATION);
+                        sceneHandler.showAlert("Successo", Messaggi.admin_camion_rimosso_success, 1);
                         idCamionRimuoviField.clear();
                         loadPrenotazioni();
                     } else {
-                        showAlert("Attenzione", Messaggi.admin_camion_non_trovato, Alert.AlertType.WARNING);
+                        sceneHandler.showAlert("Attenzione", Messaggi.admin_camion_non_trovato, 0);
                     }
                 });
             }
@@ -368,13 +408,12 @@ public class AdminController implements Initializable {
                     rimuoviCamionBtn.setText("Rimuovi Camion");
 
                     Throwable exception = getException();
-                    String errorMessage = Messaggi.admin_rimozione_error;
                     if (exception != null) {
-                        errorMessage += ": " + exception.getMessage();
+                        sceneHandler.showAlert("Errore",Messaggi.admin_rimozione_error,0);
                         exception.printStackTrace();
                     }
 
-                    showAlert("Errore", errorMessage, Alert.AlertType.ERROR);
+                    sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
                 });
             }
         };
@@ -445,7 +484,7 @@ public class AdminController implements Initializable {
                 Platform.runLater(() -> {
                     refreshPrenotazioniBtn.setDisable(false);
                     refreshPrenotazioniBtn.setText("Aggiorna");
-                    showAlert("Errore", Messaggi.admin_caricamento_prenotazioni_error, Alert.AlertType.ERROR);
+                    sceneHandler.showAlert("Errore", Messaggi.admin_caricamento_prenotazioni_error, 0);
                 });
             }
         };
@@ -470,7 +509,7 @@ public class AdminController implements Initializable {
                 chiaviCamionField.getText().trim().isEmpty() ||
                 descrizioneCamionArea.getText().trim().isEmpty()) {
 
-            showAlert("Errore Validazione", Messaggi.admin_form_validation_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.admin_form_validation_error, 0);
             return false;
         }
 
@@ -479,18 +518,10 @@ public class AdminController implements Initializable {
             Double.parseDouble(kilometriCamionField.getText().trim());
             Double.parseDouble(prezzoCamionField.getText().trim());
         } catch (NumberFormatException e) {
-            showAlert("Errore Validazione", Messaggi.admin_numeric_validation_error, Alert.AlertType.ERROR);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.admin_numeric_validation_error, 0);
             return false;
         }
 
         return true;
-    }
-
-    private void showAlert(String title, String message, Alert.AlertType type) {
-        Alert alert = new Alert(type);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
 }

@@ -19,6 +19,7 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.*;
 
@@ -31,6 +32,7 @@ public class DBConnessione {
     private Label resultLabel;
     private Camion camion;
     public final ExecutorService executorService = Executors.newCachedThreadPool();
+    public final SceneHandler scenehandler = SceneHandler.getInstance();
 
     public Connection getConnection() {
         return con;
@@ -123,7 +125,7 @@ public class DBConnessione {
                 stmt.execute();
                 stmt.close();
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore database", "Errore nell'inserimento utente: " + e.getMessage(), 0);
+                scenehandler.showAlert("Errore database", "Errore nell'inserimento utente: " + e.getMessage(), 0);
             }
         }));
     }
@@ -179,7 +181,7 @@ public class DBConnessione {
                     stmt.close();
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
                 future.completeExceptionally(e);  // Completa il futuro con l'eccezione
             }
         });
@@ -206,7 +208,7 @@ public class DBConnessione {
                     }
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -238,7 +240,7 @@ public class DBConnessione {
                     }
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
         return future;
@@ -263,7 +265,7 @@ public class DBConnessione {
                     }
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
         return future;
@@ -290,7 +292,7 @@ public class DBConnessione {
                     }
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -320,7 +322,7 @@ public class DBConnessione {
                     future.complete(resultLabel);
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
         return future;
@@ -347,7 +349,7 @@ public class DBConnessione {
                     }
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -381,7 +383,7 @@ public class DBConnessione {
                 }
                 future.complete(cam);
             } catch (SQLException | ExecutionException | InterruptedException | TimeoutException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
         return future;
@@ -507,7 +509,7 @@ public class DBConnessione {
                 }
                 future.complete(pre);
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
         return future;
@@ -543,7 +545,7 @@ public class DBConnessione {
             } catch (SQLException e) {
                 future.completeExceptionally(e); // <--- QUESTA È FONDAMENTALE
                 Platform.runLater(() ->
-                        SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0)
+                        scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0)
                 );
             }
         }));
@@ -557,7 +559,7 @@ public class DBConnessione {
             Camion c = future.get(10, TimeUnit.SECONDS);
             return c.nome();
         } catch (ExecutionException | InterruptedException | TimeoutException e) {
-            SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+            scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
         }
         return null;
     }
@@ -578,7 +580,7 @@ public class DBConnessione {
 
                 if (find) {
                     // Mostra un messaggio di avviso se il camion è già prenotato
-                    Platform.runLater(() -> SceneHandler.getInstance().showAlert("Attenzione", Messaggi.add_prenotazioni_find_information, 1));
+                    Platform.runLater(() -> scenehandler.showAlert("Attenzione", Messaggi.add_prenotazioni_find_information, 1));
                     return;
                 }
 
@@ -595,13 +597,13 @@ public class DBConnessione {
                     stmt.close();
 
                     // Mostra un messaggio di conferma
-                    Platform.runLater(() -> SceneHandler.getInstance().showAlert("Conferma", Messaggi.conferma_prenotazione + LocalDate.of(anno, mese, giorno), 1));
+                    Platform.runLater(() -> scenehandler.showAlert("Conferma", Messaggi.conferma_prenotazione + LocalDate.of(anno, mese, giorno), 1));
                 } else {
                     // Mostra un messaggio di avviso se sono state fatte più di 6 prenotazioni
-                    Platform.runLater(() -> SceneHandler.getInstance().showAlert("Attenzione", Messaggi.add_prenotazioni_max_information, 1));
+                    Platform.runLater(() -> scenehandler.showAlert("Attenzione", Messaggi.add_prenotazioni_max_information, 1));
                 }
             } catch (SQLException | ExecutionException | InterruptedException | TimeoutException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -618,7 +620,7 @@ public class DBConnessione {
                 stmt.execute();
                 stmt.close();
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -635,7 +637,7 @@ public class DBConnessione {
                 stmt.execute();
                 stmt.close();
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -652,7 +654,7 @@ public class DBConnessione {
                     stmt.close();
                 }
             } catch (SQLException e) {
-                SceneHandler.getInstance().showAlert("Errore thread", Messaggi.thread_error, 0);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
             }
         }));
     }
@@ -663,7 +665,7 @@ public class DBConnessione {
                                   String descrizioneCamion, String categoriaCamion, String chiaviCamion) {
         try {
             if (con == null || con.isClosed()) {
-                Platform.runLater(() -> SceneHandler.getInstance().showAlert("Errore Database", "Connessione al database non disponibile.", 0));
+                Platform.runLater(() -> scenehandler.showAlert("Errore Database", "Connessione al database non disponibile.", 0));
                 return false;
             }
 
@@ -685,10 +687,10 @@ public class DBConnessione {
             stmt.execute();
             stmt.close();
 
-            Platform.runLater(() -> SceneHandler.getInstance().showAlert("Operazione riuscita", "Camion aggiunto con successo. L'annuncio completo del camion sarà visibile solo dopo il riavvio dell'applicazione.", 1));
+            Platform.runLater(() -> scenehandler.showAlert("Operazione riuscita", "Camion aggiunto con successo. L'annuncio completo del camion sarà visibile solo dopo il riavvio dell'applicazione.", 1));
             return true;
         } catch (SQLException e) {
-            Platform.runLater(() -> SceneHandler.getInstance().showAlert("Errore Database", "Impossibile aggiungere il camion: " + e.getMessage(), 0));
+            Platform.runLater(() -> scenehandler.showAlert("Errore Database", "Impossibile aggiungere il camion: " + e.getMessage(), 0));
             return false;
         }
     }
@@ -730,6 +732,106 @@ public class DBConnessione {
             e.printStackTrace();
             throw new RuntimeException("Errore database: " + e.getMessage(), e);
         }
+    }
+
+    public CompletableFuture<ArrayList<Camion>> advancedSearchCamions(String modello, int potenza, String maxPrice, String category, int maxKm, String cambio) {
+        CompletableFuture<ArrayList<Camion>> future = new CompletableFuture<>();
+        executorService.submit(createDaemonThread(() -> {
+            try {
+                ArrayList<Camion> results = new ArrayList<>();
+                if (con == null || con.isClosed()) {
+                    future.complete(results);
+                    return;
+                }
+
+                StringBuilder query = new StringBuilder("SELECT * FROM camion WHERE 1=1");
+                List<Object> parameters = new ArrayList<>();
+
+                // Filtro modello
+                if (modello != null && !modello.equals("Tutti")) {
+                    query.append(" AND modello = ?");
+                    parameters.add(modello);
+                }
+
+                // Filtro potenza minima
+                if (potenza > 200) {
+                    query.append(" AND potenza >= ?");
+                    parameters.add(potenza);
+                }
+
+                // Filtro prezzo massimo
+                if (maxPrice != null && !maxPrice.trim().isEmpty()) {
+                    try {
+                        int priceValue = Integer.parseInt(maxPrice);
+                        if (priceValue < 100000) {
+                            query.append(" AND CAST(REPLACE(prezzo, '.', '') AS UNSIGNED) <= ?");
+                            parameters.add(priceValue);
+                        }
+                    } catch (NumberFormatException e) {
+                        System.err.println("Errore nella conversione del prezzo: " + maxPrice);
+                    }
+                }
+
+                // Filtro categoria (nome del camion)
+                if (category != null && !category.equals("Tutti")) {
+                    query.append(" AND nome LIKE ?");
+                    parameters.add("%" + category + "%");
+                }
+
+                // Filtro chilometri massimi
+                if (maxKm < 2500000) {
+                    query.append(" AND CAST(REPLACE(kilometri, '.', '') AS UNSIGNED) <= ?");
+                    parameters.add(maxKm);
+                }
+
+                // Filtro cambio
+                if (cambio != null && !cambio.equals("Tutti")) {
+                    query.append(" AND cambio = ?");
+                    parameters.add(cambio);
+                }
+
+                // Ordina per prezzo crescente (convertito a numerico)
+                query.append(" ORDER BY CAST(REPLACE(prezzo, '.', '') AS UNSIGNED) ASC");
+
+                PreparedStatement stmt = con.prepareStatement(query.toString());
+
+                // Imposta i parametri
+                for (int i = 0; i < parameters.size(); i++) {
+                    Object param = parameters.get(i);
+                    if (param instanceof Integer) {
+                        stmt.setInt(i + 1, (Integer) param);
+                    } else {
+                        stmt.setString(i + 1, (String) param);
+                    }
+                }
+
+                ResultSet rs = stmt.executeQuery();
+
+                while (rs.next()) {
+                    Camion camion = new Camion(
+                            rs.getString("id"),
+                            rs.getString("nome"),
+                            rs.getString("modello"),
+                            rs.getInt("potenza"),
+                            rs.getString("kilometri"),
+                            rs.getString("carburante"),
+                            rs.getString("cambio"),
+                            rs.getInt("classeEmissioni"),
+                            rs.getString("anno"),
+                            rs.getString("prezzo"),
+                            rs.getString("descrizione"),
+                            rs.getString("categoria")
+                    );
+                    results.add(camion);
+                }
+
+                future.complete(results);
+            } catch (SQLException e) {
+                scenehandler.showAlert("Errore thread", "Errore durante la ricerca avanzata: " + e.getMessage(), 0);
+                future.complete(new ArrayList<>());
+            }
+        }));
+        return future;
     }
 
     private Thread createDaemonThread(Runnable runnable) {
