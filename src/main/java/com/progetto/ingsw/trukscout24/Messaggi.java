@@ -79,9 +79,9 @@ public class Messaggi {
     public static final String errore_login = "Errore nel caricamento della schermata di Login, sarai reindirizzato nella schermata Home.";
     public static final String errore_admin = "Errore nel caricamento della schermata Admin, sarai reindirizzato nella schermata Home.";
     public static final String errore_generico = "Si è verificato un errore imprevisto, sarai reindirizzato nella schermata Home.";
-    public static final String errore_recupero_password= "Si è verificato un errore nel caricamento della schermata recupero password, sarai reindirizzato nella schermata Home.";
-    public static final String errore_registrazione= "Si è verificato un errore nel caricamento della schermata di registrazione, sarai reindirizzato nella schermata Home.";
-
+    public static final String errore_recupero_password = "Si è verificato un errore nel caricamento della schermata recupero password, sarai reindirizzato nella schermata Home.";
+    public static final String errore_registrazione = "Si è verificato un errore nel caricamento della schermata di registrazione, sarai reindirizzato nella schermata Home.";
+    public static final String immagine_non_trovata = "Si è verificato un errore nel caricamento dell'immagine, sarai reindirizzato nella schermata Home.";
 
     // MESSAGGI LOGIN
     public final static String login_error = "";
@@ -112,11 +112,14 @@ public class Messaggi {
 
     // MESSAGGI REGISTRAZIONE
     public final static String registrazione_completata = "La tua registrazione è stata completata con successo! Puoi ora effettuare il login";
-    public final static String registration_field_empty_error = "Compilare tutti i campi per proseguire con la registrazione";
-    public final static String registration_email_error = "Inserire un email valida";
-    public final static String registration_password_error = "Le password inserite non coincidono";
-    public final static String registration_password_length_error = "La passowrd inserita non è valida, assicurarsi che la lunghezza sia di almeno 6 caratteri";
-    public final static String registration_email_exist_error = "L'indirizzo email inserito è associato ad un altro account, effettuare il login";
+    public final static String registratione_field_empty_error = "Compilare tutti i campi per proseguire con la registrazione";
+    public final static String registratione_password_error = "Le password inserite non coincidono";
+    public final static String registratione_password_length_error = "La password deve contenere almeno 6 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale (!@#$%^&*)";
+    public final static String registratione_email_exist_error = "L'indirizzo email inserito è associato ad un altro account, effettuare il login";
+    public final static String registratione_nome_error = "Il nome deve contenere almeno 3 caratteri e solo lettere";
+    public final static String registrazione_cognome_error = "Il nome deve contenere almeno 3 caratteri e solo lettere";
+    public final static String registrazione_telefono_error = "Il numero di telefono deve contenere tra 9 e 12 cifre";
+    public final static String registrazione_email_error = "Formato email non valido (es. nome1@dominio.it)";
 
     // MESSAGGI UTENTE
     public final static String UTENTE_NON_AUTENTICATO = "Errore Autenticazione: Utente non autenticato.";

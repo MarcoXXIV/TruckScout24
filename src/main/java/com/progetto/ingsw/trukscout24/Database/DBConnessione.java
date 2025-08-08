@@ -57,7 +57,7 @@ public class DBConnessione {
         if (con != null && !con.isClosed()) {
             System.out.println("Connesso!!!");
             Statement stmt = con.createStatement();
-            stmt.execute("PRAGMA journal_mode=WAL;"); // <--- QUESTA RIGA
+            stmt.execute("PRAGMA journal_mode=WAL;");
             stmt.close();
         }
     }
@@ -105,14 +105,12 @@ public class DBConnessione {
         return future;
     }
 
-    // Modifica il metodo insertUsers per crittografare la password
     public void insertUsers(String nome, String cognome, String email, Long numero_di_telefono, String password, Boolean isAdmin) {
         executorService.submit(createDaemonThread(() -> {
             try {
                 if (con == null || con.isClosed())
                     return;
 
-                // Crittografa la password prima di inserirla
                 String hashedPassword = encryptedPassword(password);
 
                 PreparedStatement stmt = con.prepareStatement("INSERT INTO utenti VALUES(?, ?, ?, ?, ?, ?);");
@@ -177,12 +175,12 @@ public class DBConnessione {
                                 rs.getString("prezzo"), rs.getString("descrizione"), rs.getString("categoria"));
                         camion.add(c);
                     }
-                    future.complete(camion);  // Completa il futuro con la lista di camion
+                    future.complete(camion);
                     stmt.close();
                 }
             } catch (SQLException e) {
                 scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
-                future.completeExceptionally(e);  // Completa il futuro con l'eccezione
+                future.completeExceptionally(e);
             }
         });
         return future;
@@ -297,9 +295,46 @@ public class DBConnessione {
         }));
     }
 
-    public ArrayList<Camion> getSimilarCamion() {
-        return similarCamion;
+    public CompletableFuture<ArrayList<Camion>> getSimilarCamions(String currentId, String category) {
+        CompletableFuture<ArrayList<Camion>> future = new CompletableFuture<>();
+        executorService.submit(createDaemonThread(() -> {
+            try {
+                ArrayList<Camion> similarCamions = new ArrayList<>();
+                if (this.con != null && !this.con.isClosed()) {
+                    String query = "SELECT * FROM camion WHERE categoria = ? AND id != ? ORDER BY RANDOM() LIMIT 5";
+                    PreparedStatement stmt = this.con.prepareStatement(query);
+                    stmt.setString(1, category);
+                    stmt.setString(2, currentId);
+                    ResultSet rs = stmt.executeQuery();
+
+                    while (rs.next()) {
+                        Camion camion = new Camion(
+                                rs.getString("id"),
+                                rs.getString("nome"),
+                                rs.getString("modello"),
+                                rs.getInt("potenza"),
+                                rs.getString("kilometri"),
+                                rs.getString("carburante"),
+                                rs.getString("cambio"),
+                                rs.getInt("classeEmissioni"),
+                                rs.getString("anno"),
+                                rs.getString("prezzo"),
+                                rs.getString("descrizione"),
+                                rs.getString("categoria")
+                        );
+                        similarCamions.add(camion);
+                    }
+                    future.complete(similarCamions);
+                }
+            } catch (SQLException e) {
+                future.completeExceptionally(e);
+                scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0);
+            }
+        }));
+        return future;
     }
+
+
 
     public CompletableFuture<Label> searchCamion(String searchText) {
         CompletableFuture<Label> future = new CompletableFuture<>();
@@ -423,7 +458,6 @@ public class DBConnessione {
         return false;
     }
 
-    // Metodo per rimuovere un singolo camion dalla wishlist
     public boolean removeCamionFromWishlist(String email, String camionId) {
         try {
             if (con == null || con.isClosed())
@@ -444,7 +478,6 @@ public class DBConnessione {
         }
     }
 
-    // Metodo per svuotare completamente la wishlist
     public boolean clearWishlist(String email) {
         try {
             if (con == null || con.isClosed())
@@ -464,7 +497,6 @@ public class DBConnessione {
         }
     }
 
-    // Metodo per contare gli elementi nella wishlist
     public CompletableFuture<Integer> getWishlistCount(String email) {
         CompletableFuture<Integer> future = new CompletableFuture<>();
         executorService.submit(createDaemonThread(() -> {
@@ -543,7 +575,7 @@ public class DBConnessione {
                 future.complete(pre);
 
             } catch (SQLException e) {
-                future.completeExceptionally(e); // <--- QUESTA È FONDAMENTALE
+                future.completeExceptionally(e);
                 Platform.runLater(() ->
                         scenehandler.showAlert("Errore thread", Messaggi.thread_error, 0)
                 );
@@ -570,7 +602,6 @@ public class DBConnessione {
                 CompletableFuture<ArrayList<Prenotazione>> future = getPrenotazione(email);
                 ArrayList<Prenotazione> nPre = future.get(10, TimeUnit.SECONDS);
                 boolean find = false;
-                // Verifica che il nome_camion non esista già nelle prenotazioni
                 for (Prenotazione nome : nPre) {
                     if (nome.nome_camion().equals(nome_camion)) {
                         find = true;
@@ -579,13 +610,11 @@ public class DBConnessione {
                 }
 
                 if (find) {
-                    // Mostra un messaggio di avviso se il camion è già prenotato
                     Platform.runLater(() -> scenehandler.showAlert("Attenzione", Messaggi.add_prenotazioni_find_information, 1));
                     return;
                 }
 
                 if (nPre.size() < 6) {
-                    // Verifica connessione
                     if (con == null || con.isClosed()) return;
                     PreparedStatement stmt = con.prepareStatement("INSERT INTO prenotazioni (id_utente, nome_camion, giorno, mese, anno) VALUES(?, ?, ?, ?, ?);");
                     stmt.setString(1, email);
@@ -596,10 +625,8 @@ public class DBConnessione {
                     stmt.execute();
                     stmt.close();
 
-                    // Mostra un messaggio di conferma
                     Platform.runLater(() -> scenehandler.showAlert("Conferma", Messaggi.conferma_prenotazione + LocalDate.of(anno, mese, giorno), 1));
                 } else {
-                    // Mostra un messaggio di avviso se sono state fatte più di 6 prenotazioni
                     Platform.runLater(() -> scenehandler.showAlert("Attenzione", Messaggi.add_prenotazioni_max_information, 1));
                 }
             } catch (SQLException | ExecutionException | InterruptedException | TimeoutException e) {
@@ -701,34 +728,28 @@ public class DBConnessione {
                 throw new SQLException("Connessione al database non disponibile.");
             }
 
-            // Rimuovi le prenotazioni associate al camion
             PreparedStatement deletePrenotazioniStmt = con.prepareStatement("DELETE FROM prenotazioni WHERE id_Camion = ?;");
             deletePrenotazioniStmt.setString(1, idCamion);
             int prenotazioniEliminate = deletePrenotazioniStmt.executeUpdate();
             deletePrenotazioniStmt.close();
 
-            // Rimuovi il camion dalle wishlist
             PreparedStatement deleteWishlistStmt = con.prepareStatement("DELETE FROM wishlist WHERE id_camion = ?;");
             deleteWishlistStmt.setString(1, idCamion);
             int wishlistEliminate = deleteWishlistStmt.executeUpdate();
             deleteWishlistStmt.close();
 
-            // Esegui la rimozione del camion
             PreparedStatement deleteCamionStmt = con.prepareStatement("DELETE FROM camion WHERE id = ?;");
             deleteCamionStmt.setString(1, idCamion);
             int rowsAffected = deleteCamionStmt.executeUpdate();
             deleteCamionStmt.close();
 
             if (rowsAffected > 0) {
-                System.out.println("Camion rimosso con successo. Prenotazioni eliminate: " + prenotazioniEliminate);
                 return true;
             } else {
-                System.out.println("Nessun camion trovato con l'ID fornito: " + idCamion);
                 return false;
             }
 
         } catch (SQLException e) {
-            System.err.println("Errore SQL nella rimozione camion: " + e.getMessage());
             e.printStackTrace();
             throw new RuntimeException("Errore database: " + e.getMessage(), e);
         }
@@ -747,19 +768,16 @@ public class DBConnessione {
                 StringBuilder query = new StringBuilder("SELECT * FROM camion WHERE 1=1");
                 List<Object> parameters = new ArrayList<>();
 
-                // Filtro modello
                 if (modello != null && !modello.equals("Tutti")) {
                     query.append(" AND modello = ?");
                     parameters.add(modello);
                 }
 
-                // Filtro potenza minima
                 if (potenza > 200) {
                     query.append(" AND potenza >= ?");
                     parameters.add(potenza);
                 }
 
-                // Filtro prezzo massimo
                 if (maxPrice != null && !maxPrice.trim().isEmpty()) {
                     try {
                         int priceValue = Integer.parseInt(maxPrice);
@@ -768,34 +786,28 @@ public class DBConnessione {
                             parameters.add(priceValue);
                         }
                     } catch (NumberFormatException e) {
-                        System.err.println("Errore nella conversione del prezzo: " + maxPrice);
+                        scenehandler.showAlert("Errore", Messaggi.errore_generico,0);
                     }
                 }
 
-                // Filtro categoria (nome del camion)
                 if (category != null && !category.equals("Tutti")) {
                     query.append(" AND nome LIKE ?");
                     parameters.add("%" + category + "%");
                 }
 
-                // Filtro chilometri massimi
                 if (maxKm < 2500000) {
                     query.append(" AND CAST(REPLACE(kilometri, '.', '') AS UNSIGNED) <= ?");
                     parameters.add(maxKm);
                 }
 
-                // Filtro cambio
                 if (cambio != null && !cambio.equals("Tutti")) {
                     query.append(" AND cambio = ?");
                     parameters.add(cambio);
                 }
 
-                // Ordina per prezzo crescente (convertito a numerico)
                 query.append(" ORDER BY CAST(REPLACE(prezzo, '.', '') AS UNSIGNED) ASC");
-
                 PreparedStatement stmt = con.prepareStatement(query.toString());
 
-                // Imposta i parametri
                 for (int i = 0; i < parameters.size(); i++) {
                     Object param = parameters.get(i);
                     if (param instanceof Integer) {

@@ -18,8 +18,7 @@ import javafx.scene.input.KeyEvent;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.AnchorPane;
 import javafx.util.Duration;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+
 
 public class RegistrazioneController {
 
@@ -37,8 +36,6 @@ public class RegistrazioneController {
     @FXML private Button togglePasswordButton;
     @FXML private Button toggleConfirmPasswordButton;
     @FXML private Node logoLabel;
-    @FXML private Label errorLabel;
-    @FXML private Label successLabel;
     @FXML private ProgressIndicator loadingIndicator;
     @FXML private CheckBox privacyCheckBox;
 
@@ -56,10 +53,7 @@ public class RegistrazioneController {
     }
 
     private void setupUI() {
-        if (errorLabel != null) errorLabel.setVisible(false);
-        if (successLabel != null) successLabel.setVisible(false);
         if (loadingIndicator != null) loadingIndicator.setVisible(false);
-
         if (passwordTextField != null) passwordTextField.setVisible(false);
         if (confermaPasswordTextField != null) confermaPasswordTextField.setVisible(false);
     }
@@ -92,14 +86,13 @@ public class RegistrazioneController {
         try{
             sceneHandler.setHomeScene();
         }catch (Exception e){
-            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico, 0);
             sceneHandler.setHomeScene();
         }
     }
 
     @FXML
     private void onRegisterClick(ActionEvent event) {
-        System.out.println("cliccato");
         performRegistration();
     }
 
@@ -157,65 +150,55 @@ public class RegistrazioneController {
         String password = passwordVisible ? passwordTextField.getText() : passwordField.getText();
         String confermaPassword = confirmPasswordVisible ? confermaPasswordTextField.getText() : confermaPasswordField.getText();
 
-        hideMessages();
+        resetFieldStyles();
 
         if (!validateInput(nome, cognome, email, password, confermaPassword, telefono)) {
-            System.out.println("Validazione fallita. Registrazione interrotta.");
             return;
         }
 
         setUIEnabled(false);
         showLoading(true);
 
-        // Vai direttamente all'inserimento, senza doppia validazione
         insertNewUser(nome, cognome, email, telefono, password);
     }
 
     private boolean validateInput(String nome, String cognome, String email, String password, String confermaPassword, String telefono) {
-
-        // Validazione nome
-        System.out.println("Validazione nome: " + nome);
         if (!Validazione.getInstance().isValidName(nome)) {
-            showError("Il nome deve contenere almeno 3 caratteri e solo lettere", nomeField);
+            highlightErrorField(nomeField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registratione_nome_error, 0);
             return false;
         }
 
-        // Validazione cognome
-        System.out.println("Validazione cognome: " + cognome);
         if (!Validazione.getInstance().isValidSurname(cognome)) {
-            showError("Il cognome deve contenere almeno 3 caratteri e solo lettere", cognomeField);
+            highlightErrorField(cognomeField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registrazione_cognome_error, 0);
             return false;
         }
 
-        // Validazione telefono (opzionale ma se inserito deve essere valido)
-        System.out.println("Validazione telefono: " + telefono);
         if (telefono != null && !telefono.isEmpty() && !Validazione.getInstance().isValidPhoneNumber(telefono)) {
-            showError("Il numero di telefono deve contenere tra 9 e 12 cifre", telefonoField);
+            highlightErrorField(telefonoField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registrazione_telefono_error, 0);
             return false;
         }
 
-        // Validazione email
-        System.out.println("Validazione email: " + email);
         if (!Validazione.getInstance().isValidEmailFormat(email)) {
-            showError("Formato email non valido (es. nome@dominio.it)", emailField);
+            highlightErrorField(emailField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registrazione_email_error, 0);
             return false;
         }
 
-        // Validazione password
-        System.out.println("Validazione password");
         if (!Validazione.getInstance().isValidPassword(password)) {
-            showError("La password deve contenere almeno 6 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale (!@#$%^&*)", passwordField);
+            highlightErrorField(passwordField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registratione_password_length_error, 0);
             return false;
         }
 
-        // Validazione conferma password
-        System.out.println("Validazione conferma password");
         if (!password.equals(confermaPassword)) {
-            showError("Le password non coincidono", confermaPasswordField);
+            highlightErrorField(confermaPasswordField);
+            sceneHandler.showAlert("Errore Validazione", Messaggi.registratione_password_error, 0);
             return false;
         }
 
-        System.out.println("✅ Tutte le validazioni superate!");
         return true;
     }
 
@@ -225,11 +208,9 @@ public class RegistrazioneController {
             protected Void call() throws Exception {
                 try {
                     Long numeroTelefono = telefono.isEmpty() ? null : Long.parseLong(telefono.replaceAll("[^0-9]", ""));
-                    System.out.println("Inizio inserimento utente nel database: " + nome + " " + cognome + " " + email);
                     DBConnessione.getInstance().insertUsers(nome, cognome, email, numeroTelefono, password, false);
-                    System.out.println("Inserimento completato con successo");
                 } catch (Exception e) {
-                    Logger.getLogger(RegistrazioneController.class.getName()).log(Level.SEVERE, "Errore nel salvataggio utente", e);
+                    sceneHandler.showAlert("Errore",Messaggi.errore_generico,0);
                     throw new RuntimeException("Errore nel salvataggio utente: " + e.getMessage());
                 }
                 return null;
@@ -240,14 +221,13 @@ public class RegistrazioneController {
                 Platform.runLater(() -> {
                     setUIEnabled(true);
                     showLoading(false);
-                    showSuccess("Registrazione completata con successo!");
+                    sceneHandler.showAlert("Successo", Messaggi.registrazione_completata, 1);
                     clearFields();
                     Timeline timeline = new Timeline(new KeyFrame(Duration.seconds(2.5), e -> {
                         try {
-                            System.out.println("Cambio scena verso il login...");
-                            SceneHandler.getInstance().setLoginScene();
+                            sceneHandler.setLoginScene();
                         } catch (Exception ex) {
-                            Logger.getLogger(RegistrazioneController.class.getName()).log(Level.SEVERE, "Errore nel reindirizzamento", ex);
+                            sceneHandler.showAlert("Errore", Messaggi.errore_login,0);
                         }
                     }));
                     timeline.play();
@@ -259,9 +239,7 @@ public class RegistrazioneController {
                 Platform.runLater(() -> {
                     setUIEnabled(true);
                     showLoading(false);
-                    Throwable exception = getException();
-                    String errorMessage = exception != null ? exception.getMessage() : "Errore sconosciuto durante la registrazione";
-                    showError("Errore durante la registrazione: " + errorMessage, registerButton);
+                    sceneHandler.showAlert("Errore Registrazione", Messaggi.errore_registrazione, 0);
                 });
             }
         };
@@ -273,8 +251,8 @@ public class RegistrazioneController {
 
     private void setupValidation() {
         emailField.textProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue.isEmpty() && errorLabel != null && errorLabel.isVisible()) {
-                hideMessages();
+            if (!newValue.isEmpty()) {
+                resetFieldStyles();
             }
         });
 
@@ -371,20 +349,12 @@ public class RegistrazioneController {
         }
     }
 
-    private void showError(String message, Node field) {
-        // Reset tutti i campi
+    private void highlightErrorField(Node field) {
         resetFieldStyles();
-
-        // Evidenzia il campo con errore
         if (field instanceof TextField) {
             ((TextField) field).setStyle("-fx-border-color: #ff6b6b;");
         } else if (field instanceof PasswordField) {
             ((PasswordField) field).setStyle("-fx-border-color: #ff6b6b;");
-        }
-
-        if (errorLabel != null) {
-            errorLabel.setText(message);
-            errorLabel.setVisible(true);
         }
     }
 
@@ -395,24 +365,6 @@ public class RegistrazioneController {
         if (telefonoField != null) telefonoField.setStyle("");
         passwordField.setStyle("");
         if (confermaPasswordField != null) confermaPasswordField.setStyle("");
-    }
-
-    private void showSuccess(String message) {
-        if (successLabel != null) {
-            if (!successLabel.isVisible() || !successLabel.getText().equals(message)) {
-                successLabel.setText(message);
-                successLabel.setVisible(true);
-            }
-        }
-        if (errorLabel != null && errorLabel.isVisible()) {
-            errorLabel.setVisible(false);
-        }
-    }
-
-    private void hideMessages() {
-        if (errorLabel != null) errorLabel.setVisible(false);
-        if (successLabel != null) successLabel.setVisible(false);
-        resetFieldStyles();
     }
 
     private void setUIEnabled(boolean enabled) {

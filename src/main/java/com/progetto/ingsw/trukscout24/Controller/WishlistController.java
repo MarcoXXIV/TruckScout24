@@ -52,10 +52,8 @@ public class WishlistController implements Initializable {
 
         if (currentUser != null) {
             currentUserEmail = currentUser.email();
-            System.out.println(currentUserEmail);
             loadWishlistFromDatabase();
         } else {
-            System.out.println("Utente non autenticato - mostrando stato vuoto");
             showEmptyState();
         }
     }
@@ -125,7 +123,6 @@ public class WishlistController implements Initializable {
             try {
                 System.out.println("Apertura dettagli camion: " + camion.nome());
             } catch (Exception e) {
-                System.err.println("Errore nell'apertura della product view: " + e.getMessage());
                 scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, 0);
             }
         });
@@ -157,22 +154,21 @@ public class WishlistController implements Initializable {
                 imageView.setImage(image);
                 imageLoaded = true;
             } else {
-                System.out.println("Immagine non trovata: " + fullPath);
+                scenehandler.showAlert("Errore", Messaggi.immagine_non_trovata,0);
             }
         }
 
         if (!imageLoaded) {
-            System.out.println("ID immagine non trovato o immagine non disponibile.");
+            scenehandler.showAlert("Errore", Messaggi.immagine_non_trovata,0);
         }
 
         imageView.setOnMouseClicked(event -> {
             try {
                 openProductView(camion);
             } catch (Exception e) {
-                System.err.println("Errore nell'apertura della product view: " + e.getMessage());
                 scenehandler.showAlert("Errore",Messaggi.WISHLIST_CAMION_ERRORE_APERTURA, 0);
             }
-            event.consume(); // evita la propagazione
+            event.consume();
         });
 
         Label nameLabel = new Label(camion.nome());
@@ -265,7 +261,6 @@ public class WishlistController implements Initializable {
         }
     }
 
-    // EVENT HANDLERS
     @FXML
     private void HomeClick(MouseEvent event) throws Exception {
         try{
@@ -302,7 +297,6 @@ public class WishlistController implements Initializable {
         }
     }
 
-    // DATABASE OPERATIONS
     private void removeCamionFromWishlist(Camion camion) {
         Alert alert = new Alert(Alert.AlertType.CONFIRMATION);
         alert.setTitle("💔 Rimuovi dai Preferiti");

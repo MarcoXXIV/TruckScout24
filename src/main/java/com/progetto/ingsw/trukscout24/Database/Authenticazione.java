@@ -22,7 +22,7 @@ public class Authenticazione {
 
     public boolean isAdmin() {
         if (this.utente == null) {
-            return false; // O lanciare un'eccezione se necessario
+            return false;
         }
         return this.utente.isAdmin();
     }

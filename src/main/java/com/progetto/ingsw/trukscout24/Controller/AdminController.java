@@ -11,12 +11,9 @@ import javafx.concurrent.Task;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.control.*;
-import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.beans.property.SimpleStringProperty;
-import javafx.scene.input.MouseEvent;
-import javafx.scene.shape.Rectangle;
 import javafx.stage.FileChooser;
 
 import java.io.File;
@@ -68,7 +65,6 @@ public class AdminController implements Initializable {
     @FXML private TableColumn<Prenotazione, String> idUtenteColumn;
     @FXML private TableColumn<Prenotazione, String> nomeCamionColumn;
     @FXML private TableColumn<Prenotazione, String> dataColumn;
-    @FXML private TableColumn<Prenotazione, String> statoColumn;
     @FXML private TableColumn<Prenotazione, String> azioniColumn;
     @FXML private Button refreshPrenotazioniBtn;
 
@@ -116,7 +112,7 @@ public class AdminController implements Initializable {
 
     private boolean salvaImmagine(String idCamion) {
         if (selectedImageFile == null) {
-            return true; // Nessuna immagine da salvare, ma non è un errore
+            return true;
         }
 
         try {
@@ -131,7 +127,7 @@ public class AdminController implements Initializable {
             if (lastDot > 0) {
                 extension = fileName.substring(lastDot).toLowerCase();
             } else {
-                extension = ".jpg"; // Default se non c'è estensione
+                extension = ".jpg";
             }
 
             String[] supportedExtensions = {".jpg", ".jpeg", ".png", ".gif", ".bmp"};
@@ -140,7 +136,7 @@ public class AdminController implements Initializable {
                     .anyMatch(ext -> ext.equals(finalExtension));
 
             if (!isSupported) {
-                extension = ".jpg"; // Forza JPG se l'estensione non è supportata
+                extension = ".jpg";
             }
 
             String destinationFileName = idCamion + extension;
@@ -150,11 +146,9 @@ public class AdminController implements Initializable {
 
             Files.copy(selectedImageFile.toPath(), destinationPath, StandardCopyOption.REPLACE_EXISTING);
 
-            System.out.println("Immagine salvata: " + destinationPath.toString());
             return true;
 
         } catch (IOException e) {
-            System.err.println("Errore nel salvataggio dell'immagine: " + e.getMessage());
             Platform.runLater(() ->
                     sceneHandler.showAlert("Errore Immagine", Messaggi.errore_generico, 0)
             );
@@ -171,12 +165,11 @@ public class AdminController implements Initializable {
                     Path imagePath = resourcesDir.resolve(idCamion + ext);
                     if (Files.exists(imagePath)) {
                         Files.delete(imagePath);
-                        System.out.println("Immagine precedente rimossa: " + imagePath);
                     }
                 }
             }
         } catch (IOException e) {
-            System.err.println("Errore nella rimozione dell'immagine esistente: " + e.getMessage());
+            sceneHandler.showAlert("Errore", Messaggi.errore_generico,0);
         }
     }
 
@@ -213,7 +206,6 @@ public class AdminController implements Initializable {
             return new SimpleStringProperty(dataFormatted);
         });
 
-        // Imposta la colonna Azioni con pulsante Elimina
         azioniColumn.setCellValueFactory(cellData -> new SimpleStringProperty("Elimina"));
 
         azioniColumn.setCellFactory(column -> new TableCell<Prenotazione, String>() {
@@ -304,7 +296,6 @@ public class AdminController implements Initializable {
                     if (dbSuccess) {
                         boolean imageSuccess = salvaImmagine(idCamion);
                         if (!imageSuccess && selectedImageFile != null) {
-                            // Se l'immagine non è stata salvata ma era selezionata, avvisa l'utente
                             Platform.runLater(() ->
                                     sceneHandler.showAlert("Avviso", Messaggi.admin_immagine_save_warning, 0));
                         }
@@ -375,14 +366,8 @@ public class AdminController implements Initializable {
         Task<Boolean> task = new Task<Boolean>() {
             @Override
             protected Boolean call() throws Exception {
-                System.out.println("Tentativo rimozione camion ID: " + idCamion);
-
                 rimuoviImmagineEsistente(idCamion);
-
-                boolean risultato = dbconnessione.rimuoviCamion(idCamion);
-                System.out.println("Risultato rimozione DB: " + risultato);
-
-                return risultato;
+                return dbconnessione.rimuoviCamion(idCamion);
             }
 
             @Override
@@ -439,7 +424,6 @@ public class AdminController implements Initializable {
         chiaviCamionField.clear();
         descrizioneCamionArea.clear();
 
-        // Pulisci anche l'immagine
         selectedImageFile = null;
         previewImageView.setImage(null);
         nomeImmagineLabel.setText("Nessuna immagine selezionata");

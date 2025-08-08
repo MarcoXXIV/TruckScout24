@@ -32,11 +32,9 @@ public class HomeController implements Initializable {
     @FXML private Button wishlistButton;
     @FXML private Button AccediButton;
 
-    // Header elements
     @FXML private TextField mainSearchField;
     @FXML private Button mainSearchButton;
 
-    // Advanced Search Elements
     @FXML private Label advancedSearchLink;
     @FXML private VBox advancedSearchSection;
     @FXML private VBox brandSelectionSection;
@@ -53,10 +51,8 @@ public class HomeController implements Initializable {
     @FXML private Button applyFiltersButton;
     @FXML private Button resetFiltersButton;
 
-    // Main content
     @FXML private GridPane trucksGrid;
 
-    // Footer
     @FXML private Label statusLabel;
 
     private final SceneHandler scenehandler = SceneHandler.getInstance();
@@ -89,37 +85,31 @@ public class HomeController implements Initializable {
     }
 
     private void initializeAdvancedSearchComponents() {
-        // Inizializza ComboBox categorie
         categoryComboBox.setItems(FXCollections.observableArrayList(
                 "Tutti", "VOLVO", "MERCEDES BENZ", "MAN", "SCANIA", "IVECO", "RENAULT", "DAF"
         ));
         categoryComboBox.setValue("Tutti");
 
-        // Inizializza ComboBox cambio
         cambioComboBox.setItems(FXCollections.observableArrayList(
                 "Tutti", "MANUALE", "AUTOMATICO", "SEMI-AUTOMATICO"
         ));
         cambioComboBox.setValue("Tutti");
 
-        // Inizializza ComboBox modello
         modelloCombobox.setItems(FXCollections.observableArrayList(
                 "Tutti", "TRATTORE", "SEMI RIMORCHIO", "SCARRABILE", "RIBALTABILE", "COPERTO"
         ));
         modelloCombobox.setValue("Tutti");
 
-        // Inizializza slider kilometri con formato corretto
         kmSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int kmValue = newVal.intValue();
             kmValueLabel.setText(String.format("%,d km", kmValue).replace(",", "."));
         });
 
-        // Inizializza slider prezzo con formato corretto
         priceSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int priceValue = newVal.intValue();
             priceValueLabel.setText(String.format("%,d €", priceValue).replace(",", "."));
         });
 
-        // Inizializza slider potenza con formato corretto
         potenzaSlider.valueProperty().addListener((obs, oldVal, newVal) -> {
             int potenzaValue = newVal.intValue();
             potenzaValueLabel.setText(potenzaValue + " CV");
@@ -136,7 +126,6 @@ public class HomeController implements Initializable {
         advancedSearchLink.setText(isAdvancedSearchVisible ? "🔼 Nascondi Ricerca Avanzata" : "🔍 Ricerca Avanzata");
 
         if (!isAdvancedSearchVisible) {
-            // Reset filtri quando chiudo la ricerca avanzata
             resetAdvancedFilters();
             loadInitialCamions();
         }
@@ -148,7 +137,6 @@ public class HomeController implements Initializable {
             return;
         }
 
-        // Raccogli i parametri di ricerca
         int maxPrice = (int) priceSlider.getValue();
         String category = categoryComboBox.getValue();
         int maxKm = (int) kmSlider.getValue();
@@ -157,7 +145,6 @@ public class HomeController implements Initializable {
         int potenza = (int) potenzaSlider.getValue();
 
         searchInProgress = true;
-        statusLabel.setText("🔍 Ricerca avanzata in corso...");
         trucksGrid.getChildren().clear();
 
         CompletableFuture.supplyAsync(() -> {
@@ -170,20 +157,22 @@ public class HomeController implements Initializable {
             Platform.runLater(() -> {
                 searchInProgress = false;
                 if (results != null && !results.isEmpty()) {
-                    populateGridWithCamions(results);
+                    try {
+                        populateGridWithCamions(results);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     statusLabel.setText("✅ Trovati " + results.size() + " risultati con i filtri applicati");
                 } else {
                     trucksGrid.getChildren().clear();
-                    statusLabel.setText("❌ " + Messaggi.advanced_search_no_results_return_home);
                     scenehandler.showAlert("Nessun risultato", Messaggi.advanced_search_no_results_return_home, 0);
 
-                    // Torna alla visualizzazione normale dopo 2 secondi
                     new Thread(() -> {
                         try {
                             Thread.sleep(2000);
                             Platform.runLater(() -> {
-                                toggleAdvancedSearch(); // Chiude la ricerca avanzata
-                                loadInitialCamions(); // Ricarica tutti i camion
+                                toggleAdvancedSearch();
+                                loadInitialCamions();
                             });
                         } catch (InterruptedException e) {
                             Thread.currentThread().interrupt();
@@ -194,7 +183,6 @@ public class HomeController implements Initializable {
         }).exceptionally(e -> {
             Platform.runLater(() -> {
                 searchInProgress = false;
-                statusLabel.setText("❌ Errore durante la ricerca avanzata");
                 scenehandler.showAlert("Errore", "Errore durante la ricerca avanzata: " + e.getMessage(), 0);
             });
             return null;
@@ -215,13 +203,11 @@ public class HomeController implements Initializable {
 
     private void manageUserButtonsVisibility() {
         if (!scenehandler.isUserAuthenticated()) {
-            // Non autenticato
             AccediButton.setVisible(true);
             wishlistButton.setVisible(false);
             userButton.setVisible(false);
             AdminButton.setVisible(false);
         } else {
-            // Autenticato
             AccediButton.setVisible(false);
             userButton.setVisible(true);
             wishlistButton.setVisible(true);
@@ -240,7 +226,11 @@ public class HomeController implements Initializable {
             }
         }, databaseExecutor).thenAccept(camions -> {
             Platform.runLater(() -> {
-                populateGridWithCamions(camions);
+                try {
+                    populateGridWithCamions(camions);
+                } catch (Exception e) {
+                    throw new RuntimeException(e);
+                }
                 statusLabel.setText(Messaggi.home_showing_all_camions + " (" + camions.size() + ")");
             });
         }).exceptionally(e -> {
@@ -252,7 +242,7 @@ public class HomeController implements Initializable {
         });
     }
 
-    private void populateGridWithCamions(List<Camion> allCamions) {
+    private void populateGridWithCamions(List<Camion> allCamions) throws Exception {
         if (allCamions != null && !allCamions.isEmpty()) {
             Collections.shuffle(allCamions);
         }
@@ -281,7 +271,7 @@ public class HomeController implements Initializable {
         }
     }
 
-    private VBox createCamionCard(Camion camion) {
+    private VBox createCamionCard(Camion camion) throws Exception {
         VBox box = new VBox(5);
         box.getStyleClass().add("camion-card");
         box.setPrefWidth(300);
@@ -292,7 +282,6 @@ public class HomeController implements Initializable {
             try {
                 openProductView(camion);
             } catch (Exception e) {
-                System.err.println("Errore nell'apertura della product view: " + e.getMessage());
                 scenehandler.showAlert("Errore", Messaggi.home_product_view_error, 0);
             }
         });
@@ -325,7 +314,8 @@ public class HomeController implements Initializable {
             if (imageUrl != null) {
                 imageView.setImage(new Image(imageUrl.toExternalForm()));
             } else {
-                System.out.println("Immagine non trovata: " + fullPath);
+                scenehandler.showAlert("Errore", Messaggi.immagine_non_trovata,0);
+                scenehandler.setHomeScene();
             }
         }
 
@@ -534,7 +524,6 @@ public class HomeController implements Initializable {
             return;
         }
 
-        System.out.println("Ricerca per: " + searchText);
         searchInProgress = true;
 
         statusLabel.setText(Messaggi.home_search_in_progress + ": " + searchText + "...");
@@ -572,7 +561,11 @@ public class HomeController implements Initializable {
                         Platform.runLater(() -> {
                             searchInProgress = false;
                             if (searchedCamions != null && !searchedCamions.isEmpty()) {
-                                populateGridWithCamions(searchedCamions);
+                                try {
+                                    populateGridWithCamions(searchedCamions);
+                                } catch (Exception e) {
+                                    throw new RuntimeException(e);
+                                }
                                 statusLabel.setText(Messaggi.home_search_results_found + " " + searchedCamions.size() + " risultati per: " + searchText);
                             } else {
                                 trucksGrid.getChildren().clear();
@@ -611,7 +604,6 @@ public class HomeController implements Initializable {
         });
     }
 
-    // Brand selection methods con gestione errori
     @FXML private void onVolvoClick() throws Exception {
         try {
             handleBrandSelection("VOLVO");
@@ -691,7 +683,11 @@ public class HomeController implements Initializable {
         }, databaseExecutor).thenAccept(filteredCamions -> {
             Platform.runLater(() -> {
                 if (filteredCamions != null && !filteredCamions.isEmpty()) {
-                    populateGridWithCamions(filteredCamions);
+                    try {
+                        populateGridWithCamions(filteredCamions);
+                    } catch (Exception e) {
+                        throw new RuntimeException(e);
+                    }
                     statusLabel.setText(Messaggi.home_brand_showing + " " + filteredCamions.size() + " camion " + brand);
                 } else {
                     trucksGrid.getChildren().clear();
@@ -707,7 +703,6 @@ public class HomeController implements Initializable {
         });
     }
 
-    // Navigation methods
     @FXML private void userClick(MouseEvent event) throws Exception {
         try{
             scenehandler.setUtenteScene();

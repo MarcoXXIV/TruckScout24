@@ -11,9 +11,12 @@ import javafx.fxml.Initializable;
 import javafx.scene.control.Button;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Label;
+import javafx.scene.control.ScrollPane;
 import javafx.scene.image.Image;
 import javafx.scene.image.ImageView;
 import javafx.scene.input.MouseEvent;
+import javafx.scene.layout.HBox;
+import javafx.scene.layout.VBox;
 
 import java.net.URL;
 import java.time.LocalDate;
@@ -33,11 +36,14 @@ public class ProductViewController implements Initializable {
     @FXML private DatePicker datePicker;
     @FXML private Button prenotaButton;
 
-    // Footer
+    @FXML private HBox similarTrucksContainer;
+    @FXML private Label similarTrucksLabel;
+
     @FXML private Label statusLabel;
 
     private Camion currentCamion;
     private boolean isInWishlist = false;
+    private ArrayList<Camion> similarCamions = new ArrayList<>();
 
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
     private final DBConnessione dbconnessione = DBConnessione.getInstance();
@@ -46,6 +52,13 @@ public class ProductViewController implements Initializable {
     public void initialize(URL location, ResourceBundle resources) {
         updateWishlistButtonState();
         setupDatePicker();
+        initializeSimilarTrucksContainer();
+    }
+
+    private void initializeSimilarTrucksContainer() {
+        if (similarTrucksContainer != null) {
+            similarTrucksContainer.setSpacing(25);
+        }
     }
 
     private void setupDatePicker() {
@@ -82,6 +95,104 @@ public class ProductViewController implements Initializable {
 
         loadMainImage();
         checkWishlistStatus();
+        loadSimilarCamions();
+    }
+
+    private void loadSimilarCamions() {
+        if (currentCamion == null || currentCamion.categoria() == null) return;
+
+        Task<ArrayList<Camion>> loadSimilarTask = new Task<>() {
+            @Override
+            protected ArrayList<Camion> call() throws Exception {
+                CompletableFuture<ArrayList<Camion>> future = dbconnessione.getSimilarCamions(currentCamion.id(), currentCamion.categoria());
+                return future.get();
+            }
+        };
+
+        loadSimilarTask.setOnSucceeded(e -> Platform.runLater(() -> {
+            similarCamions = loadSimilarTask.getValue();
+            displaySimilarCamions();
+        }));
+
+        loadSimilarTask.setOnFailed(e -> Platform.runLater(() -> {
+            if (similarTrucksLabel != null) {
+                similarTrucksLabel.setText("Nessun camion simile trovato");
+            }
+        }));
+
+        Thread loadThread = new Thread(loadSimilarTask);
+        loadThread.setDaemon(true);
+        loadThread.start();
+    }
+
+    private void displaySimilarCamions() {
+        if (similarTrucksContainer == null || similarCamions == null || similarCamions.isEmpty()) {
+            if (similarTrucksLabel != null) {
+                similarTrucksLabel.setText("Nessun camion simile trovato");
+            }
+            return;
+        }
+
+        similarTrucksContainer.getChildren().clear();
+
+        for (Camion camion : similarCamions) {
+            VBox camionCard = createSimilarCamionCard(camion);
+            similarTrucksContainer.getChildren().add(camionCard);
+        }
+
+        if (similarCamions.isEmpty() && similarTrucksLabel != null) {
+            similarTrucksLabel.setText("Nessun camion simile trovato nella categoria: " + currentCamion.categoria());
+        }
+    }
+
+    private VBox createSimilarCamionCard(Camion camion) {
+        VBox card = new VBox();
+        card.getStyleClass().add("similar-truck-card");
+        card.setPrefWidth(350);
+        card.setSpacing(15);
+
+        ImageView imageView = new ImageView();
+        imageView.getStyleClass().add("similar-truck-image");
+        loadSimilarCamionImage(imageView, camion.id());
+        imageView.setFitHeight(300);
+        imageView.setFitWidth(300);
+
+        Label nameLabel = new Label(camion.nome());
+        nameLabel.getStyleClass().add("similar-truck-name");
+        nameLabel.setWrapText(true);
+
+        Label priceLabel = new Label("€ " + camion.prezzo());
+        priceLabel.getStyleClass().add("similar-truck-price");
+
+        Label infoLabel = new Label("🛣 "+ camion.kilometri() + "KM " + " • " + "📅 "+ camion.anno() + " • " + "⚡ " + camion.potenza() + " CV");
+        infoLabel.getStyleClass().add("similar-truck-info");
+
+        card.getChildren().addAll(imageView, nameLabel, priceLabel, infoLabel);
+
+        card.setOnMouseClicked(e -> {
+            try {
+                sceneHandler.setSelectedCamion(camion);
+                sceneHandler.setProductViewScene();
+            } catch (Exception ex) {
+                sceneHandler.showAlert("Errore", "Impossibile caricare il camion selezionato", 0);
+            }
+        });
+
+        return card;
+    }
+
+    private void loadSimilarCamionImage(ImageView imageView, String camionId) {
+        try {
+            String imagePath = "/com/progetto/ingsw/trukscout24/immagini/" + camionId + ".jpg";
+            URL imageUrl = getClass().getResource(imagePath);
+            if (imageUrl != null) {
+                imageView.setImage(new Image(imageUrl.toExternalForm()));
+            } else {
+                imageView.setImage(null);
+            }
+        } catch (Exception e) {
+            imageView.setImage(null);
+        }
     }
 
     private void checkWishlistStatus() {
@@ -103,7 +214,7 @@ public class ProductViewController implements Initializable {
         }));
 
         checkTask.setOnFailed(e -> Platform.runLater(() ->
-                System.out.println("Errore nel controllo wishlist: " + e.getSource().getException())
+                sceneHandler.showAlert("Errore",Messaggi.errore_registrazione,0)
         ));
 
         Thread checkThread = new Thread(checkTask);
@@ -305,7 +416,6 @@ public class ProductViewController implements Initializable {
             sceneHandler.setHomeScene();
         }
     }
-
 
     @FXML private void onPrivacyClick(MouseEvent event) throws Exception {
         try {

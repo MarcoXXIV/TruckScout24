@@ -3,7 +3,6 @@ package com.progetto.ingsw.trukscout24.View;
 import com.progetto.ingsw.trukscout24.Controller.ProductViewController;
 import com.progetto.ingsw.trukscout24.Database.Authenticazione;
 import com.progetto.ingsw.trukscout24.HelloApplication;
-//import com.progetto.ingsw.Message;
 
 import com.progetto.ingsw.trukscout24.Model.Camion;
 import com.progetto.ingsw.trukscout24.Model.Utente;
@@ -50,7 +49,6 @@ public class SceneHandler {
     public void setCurrentUser(Utente user) {
         this.currentUser = user;
         this.currentUserEmail = user != null ? user.email() : null;
-        // Sincronizza con Authenticazione
         if (user != null) {
             auth.login(user);
         } else {
@@ -91,19 +89,15 @@ public class SceneHandler {
         return selectedCamion;
     }
 
-    // Modifica o aggiungi questo metodo
     public void setProductViewScene() throws Exception {
-        // Usa il metodo loadFXML esistente per caricare il file
         FXMLLoader loader = new FXMLLoader(getClass().getResource(FXML_PATH + "ProductView.fxml"));
         Parent root = loader.load();
 
-        // Ottieni il controller e passa i dati del camion
         ProductViewController controller = loader.getController();
         if (selectedCamion != null) {
             controller.setCamion(selectedCamion);
         }
 
-        // Crea la nuova scene mantenendo le dimensioni esistenti
         if (scene == null) {
             scene = new Scene(root);
         } else {

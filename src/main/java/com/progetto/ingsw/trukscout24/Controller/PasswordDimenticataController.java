@@ -26,12 +26,12 @@ public class PasswordDimenticataController {
         String confirmPassword = confirmPasswordField.getText();
 
         if (email.isEmpty() || newPassword.isEmpty() || confirmPassword.isEmpty()) {
-            sceneHandler.showAlert("Errore", Messaggi.registration_field_empty_error, 0);
+            sceneHandler.showAlert("Errore", Messaggi.registratione_field_empty_error, 0);
             return;
         }
 
         if (!newPassword.equals(confirmPassword)) {
-            sceneHandler.showAlert("Errore", Messaggi.registration_password_error, 0);
+            sceneHandler.showAlert("Errore", Messaggi.registratione_password_error, 0);
             return;
         }
 

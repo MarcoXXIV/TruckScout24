@@ -224,13 +224,13 @@
 
         <!-- Sinistra -->
         <Label fx:id="statusLabel" styleClass="footer-label"
-               text="TrukScout24 - La tua piattaforma per veicoli commerciali premium" />
+               text="🚛 TrukScout24 - La tua Concessonaria di Camion Preferita!" />
 
         <!-- Spazio flessibile -->
         <Region HBox.hgrow="ALWAYS" />
 
         <!-- Link informativi -->
-        <HBox spacing="200.0" alignment="CENTER">
+        <HBox spacing="150.0" alignment="CENTER">
             <Label text="Informazioni sull'app"
                    onMouseClicked="#onInfoAppClick"
                    styleClass="footer-link" />

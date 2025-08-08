@@ -152,10 +152,7 @@ public class LoginController {
                 Platform.runLater(() -> {
                     Utente user = getValue();
                     if (user != null) {
-                        System.out.println("Login successo per l'email: " + email);
-
                         sceneHandler.loginUser(user);
-
                         try {
                             sceneHandler.setHomeScene();
                         } catch (Exception e) {

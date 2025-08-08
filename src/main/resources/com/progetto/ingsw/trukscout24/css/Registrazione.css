@@ -9,7 +9,7 @@
 .form-container {
     -fx-background-color: white;
     -fx-background-radius: 20;
-    -fx-padding: 30;
+    -fx-padding: 25;
     -fx-spacing: 20;
     -fx-max-width: 500px;
     -fx-effect: dropshadow(gaussian, rgba(0, 0, 0, 0.25), 20, 0.5, 0, 0);
@@ -35,7 +35,7 @@
 .label-field {
     -fx-font-size: 13px;
     -fx-font-weight: bold;
-    -fx-text-fill: #333;
+    -fx-text-fill: #000;
     -fx-min-width: 100px;
 }
 
@@ -47,6 +47,8 @@
     -fx-background-radius: 8;
     -fx-font-size: 13px;
     -fx-pref-width: 250px;
+    -fx-prompt-text-fill: grey;
+    -fx-text-fill: #000;
 }
 
 /* Campi Password con StackPane */
@@ -57,6 +59,15 @@
     -fx-background-radius: 8;
     -fx-font-size: 13px;
     -fx-pref-width: 250px;
+    -fx-prompt-text-fill: grey;
+    -fx-text-fill: #000;
+}
+
+.text-field:focused,
+.password-field:focused,
+.input-field:focused{
+    -fx-border-color: linear-gradient(to right, #667eea, #764ba2);
+    -fx-border-width: 2px;
 }
 
 /* Pulsante toggle password */
@@ -64,7 +75,7 @@
     -fx-background-color: linear-gradient(to right, #667eea, #764ba2);
     -fx-border-color: transparent;
     -fx-cursor: hand;
-    -fx-font-size: 15px;
+    -fx-font-size: 16px;
     -fx-padding: 5;
     -fx-background-radius: 6;
     -fx-border-radius: 6;
@@ -106,27 +117,4 @@
     -fx-font-weight: bold;
     -fx-text-fill: #FF6B00;
     -fx-cursor: hand;
-}
-
-/* Labels di errore e successo */
-.error-label {
-    -fx-text-fill: red;
-    -fx-font-size: 14px;
-    -fx-padding: 10px;
-    -fx-background-color: #ffcccc;
-    -fx-border-color: red;
-    -fx-border-width: 1px;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
-}
-
-.success-label {
-    -fx-text-fill: green;
-    -fx-font-size: 14px;
-    -fx-padding: 10px;
-    -fx-background-color: #ccffcc;
-    -fx-border-color: green;
-    -fx-border-width: 1px;
-    -fx-background-radius: 5;
-    -fx-border-radius: 5;
 }
