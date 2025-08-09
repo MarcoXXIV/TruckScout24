@@ -239,7 +239,7 @@ public class WishlistController implements Initializable {
         trucksFlowPane.setManaged(!isEmpty);
 
         if (wishlistCountLabel != null) {
-            wishlistCountLabel.setText(String.format("(%d/6)", wishlistTrucks.size()));
+            wishlistCountLabel.setText(String.format("(%d/12)", wishlistTrucks.size()));
         }
 
         if (!isEmpty) {
@@ -401,7 +401,7 @@ public class WishlistController implements Initializable {
             return;
         }
 
-        if (wishlistTrucks.size() >= 6) {
+        if (wishlistTrucks.size() >= 12) {
             scenehandler.showAlert("Errore",Messaggi.WISHLIST_LIMITE_RAGGIUNTO, 0);
             return;
         }
@@ -454,7 +454,7 @@ public class WishlistController implements Initializable {
     }
 
     public boolean isWishlistFull() {
-        return wishlistTrucks.size() >= 6;
+        return wishlistTrucks.size() >= 12;
     }
 
     public void refreshWishlist() {

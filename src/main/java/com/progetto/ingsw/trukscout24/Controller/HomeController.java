@@ -62,9 +62,14 @@ public class HomeController implements Initializable {
     private volatile boolean searchInProgress = false;
     private boolean isAdvancedSearchVisible = false;
 
+    private static HomeController instance;
+
     @Override
     public void initialize(URL location, ResourceBundle resources) {
         try {
+            // Salva l'istanza corrente
+            instance = this;
+
             DBConnessione dbConnessione = DBConnessione.getInstance();
             dbConnessione.createConnection();
 
@@ -82,6 +87,11 @@ public class HomeController implements Initializable {
         } catch (Exception e) {
             throw new RuntimeException(Messaggi.home_db_connection_error, e);
         }
+    }
+
+    // Metodo statico per ottenere l'istanza corrente
+    public static HomeController getInstance() {
+        return instance;
     }
 
     private void initializeAdvancedSearchComponents() {
@@ -248,7 +258,7 @@ public class HomeController implements Initializable {
         }
 
         List<Camion> selectedCamions = allCamions != null ?
-                allCamions.subList(0, Math.min(12, allCamions.size())) :
+                allCamions.subList(0, Math.min(18, allCamions.size())) :
                 new ArrayList<>();
 
         trucksGrid.getChildren().clear();
@@ -518,7 +528,6 @@ public class HomeController implements Initializable {
         }
     }
 
-
     private void performSearch(String searchText) {
         if (searchInProgress) {
             return;
@@ -748,7 +757,6 @@ public class HomeController implements Initializable {
             scenehandler.setHomeScene();
         }
     }
-
 
     @FXML private void onPrivacyClick(MouseEvent event) throws Exception {
         try {

@@ -23,8 +23,11 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.text.NumberFormat;
+import java.text.ParseException;
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Locale;
 import java.util.Optional;
 import java.util.ResourceBundle;
 import java.util.concurrent.CompletableFuture;
@@ -33,6 +36,7 @@ public class AdminController implements Initializable {
 
     private final DBConnessione dbconnessione = DBConnessione.getInstance();
     private final SceneHandler sceneHandler = SceneHandler.getInstance();
+    private final NumberFormat numberFormatIT = NumberFormat.getInstance(Locale.ITALY);
 
     @FXML private ImageView logoImageView;
 
@@ -175,7 +179,7 @@ public class AdminController implements Initializable {
 
     private void setupComboBoxes() {
         carburanteCamionCombo.setItems(FXCollections.observableArrayList(
-                "DESEL", "GPL", "Metano", "Ibrido"
+                "DIESEL", "GPL", "METANO", "IBRIDO"
         ));
 
         cambioCamionCombo.setItems(FXCollections.observableArrayList(
@@ -260,6 +264,34 @@ public class AdminController implements Initializable {
         }
     }
 
+    // Metodo helper per parsare i numeri usando il formato italiano
+    private Double parseItalianDouble(String value) throws ParseException {
+        if (value == null || value.trim().isEmpty()) {
+            throw new ParseException("Valore vuoto", 0);
+        }
+
+        // Rimuove gli spazi
+        value = value.trim();
+
+        // Il NumberFormat.getInstance(Locale.ITALY) gestisce automaticamente:
+        // - Il punto (.) come separatore delle migliaia
+        // - La virgola (,) come separatore decimale
+        Number number = numberFormatIT.parse(value);
+        return number.doubleValue();
+    }
+
+    private Integer parseItalianInteger(String value) throws ParseException {
+        if (value == null || value.trim().isEmpty()) {
+            throw new ParseException("Valore vuoto", 0);
+        }
+
+        value = value.trim();
+
+        // Per gli interi rimuoviamo solo i separatori delle migliaia
+        Number number = numberFormatIT.parse(value);
+        return number.intValue();
+    }
+
     @FXML
     private void aggiungiCamion() {
         if (!validateForm()) {
@@ -277,13 +309,13 @@ public class AdminController implements Initializable {
                 try {
                     String nomeCamion = nomeCamionField.getText().trim();
                     String modelloCamion = modelloCamionField.getText().trim();
-                    Integer potenzaCamion = Integer.parseInt(potenzaCamionField.getText().trim());
-                    Double kilometriCamion = Double.parseDouble(kilometriCamionField.getText().trim());
+                    Integer potenzaCamion = parseItalianInteger(potenzaCamionField.getText().trim());
+                    String kilometriCamion = kilometriCamionField.getText().trim();
                     String carburanteCamion = carburanteCamionCombo.getValue();
                     String cambioCamion = cambioCamionCombo.getValue();
                     Integer classeEmissioniCamion = classeEmissioniCombo.getValue();
                     String annoCamion = annoCamionField.getText().trim();
-                    Double prezzoCamion = Double.parseDouble(prezzoCamionField.getText().trim());
+                    String prezzoCamion = prezzoCamionField.getText().trim();
                     String descrizioneCamion = descrizioneCamionArea.getText().trim();
                     String categoriaCamion = categoriaCamionCombo.getValue();
                     String chiaviCamion = chiaviCamionField.getText().trim();
@@ -304,9 +336,19 @@ public class AdminController implements Initializable {
 
                     return false;
 
-                } catch (NumberFormatException e) {
-                    sceneHandler.showAlert("Errore ", Messaggi.admin_numeric_validation_error, 0);
-                    sceneHandler.setHomeScene();
+                } catch (ParseException e) {
+                    Platform.runLater(() -> {
+                        sceneHandler.showAlert("Errore Formato Numeri",
+                                "Inserisci i numeri nel formato italiano:\n" +
+                                        "- Usa la virgola (,) per i decimali\n" +
+                                        "- Usa il punto (.) per le migliaia\n" +
+                                        "Esempio: 12.000 per km, 45.000,90 per prezzi", 0);
+                    });
+                    return false;
+                } catch (Exception e) {
+                    Platform.runLater(() -> {
+                        sceneHandler.showAlert("Errore ", Messaggi.admin_numeric_validation_error, 0);
+                    });
                     return false;
                 }
             }
@@ -318,8 +360,13 @@ public class AdminController implements Initializable {
                     aggiungiCamionBtn.setText("Aggiungi Camion");
 
                     if (getValue()) {
-                        sceneHandler.showAlert("Successo", Messaggi.admin_camion_aggiunto_success, 1);
+                        sceneHandler.showAlert("Successo", "Camion aggiunto con successo! sarai reindirizzato alla home", 1);
                         clearForm();
+                        try {
+                            sceneHandler.setHomeScene();
+                        } catch (Exception e) {
+                            throw new RuntimeException(e);
+                        }
                     }
                 });
             }
@@ -329,7 +376,6 @@ public class AdminController implements Initializable {
                 Platform.runLater(() -> {
                     aggiungiCamionBtn.setDisable(false);
                     aggiungiCamionBtn.setText("Aggiungi Camion");
-                    sceneHandler.showAlert("Errore", Messaggi.admin_camion_aggiunta_error, 0);
                 });
             }
         };
@@ -338,6 +384,7 @@ public class AdminController implements Initializable {
         thread.setDaemon(true);
         thread.start();
     }
+
 
     @FXML
     private void rimuoviCamion() {
@@ -498,11 +545,17 @@ public class AdminController implements Initializable {
         }
 
         try {
-            Integer.parseInt(potenzaCamionField.getText().trim());
-            Double.parseDouble(kilometriCamionField.getText().trim());
-            Double.parseDouble(prezzoCamionField.getText().trim());
-        } catch (NumberFormatException e) {
-            sceneHandler.showAlert("Errore Validazione", Messaggi.admin_numeric_validation_error, 0);
+            parseItalianInteger(potenzaCamionField.getText().trim());
+            parseItalianDouble(kilometriCamionField.getText().trim());
+            parseItalianDouble(prezzoCamionField.getText().trim());
+        } catch (ParseException e) {
+            sceneHandler.showAlert("Errore Formato Numeri",
+                    "Inserisci i numeri nel formato italiano:\n" +
+                            "- Usa la virgola (,) per i decimali\n" +
+                            "- Usa il punto (.) per le migliaia\n" +
+                            "Esempi validi:\n" +
+                            "  Chilometri: 12.000 oppure 150.000\n" +
+                            "  Prezzo: 45.000,90 oppure 12.500", 0);
             return false;
         }
 

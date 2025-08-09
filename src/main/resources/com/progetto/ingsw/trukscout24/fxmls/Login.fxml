@@ -82,7 +82,7 @@
                <font>
                   <Font size="14.0" />
                </font></Hyperlink>
-   
+
                <!-- Link registrazione - FUORI dal form-box -->
                <VBox alignment="CENTER" spacing="8" styleClass="register-section">
                    <VBox.margin>

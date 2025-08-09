@@ -436,7 +436,7 @@ public class DBConnessione {
                 }
             }
 
-            if (nCam.size() < 6 && !find) {
+            if (nCam.size() < 12 && !find) {
                 if (con == null || con.isClosed())
                     return false;
 
@@ -687,8 +687,8 @@ public class DBConnessione {
     }
 
     public boolean aggiungiCamion(String idCamion, String nomeCamion, String modelloCamion, Integer potenzaCamion,
-                                  Double kilometriCamion, String carburanteCamion, String cambioCamion,
-                                  Integer classeEmissioniCamion, String annoCamion, Double prezzoCamion,
+                                  String kilometriCamion, String carburanteCamion, String cambioCamion,
+                                  Integer classeEmissioniCamion, String annoCamion, String prezzoCamion,
                                   String descrizioneCamion, String categoriaCamion, String chiaviCamion) {
         try {
             if (con == null || con.isClosed()) {
@@ -701,12 +701,12 @@ public class DBConnessione {
             stmt.setString(2, nomeCamion);
             stmt.setString(3, modelloCamion);
             stmt.setInt(4, potenzaCamion);
-            stmt.setDouble(5, kilometriCamion);
+            stmt.setString(5, kilometriCamion);
             stmt.setString(6, carburanteCamion);
             stmt.setString(7, cambioCamion);
             stmt.setInt(8, classeEmissioniCamion);
             stmt.setString(9, annoCamion);
-            stmt.setDouble(10, prezzoCamion);
+            stmt.setString(10, prezzoCamion);
             stmt.setString(11, descrizioneCamion);
             stmt.setString(12, categoriaCamion);
             stmt.setString(13, chiaviCamion);
@@ -714,13 +714,13 @@ public class DBConnessione {
             stmt.execute();
             stmt.close();
 
-            Platform.runLater(() -> scenehandler.showAlert("Operazione riuscita", "Camion aggiunto con successo. L'annuncio completo del camion sarà visibile solo dopo il riavvio dell'applicazione.", 1));
             return true;
         } catch (SQLException e) {
-            Platform.runLater(() -> scenehandler.showAlert("Errore Database", "Impossibile aggiungere il camion: " + e.getMessage(), 0));
+            Platform.runLater(() -> scenehandler.showAlert("Errore Database", Messaggi.errore_generico , 0));
             return false;
         }
     }
+
 
     public boolean rimuoviCamion(String idCamion) {
         try {
@@ -728,7 +728,7 @@ public class DBConnessione {
                 throw new SQLException("Connessione al database non disponibile.");
             }
 
-            PreparedStatement deletePrenotazioniStmt = con.prepareStatement("DELETE FROM prenotazioni WHERE id_Camion = ?;");
+            PreparedStatement deletePrenotazioniStmt = con.prepareStatement("DELETE FROM prenotazioni WHERE nome_camion = ?;");
             deletePrenotazioniStmt.setString(1, idCamion);
             int prenotazioniEliminate = deletePrenotazioniStmt.executeUpdate();
             deletePrenotazioniStmt.close();

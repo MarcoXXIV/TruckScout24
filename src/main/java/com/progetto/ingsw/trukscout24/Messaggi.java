@@ -37,7 +37,6 @@ public class Messaggi {
     // MESSAGGI ADMIN
     public final static String admin_form_validation_error = "Tutti i campi sono obbligatori";
     public final static String admin_numeric_validation_error = "Verifica i campi numerici (potenza, chilometri, prezzo)";
-    public final static String admin_camion_aggiunto_success = "Camion aggiunto con successo!";
     public final static String admin_camion_aggiunta_error = "Errore durante l'aggiunta del camion";
     public final static String admin_immagine_error = "Impossibile caricare l'immagine selezionata";
     public final static String admin_immagine_save_warning = "Camion aggiunto ma errore nel salvataggio dell'immagine";
@@ -60,7 +59,7 @@ public class Messaggi {
     public final static String home_wishlist_login_required = "Devi essere autenticato per usare la wishlist";
     public final static String home_camion_added_to_wishlist = "aggiunto ai preferiti!";
     public final static String home_camion_removed_from_wishlist = "rimosso dai preferiti!";
-    public final static String home_wishlist_add_error = "Impossibile aggiungere ai preferiti.\n• Hai raggiunto il limite massimo (6 camion)\n• Il camion è già presente nella lista";
+    public final static String home_wishlist_add_error = "Impossibile aggiungere ai preferiti.\n• Hai raggiunto il limite massimo (12 camion)\n• Il camion è già presente nella lista";
     public final static String home_wishlist_remove_error = "Impossibile rimuovere dai preferiti";
     public final static String home_wishlist_add_exception = "Errore durante l'aggiunta ai preferiti";
     public final static String home_wishlist_remove_exception = "Errore durante la rimozione dai preferiti";
@@ -105,7 +104,7 @@ public class Messaggi {
     public final static String productview_booking_failed = "Errore durante la prenotazione: ";
     public final static String wishlist_added = "aggiunto ai preferiti!";
     public final static String wishlist_removed = "rimosso dai preferiti!";
-    public final static String wishlist_limit_or_duplicate = "Impossibile aggiungere ai preferiti.\n• Hai raggiunto il limite massimo (6 camion)\n• Il camion è già presente nella lista";
+    public final static String wishlist_limit_or_duplicate = "Impossibile aggiungere ai preferiti.\n• Hai raggiunto il limite massimo (12 camion)\n• Il camion è già presente nella lista";
     public final static String wishlist_add_failed = "Errore durante l'aggiunta ai preferiti: ";
     public final static String wishlist_remove_failed = "Impossibile rimuovere dai preferiti";
     public final static String wishlist_remove_error = "Errore durante la rimozione dai preferiti: ";
@@ -129,7 +128,7 @@ public class Messaggi {
     public final static String PRENOTAZIONE_CANCELLATA = "La prenotazione è stata rimossa con successo!";
     public final static String CAMPI_PASSWORD_OBBLIGATORI = "Tutti i campi password sono obbligatori.";
     public final static String PASSWORD_NON_COINCIDONO = "Le password non corrispondono.";
-    public final static String PASSWORD_TROPPO_CORTA = "La password deve essere di almeno 6 caratteri.";
+    public final static String PASSWORD_TROPPO_CORTA = "La password deve contenere almeno 6 caratteri, una maiuscola, una minuscola, un numero e un carattere speciale (!@#$%^&*)";
     public final static String UTENTE_NON_IDENTIFICATO = "Utente non identificato. Impossibile cambiare la password.";
     public final static String PASSWORD_CAMBIATA = "La password è stata modificata con successo!";
     public final static String LOGOUT = "Logout effettuato con successo.";
